@@ -1,10 +1,10 @@
 
-<h1 align="center">JAVA SDK For Ontology  </h1>
+<h1 align="center">Kotlin SDK For Ontology  </h1>
 <h4 align="center">Version 1.0.0 </h4>
 
 ## Overview
 
-This is a comprehensive Java library for the Ontology blockchain. Currently, it supports local wallet management, digital identity management, digital asset management,  deployment and invoke for Smart Contract , and communication with Ontology Blockchain. The future will also support more rich functions and applications .
+This is a comprehensive Kotlin library for the Ontology blockchain. Currently, it supports local wallet management, digital identity management, digital asset management,  deployment and invoke for Smart Contract , and communication with Ontology Blockchain. The future will also support more rich functions and applications .
 
 ## Getting started
 
