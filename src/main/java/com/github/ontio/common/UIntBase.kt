@@ -26,7 +26,6 @@ import java.util.Arrays
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
-import com.github.ontio.io.*
 
 /**
  * Custom type base abstract class, it defines the storage and the serialization
