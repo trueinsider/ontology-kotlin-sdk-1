@@ -11,3 +11,5 @@
 test-output
 .externalToolBuilders
 coverage-error.log
+.gradle/
+out/
