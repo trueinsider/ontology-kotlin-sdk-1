@@ -41,10 +41,10 @@ constructor(url: String) {
 
     private val nextId: Double
         get() {
-            var d = 0.0
+            var d: Double
             do {
                 d = Math.random()
-            } while (("" + d).indexOf("E") != -1)
+            } while (d.toString().indexOf("E") != -1)
             return d
         }
 

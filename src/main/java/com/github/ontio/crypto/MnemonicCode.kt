@@ -101,7 +101,7 @@ object MnemonicCode {
         val mnemonicCodesStr = String(rawMns)
         println(mnemonicCodesStr)
         val rawkey = MnemonicCode.getPrikeyFromMnemonicCodesStrBip44(mnemonicCodesStr)
-        val addressNew = Account(rawkey, SignatureScheme.SHA256WITHECDSA).addressU160!!.toBase58()
+        val addressNew = Account(rawkey, SignatureScheme.SHA256WITHECDSA).addressU160.toBase58()
         val addressNewHashTemp = Digest.sha256(Digest.sha256(addressNew.toByteArray()))
         val saltNew = Arrays.copyOfRange(addressNewHashTemp, 0, 4)
         if (!Arrays.equals(saltNew, salt)) {

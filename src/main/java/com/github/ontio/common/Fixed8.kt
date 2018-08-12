@@ -131,7 +131,7 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
         fun max(first: Fixed8, vararg others: Fixed8): Fixed8 {
             var first = first
             for (other in others) {
-                if (first.compareTo(other) < 0) {
+                if (first < other) {
                     first = other
                 }
             }
@@ -141,7 +141,7 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
         fun min(first: Fixed8, vararg others: Fixed8): Fixed8 {
             var first = first
             for (other in others) {
-                if (first.compareTo(other) > 0) {
+                if (first > other) {
                     first = other
                 }
             }

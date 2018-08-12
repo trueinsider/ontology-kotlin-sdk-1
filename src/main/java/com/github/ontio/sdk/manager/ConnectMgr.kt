@@ -172,7 +172,7 @@ class ConnectMgr {
      */
     @Throws(ConnectorException::class, Exception::class)
     fun syncSendRawTransaction(hexData: String): Any {
-        val rs = connector!!.sendRawTransaction(hexData) as String
+        connector!!.sendRawTransaction(hexData)
         val hash = Transaction.deserializeFrom(Helper.hexToBytes(hexData)).hash().toString()
         println("Transaction hash is: $hash, Please waitting result... ")
         return waitResult(hash)
@@ -275,7 +275,7 @@ class ConnectMgr {
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    fun getMerkleProof(hash: String): Any {
+    fun getMerkleProof(hash: String): Map<String, Any> {
         var hash = hash
         hash = hash.replace("0x", "")
         return connector!!.getMerkleProof(hash)
@@ -296,7 +296,6 @@ class ConnectMgr {
     @Throws(Exception::class)
     fun waitResult(hash: String): Any {
         var objEvent: Any? = null
-        var objTxState: Any? = null
         var notInpool = 0
         for (i in 0..19) {
             try {
@@ -304,7 +303,7 @@ class ConnectMgr {
                 objEvent = connector!!.getSmartCodeEvent(hash)
                 if (objEvent == "") {
                     Thread.sleep(1000)
-                    objTxState = connector!!.getMemPoolTxState(hash)
+                    connector!!.getMemPoolTxState(hash)
                     continue
                 }
                 if ((objEvent as Map<*, *>)["Notify"] != null) {

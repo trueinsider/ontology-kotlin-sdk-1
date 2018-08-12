@@ -69,10 +69,7 @@ class TreeHasher {
     @Throws(Exception::class)
     fun HashFullTree(leaves: Array<ByteArray>): UInt256 {
         val length = leaves.size
-        val leafhashes = arrayOfNulls<UInt256>(length) as Array<UInt256>
-        for (i in 0 until length) {
-            leafhashes[i] = hash_leaf(leaves[i])
-        }
+        val leafhashes = Array(length) { i -> hash_leaf(leaves[i]) }
         val obj = _hash_full(leafhashes, 0, length.toLong())
 
         if (obj.hashes!!.size != countBit(length.toLong())) {
@@ -84,27 +81,29 @@ class TreeHasher {
     @Throws(Exception::class)
     private fun _hash_full(leaves: Array<UInt256>, l_idx: Long, r_idx: Long): Obj {
         val width = r_idx - l_idx
-        if (width == 0L) {
-            return Obj(hash_empty(), null)
-        } else if (width == 1L) {
-            val leaf_hash = leaves[l_idx.toInt()]
-            return Obj(leaf_hash, arrayOf(leaf_hash))
-        } else {
-            val split_width = 1 shl (countBit(width - 1) - 1)
-            val lObj = _hash_full(leaves, l_idx, l_idx + split_width)
-            if (lObj.hashes!!.size != 1) {
-                throw Exception(ErrorCode.LeftTreeFull)
+        when (width) {
+            0L -> return Obj(hash_empty(), null)
+            1L -> {
+                val leaf_hash = leaves[l_idx.toInt()]
+                return Obj(leaf_hash, arrayOf(leaf_hash))
             }
-            val rObj = _hash_full(leaves, l_idx + split_width, r_idx)
-            val root_hash = hash_children(lObj.root_hash, rObj.root_hash)
-            var hashes: Array<UInt256>? = null
-            if ((split_width * 2).toLong() == width) {
-                hashes = arrayOf(root_hash)
-            } else {
-                hashes = Arrays.copyOf(lObj.hashes, lObj.hashes!!.size + rObj.hashes!!.size)
-                System.arraycopy(rObj.hashes, 0, hashes!!, lObj.hashes!!.size, rObj.hashes!!.size)
+            else -> {
+                val split_width = 1 shl (countBit(width - 1) - 1)
+                val lObj = _hash_full(leaves, l_idx, l_idx + split_width)
+                if (lObj.hashes!!.size != 1) {
+                    throw Exception(ErrorCode.LeftTreeFull)
+                }
+                val rObj = _hash_full(leaves, l_idx + split_width, r_idx)
+                val root_hash = hash_children(lObj.root_hash, rObj.root_hash)
+                val hashes: Array<UInt256>?
+                if ((split_width * 2).toLong() == width) {
+                    hashes = arrayOf(root_hash)
+                } else {
+                    hashes = Arrays.copyOf(lObj.hashes, lObj.hashes!!.size + rObj.hashes!!.size)
+                    System.arraycopy(rObj.hashes, 0, hashes, lObj.hashes!!.size, rObj.hashes!!.size)
+                }
+                return Obj(root_hash, hashes)
             }
-            return Obj(root_hash, hashes)
         }
     }
 

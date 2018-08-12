@@ -20,26 +20,25 @@
 package com.github.ontio.smartcontract.nativevm
 
 import com.alibaba.fastjson.JSONObject
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.addMultiSign
+import com.github.ontio.OntSdk.addSign
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
 import com.github.ontio.account.Account
 import com.github.ontio.common.Address
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
 import com.github.ontio.core.asset.State
-import com.github.ontio.core.asset.TransferFrom
-import com.github.ontio.core.asset.Transfers
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.sdk.exception.SDKException
+import com.github.ontio.smartcontract.Vm.buildNativeParams
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
-
-import java.util.ArrayList
-
 
 /**
  *
  */
-class Ong(private val sdk: OntSdk) {
+class Ong {
     private val ontContract = "0000000000000000000000000000000000000001"
     val contractAddress = "0000000000000000000000000000000000000002"
 
@@ -62,12 +61,12 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
-        val tx = makeTransfer(sendAcct.addressU160!!.toBase58(), recvAddr, amount, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(sendAcct)))
+        val tx = makeTransfer(sendAcct.addressU160.toBase58(), recvAddr, amount, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(sendAcct)))
         if (sendAcct != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -96,12 +95,12 @@ class Ong(private val sdk: OntSdk) {
         }
 
         val multiAddr = Address.addressFromMultiPubKeys(sendAccts.size, *pubKeys)
-        val tx = makeTransfer(multiAddr.toBase58(), recvAddr, amount, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
+        val tx = makeTransfer(multiAddr.toBase58(), recvAddr, amount, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
         for (i in sendAccts.indices) {
-            sdk.addMultiSign(tx, M, pubKeys, sendAccts[i])
+            addMultiSign(tx, M, pubKeys, sendAccts[i])
         }
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -126,13 +125,12 @@ class Ong(private val sdk: OntSdk) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
 
-
-        val list = ArrayList()
-        val listStruct = ArrayList()
+        val list = mutableListOf<Any>()
+        val listStruct = mutableListOf<Struct>()
         listStruct.add(Struct().add(Address.decodeBase58(sendAddr), Address.decodeBase58(recvAddr), amount))
         list.add(listStruct)
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transfer", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transfer", args, payer, gaslimit, gasprice)
     }
 
     @Throws(Exception::class)
@@ -144,14 +142,14 @@ class Ong(private val sdk: OntSdk) {
             throw SDKException(ErrorCode.ParamError)
         }
 
-        val list = ArrayList()
-        val listStruct = ArrayList()
+        val list = mutableListOf<Any>()
+        val listStruct = mutableListOf<Struct>()
         for (i in states.indices) {
             listStruct.add(Struct().add(states[i].from, states[i].to, states[i].value))
         }
         list.add(listStruct)
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transfer", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transfer", args, payer, gaslimit, gasprice)
     }
 
     /**
@@ -164,12 +162,12 @@ class Ong(private val sdk: OntSdk) {
         if (address == null || address == "") {
             throw SDKException(ErrorCode.ParamErr("address should not be null"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Address.decodeBase58(address))
         val arg = NativeBuildParams.createCodeParamsScript(list)
 
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "balanceOf", arg, null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "balanceOf", arg, null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return if (res == null || res == "") {
             0
@@ -187,12 +185,12 @@ class Ong(private val sdk: OntSdk) {
         if (fromAddr == null || fromAddr == "" || toAddr == null || toAddr == "") {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(Address.decodeBase58(fromAddr), Address.decodeBase58(toAddr)))
         val arg = NativeBuildParams.createCodeParamsScript(list)
 
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "allowance", arg, null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "allowance", arg, null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return if (res == null || res == "") {
             0
@@ -218,12 +216,12 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
-        val tx = makeApprove(sendAcct.addressU160!!.toBase58(), recvAddr, amount, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(sendAcct)))
+        val tx = makeApprove(sendAcct.addressU160.toBase58(), recvAddr, amount, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(sendAcct)))
         if (sendAcct != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toHexString()
         } else null
@@ -249,10 +247,10 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(Address.decodeBase58(sendAddr), Address.decodeBase58(recvAddr), amount))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approve", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approve", args, payer, gaslimit, gasprice)
     }
 
     /**
@@ -275,12 +273,12 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
-        val tx = makeTransferFrom(sendAcct.addressU160!!.toBase58(), fromAddr, toAddr, amount, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(sendAcct)))
+        val tx = makeTransferFrom(sendAcct.addressU160.toBase58(), fromAddr, toAddr, amount, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(sendAcct)))
         if (sendAcct != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toHexString()
         } else null
@@ -306,10 +304,10 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(Address.decodeBase58(sendAddr), Address.decodeBase58(fromAddr), Address.decodeBase58(toAddr), amount))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transferFrom", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transferFrom", args, payer, gaslimit, gasprice)
     }
 
     /**
@@ -318,8 +316,8 @@ class Ong(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun queryName(): String {
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "name", byteArrayOf(0), null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "name", byteArrayOf(0), null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return String(Helper.hexToBytes(res))
     }
@@ -330,8 +328,8 @@ class Ong(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun querySymbol(): String {
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "symbol", byteArrayOf(0), null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "symbol", byteArrayOf(0), null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return String(Helper.hexToBytes(res))
     }
@@ -342,8 +340,8 @@ class Ong(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun queryDecimals(): Long {
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "decimals", byteArrayOf(0), null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "decimals", byteArrayOf(0), null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return if ("" == res) {
             0
@@ -356,8 +354,8 @@ class Ong(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun queryTotalSupply(): Long {
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "totalSupply", byteArrayOf(0), null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "totalSupply", byteArrayOf(0), null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return if (res == null || res == "") {
             0
@@ -370,13 +368,11 @@ class Ong(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun unboundOng(address: String?): String {
-        if (address == null || address == "") {
+    fun unboundOng(address: String): String {
+        if (address.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("address should not be null"))
         }
-        val unboundOngStr = sdk.connect!!.getAllowance("ong", Address.parse(ontContract).toBase58(), address)
-        val unboundOng = java.lang.Long.parseLong(unboundOngStr)
-        return unboundOngStr
+        return connect!!.getAllowance("ong", Address.parse(ontContract).toBase58(), address)
     }
 
     /**
@@ -398,12 +394,12 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gaslimit < 0 || gasprice < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gaslimit gasprice should not be less than 0"))
         }
-        val tx = makeWithdrawOng(sendAcct.addressU160!!.toBase58(), toAddr, amount, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(sendAcct)))
+        val tx = makeWithdrawOng(sendAcct.addressU160.toBase58(), toAddr, amount, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(sendAcct)))
         if (sendAcct != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -427,9 +423,9 @@ class Ong(private val sdk: OntSdk) {
         if (amount <= 0 || gaslimit < 0 || gasprice < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gaslimit gasprice should not be less than 0"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(Address.decodeBase58(claimer), Address.parse(ontContract), Address.decodeBase58(toAddr), amount))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transferFrom", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transferFrom", args, payer, gaslimit, gasprice)
     }
 }

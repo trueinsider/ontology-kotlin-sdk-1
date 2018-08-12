@@ -56,7 +56,7 @@ class Claim {
         claim["Version"] = "v1.0"
         val sign = DataSignature(scheme, acct, getClaim())
         val signature = sign.signature()
-        val info = SignatureInfo("", "", publicKeyId, signature)
+        val info = SignatureInfo(publicKeyId, signature)
         claim["Signature"] = info.getJson()
 
     }
@@ -76,7 +76,7 @@ class Claim {
     constructor(scheme: SignatureScheme, acct: Account, ctx: String, clmMap:Map<String, Any>, metadata: Map<String, String>, clmRevMap: Map<String, Any>, publicKeyId: String, expireTime: Long) {
         val iss = metadata["Issuer"]!!
         val sub = metadata["Subject"]!!
-        val header = Header("", "", publicKeyId)
+        val header = Header(publicKeyId)
         val payload = Payload("v1.0", iss, sub, System.currentTimeMillis() / 1000, expireTime, ctx, clmMap, clmRevMap)
         val headerStr = JSONObject.toJSONString(header.getJson())
         val payloadStr = JSONObject.toJSONString(payload.getJson())
@@ -97,11 +97,9 @@ class Claim {
     }
 }
 
-internal class Header(alg: String, typ: String, var Kid: String)//        Alg = alg;
-//        Typ = typ;
-{
-    var Alg = "ONT-ES256"
-    var Typ = "JWT-X"
+internal class Header(val Kid: String) {
+    val Alg = "ONT-ES256"
+    val Typ = "JWT-X"
 
     fun getJson(): Any {
         val header = HashMap<String, Any>()
@@ -134,7 +132,7 @@ var Context: String, clmMap: Map<String, Any>, clmRevMap: Map<String, Any>) {
     }
 }
 
-internal class SignatureInfo(format: String, alg: String, private val PublicKeyId: String, private val Value: ByteArray) {
+internal class SignatureInfo(private val PublicKeyId: String, private val Value: ByteArray) {
     private val Format = "pgp"
     private val Algorithm = "ECDSAwithSHA256"
 

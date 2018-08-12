@@ -28,10 +28,10 @@ interface IConnector {
     fun getUrl(): String
 
     @Throws(ConnectorException::class, IOException::class)
-    fun sendRawTransaction(preExec: Boolean, userid: String?, hexData: String): Any
+    fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String): Any
 
     @Throws(ConnectorException::class, IOException::class)
-    fun sendRawTransaction(hexData: String): Any
+    fun sendRawTransaction(sData: String): Any
 
     @Throws(ConnectorException::class, IOException::class)
     fun getRawTransaction(txhash: String): Transaction
@@ -79,7 +79,7 @@ interface IConnector {
     fun getStorage(codehash: String, key: String): String
 
     @Throws(ConnectorException::class, IOException::class)
-    fun getMerkleProof(hash: String): Any
+    fun getMerkleProof(hash: String): Map<String, Any>
 
     @Throws(ConnectorException::class, IOException::class)
     fun getAllowance(asset: String, from: String, to: String): String

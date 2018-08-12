@@ -117,18 +117,17 @@ abstract class TransactionNeo protected constructor(
     protected open fun serializeExclusiveData(writer: BinaryWriter) {
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj === this) {
+    override fun equals(other: Any?): Boolean {
+        if (other === this) {
             return true
         }
-        if (obj == null) {
+        if (other == null) {
             return false
         }
-        if (obj !is TransactionNeo) {
+        if (other !is TransactionNeo) {
             return false
         }
-        val tx = obj as TransactionNeo?
-        return hash() == tx!!.hash()
+        return hash() == other.hash()
     }
 
     override fun hashCode(): Int {

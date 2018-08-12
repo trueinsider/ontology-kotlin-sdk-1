@@ -20,7 +20,9 @@
 package com.github.ontio.smartcontract.nativevm
 
 import com.alibaba.fastjson.JSON
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.addSign
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
 import com.github.ontio.account.Account
 import com.github.ontio.common.*
 import com.github.ontio.core.asset.Sig
@@ -31,16 +33,16 @@ import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 import com.github.ontio.network.exception.ConnectorException
 import com.github.ontio.sdk.exception.SDKException
+import com.github.ontio.smartcontract.Vm
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.ArrayList
 import java.util.HashMap
 
-class Governance(private val sdk: OntSdk) {
+class Governance {
     val contractAddress = "0000000000000000000000000000000000000007"
     private val VOTE_INFO_POOL = "voteInfoPool"
 
@@ -73,16 +75,16 @@ class Governance(private val sdk: OntSdk) {
         //        byte[] params = new RegisterCandidateParam(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"registerCandidate",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey, account.addressU160, initPos, ontid.toByteArray(), keyNo))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "registerCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
-        sdk.addSign(tx, ontid, ontidpwd, salt)
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "registerCandidate", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
+        addSign(tx, ontid, ontidpwd, salt)
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -90,16 +92,15 @@ class Governance(private val sdk: OntSdk) {
 
     @Throws(Exception::class)
     fun unRegisterCandidate(account: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey, account.addressU160))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "unRegisterCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "unRegisterCandidate", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -107,15 +108,15 @@ class Governance(private val sdk: OntSdk) {
 
     @Throws(Exception::class)
     fun withdrawOng(account: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(account.addressU160))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "withdrawOng", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "withdrawOng", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -141,11 +142,10 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(ConnectorException::class, IOException::class)
     private fun getPeerPoolMap(peerPubkey: String?): String? {
-        val view = sdk.connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString("governanceView".toByteArray()))
-        val governanceView = GovernanceView()
+        val view = connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString("governanceView".toByteArray()))
         val bais = ByteArrayInputStream(Helper.hexToBytes(view))
         val br = BinaryReader(bais)
-        governanceView.deserialize(br)
+        val governanceView = GovernanceView.deserializeFrom(br)
         val baos = ByteArrayOutputStream()
         val bw = BinaryWriter(baos)
         bw.writeInt(governanceView.view)
@@ -155,11 +155,11 @@ class Governance(private val sdk: OntSdk) {
         val keyBytes = ByteArray(peerPoolBytes.size + viewBytes.size)
         System.arraycopy(peerPoolBytes, 0, keyBytes, 0, peerPoolBytes.size)
         System.arraycopy(viewBytes, 0, keyBytes, peerPoolBytes.size, viewBytes.size)
-        val value = sdk.connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString(keyBytes))
+        val value = connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString(keyBytes))
         val bais2 = ByteArrayInputStream(Helper.hexToBytes(value))
         val reader = BinaryReader(bais2)
         val length = reader.readInt()
-        val peerPoolMap = HashMap<String, PeerPoolItem>()
+        val peerPoolMap = HashMap<String, Any>()
         for (i in 0 until length) {
             val item = PeerPoolItem.deserializeFrom(reader)
             peerPoolMap[item.peerPubkey] = item.Json()
@@ -185,10 +185,9 @@ class Governance(private val sdk: OntSdk) {
         System.arraycopy(voteInfoPool, 0, key, 0, voteInfoPool.size)
         System.arraycopy(peerPubkeyPrefix, 0, key, voteInfoPool.size, peerPubkeyPrefix.size)
         System.arraycopy(address, 0, key, voteInfoPool.size + peerPubkeyPrefix.size, address.size)
-        var res: String? = null
         try {
-            res = sdk.connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString(key))
-            if (res != null && res != "") {
+            val res = connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString(key))
+            if (res.isNotEmpty()) {
                 return Serializable.from(Helper.hexToBytes(res), VoteInfo::class.java)
             }
         } catch (e: ConnectorException) {
@@ -215,18 +214,15 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun approveCandidate(adminAccount: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new ApproveCandidateParam(peerPubkey).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"approveCandidate",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approveCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(adminAccount)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approveCandidate", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(adminAccount)))
         if (adminAccount != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -247,36 +243,25 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun approveCandidate(multiAddress: Address, M: Int, accounts: Array<Account>, publicKeys: Array<ByteArray>, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-
-        val pks = arrayOfNulls<ByteArray>(accounts.size + publicKeys.size)
-        for (i in accounts.indices) {
-            pks[i] = accounts[i].serializePublicKey()
-        }
-        for (i in publicKeys.indices) {
-            pks[i + accounts.size] = publicKeys[i]
+        val pks = Array(accounts.size + publicKeys.size) { i ->
+            if (i < accounts.size) {
+                accounts[i].serializePublicKey()
+            } else {
+                publicKeys[i - accounts.size]
+            }
         }
         if (multiAddress != Address.addressFromMultiPubKeys(M, *pks)) {
             throw SDKException(ErrorCode.ParamErr("mutilAddress doesnot match accounts and publicKeys"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approveCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        val sigs = arrayOfNulls<Sig>(1)
-        sigs[0] = Sig(sigData = null)
-        sigs[0].pubKeys = arrayOfNulls(pks.size)
-        sigs[0].sigData = arrayOfNulls(M)
-        sigs[0].M = M
-        for (i in pks.indices) {
-            sigs[0].pubKeys[i] = pks[i]
-        }
-        for (i in 0 until sigs[0].M) {
-            val signature = tx.sign(accounts[i], accounts[i].signatureScheme)
-            sigs[0].sigData[i] = signature
-        }
-        tx.sigs = sigs
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approveCandidate", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        val pubKeys = Array(pks.size) { i -> pks[i] }
+        val sigData = Array(M) { i -> tx.sign(accounts[i], accounts[i].signatureScheme) }
+        tx.sigs = arrayOf(Sig(M, pubKeys, sigData))
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -293,18 +278,15 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun rejectCandidate(adminAccount: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new RejectCandidateParam(peerPubkey).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"rejectCandidate",params, payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "rejectCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(adminAccount)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "rejectCandidate", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(adminAccount)))
         if (adminAccount != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -325,35 +307,25 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun rejectCandidate(multiAddress: Address, M: Int, accounts: Array<Account>, publicKeys: Array<ByteArray>, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        val pks = arrayOfNulls<ByteArray>(accounts.size + publicKeys.size)
-        for (i in accounts.indices) {
-            pks[i] = accounts[i].serializePublicKey()
-        }
-        for (i in publicKeys.indices) {
-            pks[i + accounts.size] = publicKeys[i]
+        val pks = Array(accounts.size + publicKeys.size) { i ->
+            if (i < accounts.size) {
+                accounts[i].serializePublicKey()
+            } else {
+                publicKeys[i - accounts.size]
+            }
         }
         if (multiAddress != Address.addressFromMultiPubKeys(M, *pks)) {
             throw SDKException(ErrorCode.ParamErr("mutilAddress doesnot match accounts and publicKeys"))
         }
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "rejectCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        val sigs = arrayOfNulls<Sig>(1)
-        sigs[0] = Sig(sigData = null)
-        sigs[0].pubKeys = arrayOfNulls(pks.size)
-        sigs[0].sigData = arrayOfNulls(M)
-        sigs[0].M = M
-        for (i in pks.indices) {
-            sigs[0].pubKeys[i] = pks[i]
-        }
-        for (i in 0 until sigs[0].M) {
-            val signature = tx.sign(accounts[i], accounts[i].signatureScheme)
-            sigs[0].sigData[i] = signature
-        }
-        tx.sigs = sigs
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "rejectCandidate", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        val pubKeys = Array(pks.size) { i -> pks[i] }
+        val sigData = Array(M) { i -> tx.sign(accounts[i], accounts[i].signatureScheme) }
+        tx.sigs = arrayOf(Sig(M, pubKeys, sigData))
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -375,14 +347,8 @@ class Governance(private val sdk: OntSdk) {
         if (peerPubkey.size != posList.size) {
             throw SDKException(ErrorCode.ParamError)
         }
-        val map = HashMap()
-        for (i in peerPubkey.indices) {
-            map.put(peerPubkey[i], posList[i])
-        }
-        //        byte[] params = new VoteForPeerParam(account.getAddressU160(),peerPubkey,posList).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"voteForPeer",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         val struct = Struct()
         struct.add(account.addressU160)
         struct.add(peerPubkey.size)
@@ -395,12 +361,12 @@ class Governance(private val sdk: OntSdk) {
         }
         list.add(struct)
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "voteForPeer", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "voteForPeer", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -422,14 +388,8 @@ class Governance(private val sdk: OntSdk) {
         if (peerPubkey.size != posList.size) {
             throw SDKException(ErrorCode.ParamError)
         }
-        val map = HashMap()
-        for (i in peerPubkey.indices) {
-            map.put(peerPubkey[i], posList[i])
-        }
-        //        byte[] params = new VoteForPeerParam(account.getAddressU160(),peerPubkey,posList).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"unVoteForPeer",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         val struct = Struct()
         struct.add(account.addressU160)
         struct.add(peerPubkey.size)
@@ -442,12 +402,12 @@ class Governance(private val sdk: OntSdk) {
         }
         list.add(struct)
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "unVoteForPeer", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "unVoteForPeer", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -469,14 +429,8 @@ class Governance(private val sdk: OntSdk) {
         if (peerPubkey.size != withdrawList.size) {
             throw SDKException(ErrorCode.ParamError)
         }
-        val map = HashMap()
-        for (i in peerPubkey.indices) {
-            map.put(peerPubkey[i], withdrawList[i])
-        }
-        //        byte[] params = new WithdrawParam(account.getAddressU160(),peerPubkey,withdrawList).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"withdraw",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         val struct = Struct()
         struct.add(account.addressU160)
         struct.add(peerPubkey.size)
@@ -489,12 +443,12 @@ class Governance(private val sdk: OntSdk) {
         }
         list.add(struct)
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "withdraw", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "withdraw", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -511,12 +465,10 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun commitDpos(adminAccount: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"commitDpos",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "commitDpos", byteArrayOf(0), payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(adminAccount)))
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "commitDpos", byteArrayOf(0), payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(adminAccount)))
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -524,33 +476,22 @@ class Governance(private val sdk: OntSdk) {
 
     @Throws(Exception::class)
     fun commitDpos(multiAddress: Address, M: Int, accounts: Array<Account>, publicKeys: Array<ByteArray>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        val pks = arrayOfNulls<ByteArray>(accounts.size + publicKeys.size)
-        for (i in accounts.indices) {
-            pks[i] = accounts[i].serializePublicKey()
-        }
-        for (i in publicKeys.indices) {
-            pks[i + accounts.size] = publicKeys[i]
+        val pks = Array(accounts.size + publicKeys.size) { i ->
+            if (i < accounts.size) {
+                accounts[i].serializePublicKey()
+            } else {
+                publicKeys[i - accounts.size]
+            }
         }
         if (multiAddress != Address.addressFromMultiPubKeys(M, *pks)) {
             throw SDKException(ErrorCode.ParamErr("mutilAddress doesnot match accounts and publicKeys"))
         }
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "commitDpos", byteArrayOf(0), payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-
-        val sigs = arrayOfNulls<Sig>(1)
-        sigs[0] = Sig(sigData = null)
-        sigs[0].pubKeys = arrayOfNulls(pks.size)
-        sigs[0].sigData = arrayOfNulls(M)
-        sigs[0].M = M
-        for (i in pks.indices) {
-            sigs[0].pubKeys[i] = pks[i]
-        }
-        for (i in 0 until sigs[0].M) {
-            val signature = tx.sign(accounts[i], accounts[i].signatureScheme)
-            sigs[0].sigData[i] = signature
-        }
-        tx.sigs = sigs
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "commitDpos", byteArrayOf(0), payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        val pubKeys = Array(pks.size) { i -> pks[i] }
+        val sigData = Array(M) { i -> tx.sign(accounts[i], accounts[i].signatureScheme) }
+        tx.sigs = arrayOf(Sig(M, pubKeys, sigData))
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -570,12 +511,12 @@ class Governance(private val sdk: OntSdk) {
         //        byte[] params = new BlackNodeParam(peerPubkey).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"blackNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "blackNode", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(payerAcct)))
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "blackNode", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(payerAcct)))
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -595,12 +536,12 @@ class Governance(private val sdk: OntSdk) {
         //        byte[] params = new WhiteNodeParam(peerPubkey).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"whiteNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "whiteNode", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(payerAcct)))
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "whiteNode", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(payerAcct)))
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -621,15 +562,15 @@ class Governance(private val sdk: OntSdk) {
         //        byte[] params = new QuitNodeParam(peerPubkey,account.getAddressU160()).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"quitNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
 
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey, account.addressU160))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "quitNode", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "quitNode", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(account)))
         if (account != payerAcct) {
-            sdk.addSign(tx, payerAcct)
+            addSign(tx, payerAcct)
         }
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -647,14 +588,12 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun updateConfig(config: Configuration, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = config.toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"updateConfig",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-        val list = ArrayList()
-        list.add(Struct().add(*config.toArray()))
+        val list = mutableListOf<Any>()
+        list.add(Struct().add(config.toArray()))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "updateConfig", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(payerAcct)))
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "updateConfig", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(payerAcct)))
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -676,15 +615,12 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun updateGlobalParam(candidateFee: Long, minInitStake: Long, candidateNum: Long, A: Long, B: Long, Yita: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new GovernanceGlobalParam(candidateFee,minInitStake,candidateNum,A,B,Yita).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"updateGlobalParam",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
-        val list = ArrayList()
+        val list = mutableListOf<Any>()
         list.add(Struct().add(candidateFee, minInitStake, candidateNum, A, B, Yita))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "updateGlobalParam", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(payerAcct)))
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "updateGlobalParam", args, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(payerAcct)))
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -700,11 +636,9 @@ class Governance(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     fun callSplit(payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"updateConfig",new byte[]{},payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "callSplit", byteArrayOf(), payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(arrayOf(payerAcct)))
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "callSplit", byteArrayOf(), payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(arrayOf(payerAcct)))
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -713,10 +647,14 @@ class Governance(private val sdk: OntSdk) {
 
 internal class GovernanceView : Serializable {
     var view: Int = 0
+        private set
     var height: Int = 0
-    var txhash: UInt256
+        private set
+    lateinit var txhash: UInt256
+        private set
 
-    constructor() {}
+    private constructor()
+
     constructor(view: Int, height: Int, txhash: UInt256) {
         this.view = view
         this.height = height
@@ -734,7 +672,6 @@ internal class GovernanceView : Serializable {
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         }
-
     }
 
     @Throws(IOException::class)
@@ -742,6 +679,15 @@ internal class GovernanceView : Serializable {
         writer.writeInt(view)
         writer.writeInt(height)
         writer.writeSerializable(txhash)
+    }
+
+    companion object {
+        @Throws(IOException::class)
+        fun deserializeFrom(reader: BinaryReader): GovernanceView {
+            val governanceView = GovernanceView()
+            governanceView.deserialize(reader)
+            return governanceView
+        }
     }
 }
 
@@ -881,7 +827,7 @@ internal class VoteCommitDposParam(var address: String, var pos: Long) : Seriali
     }
 }
 
-internal class Configuration : Serializable {
+class Configuration : Serializable {
     var N: Long = 7
     var C: Long = 2
     var K: Long = 7

@@ -20,13 +20,14 @@
 package com.github.ontio.smartcontract.nativevm
 
 import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.addSign
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
+import com.github.ontio.OntSdk.walletMgr
 import com.github.ontio.account.Account
 import com.github.ontio.common.*
 import com.github.ontio.core.DataSignature
-import com.github.ontio.core.block.Block
 import com.github.ontio.core.ontid.Attribute
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.crypto.Curve
@@ -34,21 +35,19 @@ import com.github.ontio.crypto.KeyType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.merkle.MerkleVerifier
-import com.github.ontio.network.exception.ConnectorException
 import com.github.ontio.sdk.claim.Claim
 import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.sdk.info.AccountInfo
-import com.github.ontio.sdk.info.IdentityInfo
 import com.github.ontio.sdk.wallet.Identity
+import com.github.ontio.smartcontract.Vm.buildNativeParams
+import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.util.*
 
-class OntId(private val sdk: OntSdk) {
+class OntId {
     val contractAddress = "0000000000000000000000000000000000000003"
 
     /**
@@ -63,28 +62,25 @@ class OntId(private val sdk: OntSdk) {
      */
     @Throws(Exception::class)
     @JvmOverloads
-    fun sendRegister(ident: Identity?, password: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long, isPreExec: Boolean = false): String {
-        if (ident == null || password == null || password == "" || payerAcct == null) {
+    fun sendRegister(ident: Identity, password: String, payerAcct: Account, gaslimit: Long, gasprice: Long, isPreExec: Boolean = false): String {
+        if (password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val tx = makeRegister(ident.ontid, password, ident.controls[0].getSalt(), payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.walletMgr!!.writeWallet()
-        sdk.signTx(tx, ident.ontid, password, ident.controls[0].getSalt())
-        sdk.addSign(tx, payerAcct)
+        val tx = makeRegister(ident.ontid, password, ident.controls[0].getSalt(), payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        walletMgr.writeWallet()
+        signTx(tx, ident.ontid, password, ident.controls[0].getSalt())
+        addSign(tx, payerAcct)
         if (isPreExec) {
-            val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+            val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
             val result = (obj as JSONObject).getString("Result")
             if (Integer.parseInt(result) == 0) {
                 throw SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error: $obj"))
             }
         } else {
-            val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+            val b = connect!!.sendRawTransaction(tx.toHexString())
             if (!b) {
                 throw SDKException(ErrorCode.SendRawTxError)
             }
@@ -107,23 +103,20 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeRegister(ontid: String, password: String?, salt: ByteArray, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (password == null || password == "" || payer == null || payer == "") {
+    fun makeRegister(ontid: String, password: String, salt: ByteArray, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (password.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val info = sdk.walletMgr!!.getIdentityInfo(ontid, password, salt)
+        val info = walletMgr.getIdentityInfo(ontid, password, salt)
         val pk = Helper.hexToBytes(info.pubkey)
 
-        val list = ArrayList()
+        val list = mutableListOf<Struct>()
         list.add(Struct().add(info.ontid, pk))
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "regIDWithPublicKey", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "regIDWithPublicKey", args, payer, gaslimit, gasprice)
     }
 
 
@@ -139,24 +132,21 @@ class OntId(private val sdk: OntSdk) {
      */
 
     @Throws(Exception::class)
-    fun sendRegisterWithAttrs(ident: Identity?, password: String?, attributes: Array<Attribute>, payerAcct: Account?, gaslimit: Long, gasprice: Long): String {
-        if (ident == null || password == null || password == "" || payerAcct == null) {
+    fun sendRegisterWithAttrs(ident: Identity, password: String, attributes: Array<Attribute>, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
+        if (password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val info = sdk.walletMgr!!.getIdentityInfo(ident.ontid, password, ident.controls[0].getSalt())
+        val info = walletMgr.getIdentityInfo(ident.ontid, password, ident.controls[0].getSalt())
         val ontid = info.ontid
-        val tx = makeRegisterWithAttrs(ontid, password, ident.controls[0].getSalt(), attributes, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, ontid, password, ident.controls[0].getSalt())
-        sdk.addSign(tx, payerAcct)
-        val identity = sdk.walletMgr!!.wallet!!.addOntIdController(ontid, info.encryptedPrikey, info.ontid, info.pubkey)
-        sdk.walletMgr!!.writeWallet()
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeRegisterWithAttrs(ontid, password, ident.controls[0].getSalt(), attributes, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, ontid, password, ident.controls[0].getSalt())
+        addSign(tx, payerAcct)
+        walletMgr.wallet!!.addOntIdController(ontid, info.encryptedPrikey, info.ontid, info.pubkey)
+        walletMgr.writeWallet()
+        connect!!.sendRawTransaction(tx.toHexString())
         return tx.hash().toHexString()
     }
 
@@ -171,28 +161,25 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeRegisterWithAttrs(ontid: String?, password: String?, salt: ByteArray, attributes: Array<Attribute>, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (password == null || password == "" || payer == null || payer == "") {
+    fun makeRegisterWithAttrs(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (password.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val info = sdk.walletMgr!!.getIdentityInfo(ontid, password, salt)
+        val info = walletMgr.getIdentityInfo(ontid, password, salt)
         val pk = Helper.hexToBytes(info.pubkey)
 
-        val list = ArrayList()
-        val struct = Struct().add(ontid!!.toByteArray(), pk)
+        val list = mutableListOf<Struct>()
+        val struct = Struct().add(ontid.toByteArray(), pk)
         struct.add(attributes.size)
         for (i in attributes.indices) {
             struct.add(attributes[i].key, attributes[i].valueType, attributes[i].value)
         }
         list.add(struct)
         val args = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "regIDWithAttributes", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "regIDWithAttributes", args, payer, gaslimit, gasprice)
     }
 
     @Throws(Exception::class)
@@ -209,35 +196,32 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendGetPublicKeys(ontid: String?): String {
-        if (ontid == null || ontid == "") {
+    fun sendGetPublicKeys(ontid: String): String {
+        if (ontid.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("ontid should not be null"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
 
-        val list = ArrayList()
+        val list = mutableListOf<ByteArray>()
         list.add(ontid.toByteArray())
         val arg = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getPublicKeys", arg, null, 0, 0)
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getPublicKeys", arg, null, 0, 0)
 
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         if (res == "") {
             return res
         }
         val bais = ByteArrayInputStream(Helper.hexToBytes(res))
         val br = BinaryReader(bais)
-        val pubKeyList = ArrayList()
+        val pubKeyList = mutableListOf<Map<String, Any>>()
         while (true) {
             try {
-                val publicKeyMap = HashMap()
-                publicKeyMap.put("PubKeyId", ontid + "#keys-" + br.readInt().toString())
+                val publicKeyMap = mutableMapOf<String, Any>()
+                publicKeyMap["PubKeyId"] = ontid + "#keys-" + br.readInt().toString()
                 val pubKey = br.readVarBytes()
-                publicKeyMap.put("Type", KeyType.fromLabel(pubKey[0]))
-                publicKeyMap.put("Curve", Curve.fromLabel(pubKey[1].toInt()))
-                publicKeyMap.put("Value", Helper.toHexString(pubKey))
+                publicKeyMap["Type"] = KeyType.fromLabel(pubKey[0])
+                publicKeyMap["Curve"] = Curve.fromLabel(pubKey[1].toInt())
+                publicKeyMap["Value"] = Helper.toHexString(pubKey)
                 pubKeyList.add(publicKeyMap)
             } catch (e: Exception) {
                 break
@@ -253,22 +237,17 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendGetKeyState(ontid: String?, index: Int): String {
-        if (ontid == null || ontid == "" || index < 0) {
+    fun sendGetKeyState(ontid: String, index: Int): String {
+        if (ontid.isEmpty() || index < 0) {
             throw SDKException(ErrorCode.ParamErr("parameter is wrong"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        //        byte[] parabytes = NativeBuildParams.buildParams(ontid.getBytes(), index);
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "getKeyState", parabytes, null, 0, 0);
 
-        val list = ArrayList()
+        val list = mutableListOf<Struct>()
         list.add(Struct().add(ontid.toByteArray(), index))
         val arg = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getKeyState", arg, null, 0, 0)
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getKeyState", arg, null, 0, 0)
 
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         return if (res == "") {
             res
@@ -276,21 +255,17 @@ class OntId(private val sdk: OntSdk) {
     }
 
     @Throws(Exception::class)
-    fun sendGetAttributes(ontid: String?): String {
-        if (ontid == null || ontid == "") {
+    fun sendGetAttributes(ontid: String): String {
+        if (ontid.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("ontid should not be null"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
 
-
-        val list = ArrayList()
+        val list = mutableListOf<ByteArray>()
         list.add(ontid.toByteArray())
         val arg = NativeBuildParams.createCodeParamsScript(list)
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getAttributes", arg, null, 0, 0)
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getAttributes", arg, null, 0, 0)
 
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         if (res == "") {
             return res
@@ -298,23 +273,21 @@ class OntId(private val sdk: OntSdk) {
 
         val bais = ByteArrayInputStream(Helper.hexToBytes(res))
         val br = BinaryReader(bais)
-        val attrsList = ArrayList()
+        val attrsList = mutableListOf<Map<String, String>>()
         while (true) {
             try {
-                val attributeMap = HashMap()
-                attributeMap.put("Key", String(br.readVarBytes()))
-                attributeMap.put("Type", String(br.readVarBytes()))
-                attributeMap.put("Value", String(br.readVarBytes()))
+                val attributeMap = mutableMapOf<String, String>()
+                attributeMap["Key"] = String(br.readVarBytes())
+                attributeMap["Type"] = String(br.readVarBytes())
+                attributeMap["Value"] = String(br.readVarBytes())
                 attrsList.add(attributeMap)
             } catch (e: Exception) {
                 break
             }
-
         }
 
         return JSON.toJSONString(attrsList)
     }
-
 
     /**
      * @param ontid
@@ -343,26 +316,18 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendAddPubKey(ontid: String?, recoveryOntid: String?, password: String?, salt: ByteArray, newpubkey: String, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || password == "" || payerAcct == null) {
+    fun sendAddPubKey(ontid: String, recoveryOntid: String?, password: String, salt: ByteArray, newpubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val tx = makeAddPubKey(ontid, recoveryOntid, password, salt, newpubkey, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        val addr: String
-        if (recoveryOntid != null) {
-            addr = recoveryOntid.replace(Common.didont, "")
-        } else {
-            addr = ontid.replace(Common.didont, "")
-        }
-        sdk.signTx(tx, addr, password, salt)
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeAddPubKey(ontid, recoveryOntid, password, salt, newpubkey, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        val addr = recoveryOntid?.replace(Common.didont, "") ?: ontid.replace(Common.didont, "")
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -395,33 +360,27 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeAddPubKey(ontid: String?, recoveryOntid: String?, password: String, salt: ByteArray, newpubkey: String?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || payer == null || payer == "" || newpubkey == null || newpubkey == "") {
+    fun makeAddPubKey(ontid: String, recoveryOntid: String?, password: String, salt: ByteArray, newpubkey: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || payer.isEmpty() || newpubkey.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        val arg: ByteArray
-        if (recoveryOntid == null) {
-            val info = sdk.walletMgr!!.getAccountInfo(ontid, password, salt)
+        val arg = if (recoveryOntid == null) {
+            val info = walletMgr.getAccountInfo(ontid, password, salt)
             val pk = Helper.hexToBytes(info.pubkey)
-            //            parabytes = NativeBuildParams.buildParams(ontid.getBytes(), Helper.hexToBytes(newpubkey), pk);
 
-            val list = ArrayList()
+            val list = mutableListOf<Struct>()
             list.add(Struct().add(ontid.toByteArray(), Helper.hexToBytes(newpubkey), pk))
-            arg = NativeBuildParams.createCodeParamsScript(list)
+            NativeBuildParams.createCodeParamsScript(list)
         } else {
-            //            parabytes = NativeBuildParams.buildParams(ontid, Helper.hexToBytes(newpubkey), Address.decodeBase58(recoveryOntid.replace(Common.didont,"")).toArray());
-
-            val list = ArrayList()
+            val list = mutableListOf<Struct>()
             list.add(Struct().add(ontid.toByteArray(), Helper.hexToBytes(newpubkey), Address.decodeBase58(recoveryOntid.replace(Common.didont, "")).toArray()))
-            arg = NativeBuildParams.createCodeParamsScript(list)
+            NativeBuildParams.createCodeParamsScript(list)
         }
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "addKey", parabytes,payer, gaslimit, gasprice);
 
-
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "addKey", arg, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "addKey", arg, payer, gaslimit, gasprice)
     }
 
 
@@ -452,26 +411,18 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendRemovePubKey(ontid: String?, recoveryOntid: String?, password: String?, salt: ByteArray, removePubkey: String, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || password == "" || payerAcct == null) {
+    fun sendRemovePubKey(ontid: String, recoveryOntid: String?, password: String, salt: ByteArray, removePubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val tx = makeRemovePubKey(ontid, recoveryOntid, password, salt, removePubkey, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        val addr: String
-        if (recoveryOntid == null) {
-            addr = ontid.replace(Common.didont, "")
-        } else {
-            addr = recoveryOntid.replace(Common.didont, "")
-        }
-        sdk.signTx(tx, addr, password, salt)
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeRemovePubKey(ontid, recoveryOntid, password, salt, removePubkey, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        val addr = recoveryOntid?.replace(Common.didont, "") ?: ontid.replace(Common.didont, "")
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -504,35 +455,26 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeRemovePubKey(ontid: String?, recoveryAddr: String?, password: String?, salt: ByteArray, removePubkey: String?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || password == null || password == "" || payer == null || payer == "" || removePubkey == null || removePubkey == "") {
+    fun makeRemovePubKey(ontid: String, recoveryAddr: String?, password: String, salt: ByteArray, removePubkey: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || password.isEmpty() || payer.isEmpty() || removePubkey.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val arg: ByteArray
-        if (recoveryAddr == null) {
-            val info = sdk.walletMgr!!.getAccountInfo(ontid.replace(Common.didont, ""), password, salt)
+        val arg = if (recoveryAddr == null) {
+            val info = walletMgr.getAccountInfo(ontid.replace(Common.didont, ""), password, salt)
             val pk = Helper.hexToBytes(info.pubkey)
-            //            parabytes = NativeBuildParams.buildParams(ontid, Helper.hexToBytes(removePubkey), pk);
-            val list = ArrayList()
+            val list = mutableListOf<Struct>()
             list.add(Struct().add(ontid.toByteArray(), Helper.hexToBytes(removePubkey), pk))
-            arg = NativeBuildParams.createCodeParamsScript(list)
-
+            NativeBuildParams.createCodeParamsScript(list)
         } else {
-            //            parabytes = NativeBuildParams.buildParams(ontid, Helper.hexToBytes(removePubkey), Address.decodeBase58(recoveryAddr).toArray());
-            val list = ArrayList()
+            val list = mutableListOf<Struct>()
             list.add(Struct().add(ontid.toByteArray(), Helper.hexToBytes(removePubkey), Address.decodeBase58(recoveryAddr.replace(Common.didont, "")).toArray()))
-            arg = NativeBuildParams.createCodeParamsScript(list)
+            NativeBuildParams.createCodeParamsScript(list)
         }
 
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "removeKey", parabytes, payer, gaslimit, gasprice);
-
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "removeKey", arg, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "removeKey", arg, payer, gaslimit, gasprice)
     }
 
     /**
@@ -547,21 +489,18 @@ class OntId(private val sdk: OntSdk) {
      */
 
     @Throws(Exception::class)
-    fun sendAddRecovery(ontid: String?, password: String?, salt: ByteArray, recoveryAddr: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || password == "" || payerAcct == null || recoveryAddr == null || recoveryAddr == "") {
+    fun sendAddRecovery(ontid: String, password: String, salt: ByteArray, recoveryAddr: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || password.isEmpty() || recoveryAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = ontid.replace(Common.didont, "")
-        val tx = makeAddRecovery(ontid, password, salt, recoveryAddr, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, addr, password, salt)
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeAddRecovery(ontid, password, salt, recoveryAddr, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -577,24 +516,21 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeAddRecovery(ontid: String?, password: String?, salt: ByteArray, recoveryAddr: String?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || password == null || password == "" || payer == null || payer == "" || recoveryAddr == null || recoveryAddr == "") {
+    fun makeAddRecovery(ontid: String, password: String, salt: ByteArray, recoveryAddr: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || password.isEmpty() || payer.isEmpty() || recoveryAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = ontid.replace(Common.didont, "")
-        val info = sdk.walletMgr!!.getAccountInfo(addr, password, salt)
+        val info = walletMgr.getAccountInfo(addr, password, salt)
         val pk = Helper.hexToBytes(info.pubkey)
 
-        val list = ArrayList()
+        val list = mutableListOf<Struct>()
         list.add(Struct().add(ontid, Address.decodeBase58(recoveryAddr), pk))
         val arg = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "addRecovery", arg, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "addRecovery", arg, payer, gaslimit, gasprice)
     }
 
     /**
@@ -606,20 +542,17 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendChangeRecovery(ontid: String?, newRecovery: String, oldRecovery: String, password: String?, salt: ByteArray, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || password == "") {
+    fun sendChangeRecovery(ontid: String, newRecovery: String, oldRecovery: String, password: String, salt: ByteArray, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        val tx = makeChangeRecovery(ontid, newRecovery, oldRecovery, password, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, oldRecovery, password, salt)
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeChangeRecovery(ontid, newRecovery, oldRecovery, password, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, oldRecovery, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -635,23 +568,20 @@ class OntId(private val sdk: OntSdk) {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeChangeRecovery(ontid: String?, newRecoveryOntId: String?, oldRecoveryOntId: String?, password: String?, payer: String, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || password == null || password == "" || newRecoveryOntId == null || oldRecoveryOntId == null) {
+    fun makeChangeRecovery(ontid: String, newRecoveryOntId: String, oldRecoveryOntId: String, password: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val newAddr = Address.decodeBase58(newRecoveryOntId.replace(Common.didont, ""))
         val oldAddr = Address.decodeBase58(oldRecoveryOntId.replace(Common.didont, ""))
 
-        val list = ArrayList()
+        val list = mutableListOf<Struct>()
         list.add(Struct().add(ontid, newAddr, oldAddr))
         val arg = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "changeRecovery", arg, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "changeRecovery", arg, payer, gaslimit, gasprice)
     }
 
     /**
@@ -667,23 +597,20 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    private fun sendChangeRecovery(ontid: String?, newRecoveryOntId: String?, oldRecoveryOntId: String?, accounts: Array<Account>?, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || accounts == null || accounts.size == 0 || newRecoveryOntId == null || oldRecoveryOntId == null) {
+    private fun sendChangeRecovery(ontid: String, newRecoveryOntId: String, oldRecoveryOntId: String, accounts: Array<Account>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || accounts.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
-        }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
         }
         val newAddr = Address.decodeBase58(newRecoveryOntId.replace(Common.didont, ""))
         val oldAddr = Address.decodeBase58(oldRecoveryOntId.replace(Common.didont, ""))
         val parabytes = NativeBuildParams.buildParams(ontid.toByteArray(), newAddr.toArray(), oldAddr.toArray())
-        val tx = sdk.vm().makeInvokeCodeTransaction(contractAddress, "changeRecovery", parabytes, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, arrayOf(accounts))
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeInvokeCodeTransaction(contractAddress, "changeRecovery", parabytes, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, arrayOf(accounts))
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -700,21 +627,18 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendAddAttributes(ontid: String?, password: String?, salt: ByteArray, attributes: Array<Attribute>?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || attributes == null || attributes.size == 0 || payerAcct == null) {
+    fun sendAddAttributes(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid == "" || attributes.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = ontid.replace(Common.didont, "")
-        val tx = makeAddAttributes(ontid, password, salt, attributes, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, addr, password, salt)
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeAddAttributes(ontid, password, salt, attributes, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -730,32 +654,27 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeAddAttributes(ontid: String?, password: String?, salt: ByteArray, attributes: Array<Attribute>?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        var password = password
-        if (ontid == null || ontid == "" || password == null || attributes == null || attributes.size == 0 || payer == null || payer == "") {
+    fun makeAddAttributes(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || attributes.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = ontid.replace(Common.didont, "")
-        val info = sdk.walletMgr!!.getAccountInfo(addr, password, salt)
-        password = null
+        val info = walletMgr.getAccountInfo(addr, password, salt)
         val pk = Helper.hexToBytes(info.pubkey)
-        val list = ArrayList()
-        val struct = Struct().add(*ontid.toByteArray())
+        val list = mutableListOf<Struct>()
+        val struct = Struct().add(ontid.toByteArray())
         struct.add(attributes.size)
         for (i in attributes.indices) {
             struct.add(attributes[i].key, attributes[i].valueType, attributes[i].value)
         }
-        struct.add(*pk)
+        struct.add(pk)
         list.add(struct)
         val args = NativeBuildParams.createCodeParamsScript(list)
 
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "addAttributes", args, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "addAttributes", args, payer, gaslimit, gasprice)
     }
 
     /**
@@ -769,21 +688,18 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendRemoveAttribute(ontid: String?, password: String?, salt: ByteArray, path: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || payerAcct == null || path == null || path == "") {
+    fun sendRemoveAttribute(ontid: String, password: String, salt: ByteArray, path: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || path.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = ontid.replace(Common.didont, "")
-        val tx = makeRemoveAttribute(ontid, password, salt, path, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        sdk.signTx(tx, addr, password, salt)
-        sdk.addSign(tx, payerAcct)
-        val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeRemoveAttribute(ontid, password, salt, path, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -799,24 +715,21 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeRemoveAttribute(ontid: String?, password: String?, salt: ByteArray, path: String?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || password == null || payer == null || payer == "" || path == null || path == "" || payer == null || payer == "") {
+    fun makeRemoveAttribute(ontid: String, password: String, salt: ByteArray, path: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || payer.isEmpty() || path.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("gas or gaslimit should not be less than 0"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = ontid.replace(Common.didont, "")
-        val info = sdk.walletMgr!!.getAccountInfo(addr, password, salt)
+        val info = walletMgr.getAccountInfo(addr, password, salt)
         val pk = Helper.hexToBytes(info.pubkey)
 
-        val list = ArrayList()
+        val list = mutableListOf<Struct>()
         list.add(Struct().add(ontid.toByteArray(), path.toByteArray(), pk))
         val arg = NativeBuildParams.createCodeParamsScript(list)
-        return sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "removeAttribute", arg, payer, gaslimit, gasprice)
+        return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "removeAttribute", arg, payer, gaslimit, gasprice)
     }
 
     /**
@@ -825,30 +738,26 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun getMerkleProof(txhash: String?): Any {
-        if (txhash == null || txhash == "") {
+    fun getMerkleProof(txhash: String): Any {
+        if (txhash.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("txhash should not be null"))
         }
-        val proof = HashMap()
-        val map = HashMap()
-        val height = sdk.connect!!.getBlockHeightByTxHash(txhash)
-        map.put("Type", "MerkleProof")
-        map.put("TxnHash", txhash)
-        map.put("BlockHeight", height)
+        val proof = mutableMapOf<String, Map<String, Any>>()
+        val map = mutableMapOf<String, Any>()
+        val height = connect!!.getBlockHeightByTxHash(txhash)
+        map["Type"] = "MerkleProof"
+        map["TxnHash"] = txhash
+        map["BlockHeight"] = height
 
-        val tmpProof = sdk.connect!!.getMerkleProof(txhash) as Map<*, *>
-        val txroot = UInt256.parse(tmpProof["TransactionsRoot"] as String)
+        val tmpProof = connect!!.getMerkleProof(txhash)
         val blockHeight = tmpProof["BlockHeight"] as Int
         val curBlockRoot = UInt256.parse(tmpProof["CurBlockRoot"] as String)
         val curBlockHeight = tmpProof["CurBlockHeight"] as Int
-        val hashes = tmpProof["TargetHashes"] as List<*>
-        val targetHashes = arrayOfNulls<UInt256>(hashes.size)
-        for (i in hashes.indices) {
-            targetHashes[i] = UInt256.parse(hashes[i] as String)
-        }
-        map.put("MerkleRoot", curBlockRoot.toHexString())
-        map.put("Nodes", MerkleVerifier.getProof(txroot, blockHeight, targetHashes, curBlockHeight + 1))
-        proof.put("Proof", map)
+        val hashes = tmpProof["TargetHashes"] as List<String>
+        val targetHashes = Array(hashes.size) { i -> UInt256.parse(hashes[i]) }
+        map["MerkleRoot"] = curBlockRoot.toHexString()
+        map["Nodes"] = MerkleVerifier.getProof(blockHeight, targetHashes, curBlockHeight + 1)
+        proof["Proof"] = map
         return proof
     }
 
@@ -868,7 +777,7 @@ class OntId(private val sdk: OntSdk) {
             val txhash = proof["TxnHash"] as String
             val blockHeight = proof["BlockHeight"] as Int
             val merkleRoot = UInt256.parse(proof["MerkleRoot"] as String)
-            val block = sdk.connect!!.getBlock(blockHeight)
+            val block = connect!!.getBlock(blockHeight)
             if (block.height != blockHeight) {
                 throw SDKException("blockHeight not match")
             }
@@ -904,17 +813,17 @@ class OntId(private val sdk: OntSdk) {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun createOntIdClaim(signerOntid: String?, password: String?, salt: ByteArray, context: String?, claimMap: Map<String, Any>?, metaData: Map<*, *>?, clmRevMap: Map<*, *>?, expire: Long): String {
-        if (signerOntid == null || signerOntid == "" || password == null || password == "" || context == null || context == "" || claimMap == null || metaData == null || clmRevMap == null || expire < 0) {
+    fun createOntIdClaim(signerOntid: String, password: String, salt: ByteArray, context: String, claimMap: Map<String, Any>, metaData: Map<String, String>, clmRevMap: Map<String, Any>, expire: Long): String {
+        if (signerOntid.isEmpty() || password.isEmpty() || context.isEmpty() || expire < 0) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (expire < System.currentTimeMillis() / 1000) {
             throw SDKException(ErrorCode.ExpireErr)
         }
-        var claim: Claim? = null
+        val claim: Claim?
         try {
-            val sendDid = metaData["Issuer"] as String
-            val receiverDid = metaData["Subject"] as String
+            val sendDid = metaData["Issuer"]
+            val receiverDid = metaData["Subject"]
             if (sendDid == null || receiverDid == null) {
                 throw SDKException(ErrorCode.DidNull)
             }
@@ -922,8 +831,8 @@ class OntId(private val sdk: OntSdk) {
             val owners = JSON.parseObject(issuerDdo).getJSONArray("Owners")
                     ?: throw SDKException(ErrorCode.NotExistCliamIssuer)
             var pubkeyId: String? = null
-            val acct = sdk.walletMgr!!.getAccount(signerOntid, password, salt)
-            val pk = Helper.toHexString(acct.serializePublicKey()!!)
+            val acct = walletMgr.getAccount(signerOntid, password, salt)
+            val pk = Helper.toHexString(acct.serializePublicKey())
             for (i in owners.indices) {
                 val obj = owners.getJSONObject(i)
                 if (obj.getString("Value") == pk) {
@@ -938,7 +847,7 @@ class OntId(private val sdk: OntSdk) {
             if (receiverDidStr.size != 3) {
                 throw SDKException(ErrorCode.DidError)
             }
-            claim = Claim(sdk.walletMgr!!.signatureScheme, acct, context, claimMap, metaData, clmRevMap, pubkeyId, expire)
+            claim = Claim(walletMgr.signatureScheme, acct, context, claimMap, metaData, clmRevMap, pubkeyId, expire)
             return claim.claimStr
         } catch (e: SDKException) {
             throw SDKException(ErrorCode.CreateOntIdClaimErr)
@@ -956,7 +865,7 @@ class OntId(private val sdk: OntSdk) {
         if (claim == null) {
             throw SDKException(ErrorCode.ParamErr("claim should not be null"))
         }
-        var sign: DataSignature? = null
+        val sign: DataSignature?
         try {
 
             val obj = claim.split("\\.".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -981,7 +890,7 @@ class OntId(private val sdk: OntSdk) {
             val pubkeyStr = owners.getJSONObject(Integer.parseInt(id) - 1).getString("Value")
             sign = DataSignature()
             val data = (obj[0] + "." + obj[1]).toByteArray()
-            return sign.verifySignature(Account(false, Helper.hexToBytes(pubkeyStr)), data, signatureBytes)
+            return sign.verifySignature(Account(Helper.hexToBytes(pubkeyStr)), data, signatureBytes)
         } catch (e: Exception) {
             throw SDKException(ErrorCode.VerifyOntIdClaimErr)
         }
@@ -999,71 +908,66 @@ class OntId(private val sdk: OntSdk) {
         if (ontid == null) {
             throw SDKException(ErrorCode.ParamErr("ontid should not be null"))
         }
-        if (contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
 
-        val list = ArrayList()
+        val list = mutableListOf<ByteArray>()
         list.add(ontid.toByteArray())
         val arg = NativeBuildParams.createCodeParamsScript(list)
 
-        val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getDDO", arg, null, 0, 0)
-        val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getDDO", arg, null, 0, 0)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
         if (res == "") {
             return res
         }
         val map = parseDdoData(ontid, res)
-        return if (map.size == 0) {
+        return if (map.isEmpty()) {
             ""
         } else JSON.toJSONString(map)
     }
 
     @Throws(Exception::class)
-    private fun parseDdoData(ontid: String, obj: String): Map<*, *> {
+    private fun parseDdoData(ontid: String, obj: String): Map<String, Any> {
         val bys = Helper.hexToBytes(obj)
 
         val bais = ByteArrayInputStream(bys)
         val br = BinaryReader(bais)
-        var publickeyBytes: ByteArray
-        var attributeBytes: ByteArray
-        var recoveryBytes: ByteArray
-        try {
-            publickeyBytes = br.readVarBytes()
+
+        val publickeyBytes = try {
+            br.readVarBytes()
         } catch (e: Exception) {
-            publickeyBytes = byteArrayOf()
+            byteArrayOf()
         }
 
-        try {
-            attributeBytes = br.readVarBytes()
+        val attributeBytes = try {
+            br.readVarBytes()
         } catch (e: Exception) {
             e.printStackTrace()
-            attributeBytes = byteArrayOf()
+            byteArrayOf()
         }
 
-        try {
-            recoveryBytes = br.readVarBytes()
+        val recoveryBytes = try {
+            br.readVarBytes()
         } catch (e: Exception) {
-            recoveryBytes = byteArrayOf()
+            byteArrayOf()
         }
 
-        val pubKeyList = ArrayList()
-        if (publickeyBytes.size != 0) {
+        val pubKeyList = mutableListOf<Map<String, Any>>()
+        if (publickeyBytes.isNotEmpty()) {
             val bais1 = ByteArrayInputStream(publickeyBytes)
             val br1 = BinaryReader(bais1)
             while (true) {
                 try {
-                    val publicKeyMap = HashMap()
-                    publicKeyMap.put("PubKeyId", ontid + "#keys-" + br1.readInt().toString())
+                    val publicKeyMap = mutableMapOf<String, Any>()
+                    publicKeyMap["PubKeyId"] = ontid + "#keys-" + br1.readInt().toString()
                     val pubKey = br1.readVarBytes()
                     if (pubKey.size == 33) {
-                        publicKeyMap.put("Type", KeyType.ECDSA.name)
-                        publicKeyMap.put("Curve", Curve.P256)
-                        publicKeyMap.put("Value", Helper.toHexString(pubKey))
+                        publicKeyMap["Type"] = KeyType.ECDSA.name
+                        publicKeyMap["Curve"] = Curve.P256
+                        publicKeyMap["Value"] = Helper.toHexString(pubKey)
                     } else {
-                        publicKeyMap.put("Type", KeyType.fromLabel(pubKey[0]))
-                        publicKeyMap.put("Curve", Curve.fromLabel(pubKey[1].toInt()))
-                        publicKeyMap.put("Value", Helper.toHexString(pubKey))
+                        publicKeyMap["Type"] = KeyType.fromLabel(pubKey[0])
+                        publicKeyMap["Curve"] = Curve.fromLabel(pubKey[1].toInt())
+                        publicKeyMap["Value"] = Helper.toHexString(pubKey)
                     }
 
                     pubKeyList.add(publicKeyMap)
@@ -1073,16 +977,17 @@ class OntId(private val sdk: OntSdk) {
 
             }
         }
-        val attrsList = ArrayList()
-        if (attributeBytes.size != 0) {
+
+        val attrsList = mutableListOf<Map<String, String>>()
+        if (attributeBytes.isNotEmpty()) {
             val bais2 = ByteArrayInputStream(attributeBytes)
             val br2 = BinaryReader(bais2)
             while (true) {
                 try {
-                    val attributeMap = HashMap()
-                    attributeMap.put("Key", String(br2.readVarBytes()))
-                    attributeMap.put("Type", String(br2.readVarBytes()))
-                    attributeMap.put("Value", String(br2.readVarBytes()))
+                    val attributeMap = mutableMapOf<String, String>()
+                    attributeMap["Key"] = String(br2.readVarBytes())
+                    attributeMap["Type"] = String(br2.readVarBytes())
+                    attributeMap["Value"] = String(br2.readVarBytes())
                     attrsList.add(attributeMap)
                 } catch (e: Exception) {
                     break
@@ -1091,13 +996,13 @@ class OntId(private val sdk: OntSdk) {
             }
         }
 
-        val map = HashMap()
-        map.put("Owners", pubKeyList)
-        map.put("Attributes", attrsList)
-        if (recoveryBytes.size != 0) {
-            map.put("Recovery", Address.parse(Helper.toHexString(recoveryBytes)).toBase58())
+        val map = mutableMapOf<String, Any>()
+        map["Owners"] = pubKeyList
+        map["Attributes"] = attrsList
+        if (recoveryBytes.isNotEmpty()) {
+            map["Recovery"] = Address.parse(Helper.toHexString(recoveryBytes)).toBase58()
         }
-        map.put("OntId", ontid)
+        map["OntId"] = ontid
         return map
     }
 }

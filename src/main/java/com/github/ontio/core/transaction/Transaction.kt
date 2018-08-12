@@ -133,7 +133,7 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         return InventoryType.TX
     }
 
-    open fun json(): Any {
+    open fun json(): MutableMap<String, Any> {
         val json = mutableMapOf<String, Any>()
         json["Hash"] = hash().toString()
         json["Version"] = version.toInt()
@@ -171,10 +171,7 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
                 transaction.gasLimit = reader.readLong()
                 transaction.payer = reader.readSerializable(Address::class.java)
                 transaction.deserializeUnsignedWithoutType(reader)
-                transaction.sigs = arrayOfNulls<Sig>(reader.readVarInt().toInt()) as Array<Sig>
-                for (i in transaction.sigs.indices) {
-                    transaction.sigs[i] = reader.readSerializable(Sig::class.java)
-                }
+                transaction.sigs = Array(reader.readVarInt().toInt()) { reader.readSerializable(Sig::class.java) }
                 return transaction
             } catch (ex: ClassNotFoundException) {
                 throw IOException(ex)

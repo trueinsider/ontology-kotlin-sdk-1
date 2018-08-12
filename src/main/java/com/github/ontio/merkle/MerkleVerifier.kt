@@ -77,9 +77,9 @@ object MerkleVerifier {
 
     }
 
-    fun getProof(leaf_hash: UInt256, node_index: Int, audit_path: Array<UInt256>, tree_size: Int): List<*> {
+    fun getProof(node_index: Int, audit_path: Array<UInt256>, tree_size: Int): List<Map<String, String>> {
         var node_index = node_index
-        val nodes = ArrayList<Any>()
+        val nodes = mutableListOf<Map<String, String>>()
         var last_node = tree_size - 1
         var pos = 0
         while (last_node > 0) {

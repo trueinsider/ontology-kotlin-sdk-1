@@ -70,8 +70,8 @@ class RestClient(restUrl: String) : AbstractConnector() {
     }
 
     @Throws(RestfulException::class)
-    override fun sendRawTransaction(hexData: String): String {
-        val rs = api.sendTransaction(false, null, action, version, hexData)
+    override fun sendRawTransaction(sData: String): String {
+        val rs = api.sendTransaction(false, null, action, version, sData)
         val rr = JSON.parseObject(rs, Result::class.java)
         if (rr.Error == 0L) {
             return rs
@@ -80,8 +80,8 @@ class RestClient(restUrl: String) : AbstractConnector() {
     }
 
     @Throws(RestfulException::class)
-    override fun sendRawTransaction(preExec: Boolean, userid: String?, hexData: String): String {
-        val rs = api.sendTransaction(preExec, userid, action, version, hexData)
+    override fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String): String {
+        val rs = api.sendTransaction(preExec, userid, action, version, sData)
         val rr = JSON.parseObject(rs, Result::class.java)
         if (rr.Error == 0L) {
             return rs
@@ -242,11 +242,11 @@ class RestClient(restUrl: String) : AbstractConnector() {
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getMerkleProof(hash: String): Any {
+    override fun getMerkleProof(hash: String): Map<String, Any> {
         val rs = api.getMerkleProof(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
         if (rr.Error == 0L) {
-            return rr.Result!!
+            return rr.Result as Map<String, Any>
         }
         throw RestfulException(to(rr))
     }

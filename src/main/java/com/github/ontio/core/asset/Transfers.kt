@@ -31,6 +31,7 @@ import java.util.HashMap
  */
 class Transfers : Serializable {
     lateinit var states: Array<State>
+        private set
 
     private constructor()
 
@@ -41,16 +42,7 @@ class Transfers : Serializable {
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         val len = reader.readVarInt().toInt()
-        states = arrayOfNulls<State>(len) as Array<State>
-        for (i in 0 until len) {
-            try {
-                states[i] = reader.readSerializable(State::class.java)
-            } catch (e: InstantiationException) {
-                e.printStackTrace()
-            } catch (e: IllegalAccessException) {
-                e.printStackTrace()
-            }
-        }
+        states = Array(len) { reader.readSerializable(State::class.java)}
     }
 
     @Throws(IOException::class)
@@ -69,7 +61,6 @@ class Transfers : Serializable {
     }
 
     companion object {
-
         @Throws(IOException::class)
         fun deserializeFrom(value: ByteArray): Transfers {
             try {
@@ -82,8 +73,6 @@ class Transfers : Serializable {
             } catch (ex: IOException) {
                 throw IOException(ex)
             }
-
         }
     }
-
 }

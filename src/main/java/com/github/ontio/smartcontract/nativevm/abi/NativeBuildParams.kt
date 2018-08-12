@@ -20,26 +20,17 @@
 package com.github.ontio.smartcontract.nativevm.abi
 
 import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONObject
-import com.github.ontio.account.Account
 import com.github.ontio.common.Address
-import com.github.ontio.common.Common
 import com.github.ontio.common.ErrorCode
-import com.github.ontio.common.Helper
 import com.github.ontio.core.ontid.Attribute
 import com.github.ontio.core.scripts.ScriptBuilder
 import com.github.ontio.core.scripts.ScriptOp
-import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams.createCodeParamsScript
 
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.lang.reflect.Array
 import java.math.BigInteger
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.ArrayList
 
 object NativeBuildParams {
@@ -55,7 +46,7 @@ object NativeBuildParams {
                     bw.writeVarBytes(param)
                 } else if (param is String) {
                     bw.writeVarString(param)
-                } else if (param is Array<Attribute>) {
+                } else if (param is Array<*> && param.isArrayOf<Attribute>()) {
                     bw.writeSerializableArray(param as Array<Attribute>)
                 } else if (param is Attribute) {
                     bw.writeSerializable(param)
@@ -76,42 +67,38 @@ object NativeBuildParams {
         try {
             for (i in list.indices.reversed()) {
                 val `val` = list[i]
-                if (`val` is ByteArray) {
-                    builder.emitPushByteArray(`val`)
-                } else if (`val` is Boolean) {
-                    builder.emitPushBool(`val`)
-                } else if (`val` is Int) {
-                    builder.emitPushInteger(BigInteger.valueOf(`val`.toLong()))
-                } else if (`val` is Long) {
-                    builder.emitPushInteger(BigInteger.valueOf(`val`))
-                } else if (`val` is Address) {
-                    builder.emitPushByteArray(`val`.toArray())
-                } else if (`val` is String) {
-                    builder.emitPushByteArray(`val`.toByteArray())
-                } else if (`val` is Struct) {
-                    builder.emitPushInteger(BigInteger.valueOf(0))
-                    builder.add(ScriptOp.OP_NEWSTRUCT)
-                    builder.add(ScriptOp.OP_TOALTSTACK)
-                    for (k in `val`.list.indices) {
-                        val o = `val`.list[k]
-                        val tmpList = ArrayList()
-                        tmpList.add(o)
-                        createCodeParamsScript(builder, tmpList)
-                        builder.add(ScriptOp.OP_DUPFROMALTSTACK)
-                        builder.add(ScriptOp.OP_SWAP)
-                        builder.add(ScriptOp.OP_APPEND)
+                when (`val`) {
+                    is ByteArray -> builder.emitPushByteArray(`val`)
+                    is Boolean -> builder.emitPushBool(`val`)
+                    is Int -> builder.emitPushInteger(BigInteger.valueOf(`val`.toLong()))
+                    is Long -> builder.emitPushInteger(BigInteger.valueOf(`val`))
+                    is Address -> builder.emitPushByteArray(`val`.toArray())
+                    is String -> builder.emitPushByteArray(`val`.toByteArray())
+                    is Struct -> {
+                        builder.emitPushInteger(BigInteger.valueOf(0))
+                        builder.add(ScriptOp.OP_NEWSTRUCT)
+                        builder.add(ScriptOp.OP_TOALTSTACK)
+                        for (k in `val`.list.indices) {
+                            val o = `val`.list[k]
+                            val tmpList = mutableListOf<Any>()
+                            tmpList.add(o)
+                            createCodeParamsScript(builder, tmpList)
+                            builder.add(ScriptOp.OP_DUPFROMALTSTACK)
+                            builder.add(ScriptOp.OP_SWAP)
+                            builder.add(ScriptOp.OP_APPEND)
+                        }
+                        builder.add(ScriptOp.OP_FROMALTSTACK)
                     }
-                    builder.add(ScriptOp.OP_FROMALTSTACK)
-                } else if (`val` is List<*>) {
-                    for (k in `val`.indices.reversed()) {
-                        val tmpList = ArrayList()
-                        tmpList.add(`val`[k])
-                        createCodeParamsScript(builder, tmpList)
+                    is List<*> -> {
+                        for (k in `val`.indices.reversed()) {
+                            val tmpList = mutableListOf<Any>()
+                            tmpList.add(`val`[k]!!)
+                            createCodeParamsScript(builder, tmpList)
+                        }
+                        builder.emitPushInteger(BigInteger(`val`.size.toString()))
+                        builder.pushPack()
                     }
-                    builder.emitPushInteger(BigInteger(`val`.size.toString()))
-                    builder.pushPack()
-                } else {
-                    throw SDKException(ErrorCode.OtherError("not this type"))
+                    else -> throw SDKException(ErrorCode.OtherError("not this type"))
                 }
             }
         } catch (e: Exception) {
@@ -136,26 +123,17 @@ object NativeBuildParams {
         list.add(abiFunction.name!!.toByteArray())
         val tmp = ArrayList<Any>()
         for (obj in abiFunction.parameters!!) {
-            if ("Byte" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Byte::class.javaPrimitiveType))
-            } else if ("ByteArray" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, ByteArray::class.java))
-            } else if ("String" == obj.type) {
-                tmp.add(obj.value)
-            } else if ("Bool" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Boolean::class.javaPrimitiveType))
-            } else if ("Int" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Long::class.java))
-            } else if ("Array" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Array::class.java))
-            } else if ("Struct" == obj.type) {
-                //tmp.add(JSON.parseObject(obj.getValue(), Object.class));
-            } else if ("Uint256" == obj.type) {
-
-            } else if ("Address" == obj.type) {
-
-            } else {
-                throw SDKException(ErrorCode.TypeError)
+            when {
+                "Byte" == obj.type -> tmp.add(JSON.parseObject(obj.value, Byte::class.javaPrimitiveType))
+                "ByteArray" == obj.type -> tmp.add(JSON.parseObject(obj.value, ByteArray::class.java))
+                "String" == obj.type -> tmp.add(obj.value!!)
+                "Bool" == obj.type -> tmp.add(JSON.parseObject(obj.value, Boolean::class.javaPrimitiveType))
+                "Int" == obj.type -> tmp.add(JSON.parseObject(obj.value, Long::class.java))
+                "Array" == obj.type -> tmp.add(JSON.parseObject(obj.value, java.lang.reflect.Array::class.java))
+                "Struct" == obj.type -> {}
+                "Uint256" == obj.type -> {}
+                "Address" == obj.type -> {}
+                else -> throw SDKException(ErrorCode.TypeError)
             }
         }
         if (list.size > 0) {

@@ -74,7 +74,7 @@ class RpcClient(url: String) : AbstractConnector() {
     }
 
     @Throws(RpcException::class, IOException::class)
-    override fun getBlockJson(index: Int) = rpc.call("getblock", index, 1)
+    override fun getBlockJson(height: Int) = rpc.call("getblock", height, 1)
 
     @Throws(RpcException::class, IOException::class)
     override fun getBlockJson(hash: String) = rpc.call("getblock", hash, 1)
@@ -101,8 +101,8 @@ class RpcClient(url: String) : AbstractConnector() {
     }
 
     @Throws(RpcException::class, IOException::class)
-    override fun getBlock(index: Int): Block {
-        val result = rpc.call("getblock", index)
+    override fun getBlock(height: Int): Block {
+        val result = rpc.call("getblock", height)
         try {
             return Serializable.from(Helper.hexToBytes(result as String), Block::class.java)
         } catch (e: InstantiationException) {
@@ -137,7 +137,7 @@ class RpcClient(url: String) : AbstractConnector() {
     override fun getStorage(codehash: String, key: String) = rpc.call("getstorage", codehash, key) as String
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getMerkleProof(hash: String) = rpc.call("getmerkleproof", hash)
+    override fun getMerkleProof(hash: String) = rpc.call("getmerkleproof", hash) as Map<String, Any>
 
     @Throws(ConnectorException::class, IOException::class)
     override fun getAllowance(asset: String, from: String, to: String) = rpc.call("getallowance", asset, from, to) as String

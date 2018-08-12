@@ -156,18 +156,9 @@ object Program {
                 e.printStackTrace()
             }
         } else if (end == ScriptOp.OP_CHECKMULTISIG.byte) {
-            var m: Short = 0
+            val m = (reader.readByte() - ScriptOp.OP_PUSH1.byte + 1).toByte().toShort()
             val len = program[program.size - 2] - ScriptOp.OP_PUSH1.byte + 1
-            try {
-                m = (reader.readByte() - ScriptOp.OP_PUSH1.byte + 1).toByte().toShort()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-            val pub = arrayOfNulls<ByteArray>(len) as Array<ByteArray>
-            for (i in 0 until len) {
-                pub[i] = reader.readVarBytes()
-            }
+            val pub = Array(len) { reader.readVarBytes() }
             return ProgramInfo(pub, m)
         }
         return null

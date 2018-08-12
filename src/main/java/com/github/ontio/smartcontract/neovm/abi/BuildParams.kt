@@ -32,7 +32,7 @@ import java.math.BigInteger
 import java.util.ArrayList
 
 object BuildParams {
-    enum class Type private constructor(t: Int) {
+    enum class Type constructor(t: Int) {
         ByteArrayType(0x00),
         BooleanType(0x01),
         IntegerType(0x02),
@@ -41,11 +41,7 @@ object BuildParams {
         StructType(0x81),
         MapType(0x82);
 
-        val value: Byte
-
-        init {
-            this.value = t.toByte()
-        }
+        val value: Byte = t.toByte()
     }
 
     /**
@@ -57,27 +53,28 @@ object BuildParams {
         try {
             for (i in list.indices.reversed()) {
                 val `val` = list[i]
-                if (`val` is ByteArray) {
-                    builder.emitPushByteArray(`val`)
-                } else if (`val` is Boolean) {
-                    builder.emitPushBool(`val`)
-                } else if (`val` is Int) {
-                    builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`.toLong())))
-                } else if (`val` is Long) {
-                    builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`)))
-                } else if (`val` is Map<*, *>) {
-                    val bys = getMapBytes(`val`)
-                    println(Helper.toHexString(bys))
-                    builder.emitPushByteArray(bys)
-                } else if (`val` is Struct) {
-                    val bys = getStructBytes(`val`)
-                    builder.emitPushByteArray(bys)
-                } else if (`val` is List<*>) {
-                    createCodeParamsScript(builder, `val`)
-                    builder.emitPushInteger(BigInteger(`val`.size.toString()))
-                    builder.pushPack()
+                when (`val`) {
+                    is ByteArray -> builder.emitPushByteArray(`val`)
+                    is Boolean -> builder.emitPushBool(`val`)
+                    is Int -> builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`.toLong())))
+                    is Long -> builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`)))
+                    is Map<*, *> -> {
+                        val bys = getMapBytes(`val`)
+                        println(Helper.toHexString(bys))
+                        builder.emitPushByteArray(bys)
+                    }
+                    is Struct -> {
+                        val bys = getStructBytes(`val`)
+                        builder.emitPushByteArray(bys)
+                    }
+                    is List<*> -> {
+                        createCodeParamsScript(builder, `val` as List<Any>)
+                        builder.emitPushInteger(BigInteger(`val`.size.toString()))
+                        builder.pushPack()
 
-                } else {
+                    }
+                    else -> {
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -88,7 +85,6 @@ object BuildParams {
     }
 
     fun getStructBytes(`val`: Any): ByteArray {
-
         var sb: ScriptBuilder? = null
         try {
             sb = ScriptBuilder()
@@ -96,20 +92,24 @@ object BuildParams {
             sb.add(Type.StructType.value)
             sb.add(Helper.BigIntToNeoBytes(BigInteger.valueOf(list.size.toLong())))
             for (i in list.indices) {
-                if (list[i] is ByteArray) {
-                    sb.add(Type.ByteArrayType.value)
-                    sb.emitPushByteArray(list[i] as ByteArray)
-                } else if (list[i] is String) {
-                    sb.add(Type.ByteArrayType.value)
-                    sb.emitPushByteArray((list[i] as String).toByteArray())
-                } else if (list[i] is Int) {
-                    sb.add(Type.ByteArrayType.value)
-                    sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((list[i] as Int).toLong())))
-                } else if (list[i] is Long) {
-                    sb.add(Type.ByteArrayType.value)
-                    sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(list[i] as Long)))
-                } else {
-                    throw SDKException(ErrorCode.ParamError)
+                when {
+                    list[i] is ByteArray -> {
+                        sb.add(Type.ByteArrayType.value)
+                        sb.emitPushByteArray(list[i] as ByteArray)
+                    }
+                    list[i] is String -> {
+                        sb.add(Type.ByteArrayType.value)
+                        sb.emitPushByteArray((list[i] as String).toByteArray())
+                    }
+                    list[i] is Int -> {
+                        sb.add(Type.ByteArrayType.value)
+                        sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf((list[i] as Int).toLong())))
+                    }
+                    list[i] is Long -> {
+                        sb.add(Type.ByteArrayType.value)
+                        sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(list[i] as Long)))
+                    }
+                    else -> throw SDKException(ErrorCode.ParamError)
                 }
             }
         } catch (e: SDKException) {
@@ -129,20 +129,24 @@ object BuildParams {
             for ((key, value) in map) {
                 sb.add(Type.ByteArrayType.value)
                 sb.emitPushByteArray((key as String).toByteArray())
-                if (value is ByteArray) {
-                    sb.add(Type.ByteArrayType.value)
-                    sb.emitPushByteArray(value)
-                } else if (value is String) {
-                    sb.add(Type.ByteArrayType.value)
-                    sb.emitPushByteArray(value.toByteArray())
-                } else if (value is Int) {
-                    sb.add(Type.IntegerType.value)
-                    sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(value.toLong())))
-                } else if (value is Long) {
-                    sb.add(Type.IntegerType.value)
-                    sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(value)))
-                } else {
-                    throw SDKException(ErrorCode.ParamError)
+                when (value) {
+                    is ByteArray -> {
+                        sb.add(Type.ByteArrayType.value)
+                        sb.emitPushByteArray(value)
+                    }
+                    is String -> {
+                        sb.add(Type.ByteArrayType.value)
+                        sb.emitPushByteArray(value.toByteArray())
+                    }
+                    is Int -> {
+                        sb.add(Type.IntegerType.value)
+                        sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(value.toLong())))
+                    }
+                    is Long -> {
+                        sb.add(Type.IntegerType.value)
+                        sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(value)))
+                    }
+                    else -> throw SDKException(ErrorCode.ParamError)
                 }
             }
         } catch (e: SDKException) {
@@ -161,27 +165,27 @@ object BuildParams {
         try {
             for (i in list.indices.reversed()) {
                 val `val` = list[i]
-                if (`val` is ByteArray) {
-                    sb.emitPushByteArray(`val`)
-                } else if (`val` is Boolean) {
-                    sb.emitPushBool(`val`)
-                } else if (`val` is Int) {
-                    sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`.toLong())))
-                } else if (`val` is Long) {
-                    sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`)))
-                } else if (`val` is BigInteger) {
-                    sb.emitPushInteger(`val`)
-                } else if (`val` is Map<*, *>) {
-                    val bys = getMapBytes(`val`)
-                    sb.emitPushByteArray(bys)
-                } else if (`val` is Struct) {
-                    val bys = getStructBytes(`val`)
-                    sb.emitPushByteArray(bys)
-                } else if (`val` is List<*>) {
-                    createCodeParamsScript(sb, `val`)
-                    sb.emitPushInteger(BigInteger(`val`.size.toString()))
-                    sb.pushPack()
-                } else {
+                when (`val`) {
+                    is ByteArray -> sb.emitPushByteArray(`val`)
+                    is Boolean -> sb.emitPushBool(`val`)
+                    is Int -> sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`.toLong())))
+                    is Long -> sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`)))
+                    is BigInteger -> sb.emitPushInteger(`val`)
+                    is Map<*, *> -> {
+                        val bys = getMapBytes(`val`)
+                        sb.emitPushByteArray(bys)
+                    }
+                    is Struct -> {
+                        val bys = getStructBytes(`val`)
+                        sb.emitPushByteArray(bys)
+                    }
+                    is List<*> -> {
+                        createCodeParamsScript(sb, `val` as List<Any>)
+                        sb.emitPushInteger(BigInteger(`val`.size.toString()))
+                        sb.pushPack()
+                    }
+                    else -> {
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -202,26 +206,17 @@ object BuildParams {
         list.add(abiFunction.name!!.toByteArray())
         val tmp = ArrayList<Any>()
         for (obj in abiFunction.parameters!!) {
-            if ("ByteArray" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, ByteArray::class.java))
-            } else if ("String" == obj.type) {
-                tmp.add(obj.value)
-            } else if ("Boolean" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Boolean::class.javaPrimitiveType))
-            } else if ("Integer" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Long::class.java))
-            } else if ("Array" == obj.type) {
-                tmp.add(JSON.parseObject<List>(obj.value, List<*>::class.java))
-            } else if ("InteropInterface" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Any::class.java))
-            } else if ("Void" == obj.type) {
-
-            } else if ("Map" == obj.type) {
-                tmp.add(JSON.parseObject<Map>(obj.value, Map<*, *>::class.java))
-            } else if ("Struct" == obj.type) {
-                tmp.add(JSON.parseObject(obj.value, Struct::class.java))
-            } else {
-                throw SDKException(ErrorCode.TypeError)
+            when {
+                "ByteArray" == obj.type -> tmp.add(JSON.parseObject(obj.value, ByteArray::class.java))
+                "String" == obj.type -> tmp.add(obj.value!!)
+                "Boolean" == obj.type -> tmp.add(JSON.parseObject(obj.value, Boolean::class.javaPrimitiveType))
+                "Integer" == obj.type -> tmp.add(JSON.parseObject(obj.value, Long::class.java))
+                "Array" == obj.type -> tmp.add(JSON.parseObject(obj.value, List::class.java))
+                "InteropInterface" == obj.type -> tmp.add(JSON.parseObject(obj.value, Any::class.java))
+                "Void" == obj.type -> {}
+                "Map" == obj.type -> tmp.add(JSON.parseObject(obj.value, Map::class.java))
+                "Struct" == obj.type -> tmp.add(JSON.parseObject(obj.value, Struct::class.java))
+                else -> throw SDKException(ErrorCode.TypeError)
             }
         }
         if (list.size > 0) {

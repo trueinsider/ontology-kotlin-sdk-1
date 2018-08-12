@@ -55,6 +55,7 @@ object OntSdk {
     private lateinit var signServer: SignServer
     var defaultSignScheme = SignatureScheme.SHA256WITHECDSA
     var DEFAULT_GAS_LIMIT: Long = 20000
+
     val rpc: ConnectMgr
         @Throws(SDKException::class)
         get() {
@@ -72,6 +73,7 @@ object OntSdk {
             }
             return connRestful
         }
+
     val connect: ConnectMgr?
         get() {
             if (::connDefault.isInitialized) {
@@ -89,6 +91,7 @@ object OntSdk {
 
             return null
         }
+
     val webSocket: ConnectMgr
         @Throws(SDKException::class)
         get() {
@@ -106,14 +109,6 @@ object OntSdk {
         return signServer
     }
 
-    val nativevm = NativeVm()
-
-    val neovm = NeoVm()
-
-    val wasmvm = WasmVm()
-
-    val vm = Vm()
-
     fun setDefaultConnect(conn: ConnectMgr) {
         connDefault = conn
     }
@@ -126,7 +121,6 @@ object OntSdk {
         } catch (e: SDKException) {
             e.printStackTrace()
         }
-
     }
 
     fun setConnectMainNet() {
@@ -137,9 +131,7 @@ object OntSdk {
         } catch (e: SDKException) {
             e.printStackTrace()
         }
-
     }
-
 
     /**
      *
@@ -172,14 +164,12 @@ object OntSdk {
      * @param path
      */
     fun openWalletFile(path: String) {
-
         try {
             this.walletMgr = WalletMgr(path, defaultSignScheme)
             setSignatureScheme(defaultSignScheme)
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     /**
@@ -201,7 +191,7 @@ object OntSdk {
             throw SDKException(ErrorCode.ParamErr("the number of transaction signatures should not be over 16"))
         }
         val sigs = mutableListOf(*tx.sigs)
-        sigs.add(Sig(1, arrayOf(acct.serializePublicKey()), arrayOf(tx.sign(acct, acct.signatureScheme!!))))
+        sigs.add(Sig(1, arrayOf(acct.serializePublicKey()), arrayOf(tx.sign(acct, acct.signatureScheme))))
         tx.sigs = sigs.toTypedArray()
         return tx
     }
@@ -217,7 +207,7 @@ object OntSdk {
      */
     @Throws(Exception::class)
     fun addMultiSign(tx: Transaction, M: Int, pubKeys: Array<ByteArray>, acct: Account): Transaction {
-        addMultiSign(tx, M, pubKeys, tx.sign(acct, acct.signatureScheme!!))
+        addMultiSign(tx, M, pubKeys, tx.sign(acct, acct.signatureScheme))
         return tx
     }
 
@@ -248,10 +238,10 @@ object OntSdk {
     }
 
     @Throws(Exception::class)
-    fun signTx(tx: Transaction, address: String, password: String, salt: ByteArray): Transaction {
-        signTx(tx, arrayOf(arrayOf(walletMgr.getAccount(address.replace(Common.didont, ""), password, salt))))
-        return tx
-    }
+    fun signTx(tx: Transaction, address: String, password: String, salt: ByteArray) = signTx(
+            tx,
+            arrayOf(arrayOf(walletMgr.getAccount(address.replace(Common.didont, ""), password, salt)))
+    )
 
     /**
      * sign tx
@@ -269,7 +259,7 @@ object OntSdk {
             val pubKeys = mutableListOf<ByteArray>()
             val sigData = mutableListOf<ByteArray>()
             for (j in 0 until accounts[i].size) {
-                val signature = tx.sign(accounts[i][j], accounts[i][j].signatureScheme!!)
+                val signature = tx.sign(accounts[i][j], accounts[i][j].signatureScheme)
                 pubKeys.add(accounts[i][j].serializePublicKey())
                 sigData.add(signature)
             }
@@ -295,7 +285,7 @@ object OntSdk {
         if (M.size != accounts.size) {
             throw SDKException(ErrorCode.ParamError)
         }
-        val tx = signTx(tx, accounts)
+        signTx(tx, accounts)
         for (i in tx.sigs.indices) {
             if (M[i] > tx.sigs[i].pubKeys.size || M[i] < 0) {
                 throw SDKException(ErrorCode.ParamError)
@@ -314,7 +304,6 @@ object OntSdk {
         } catch (e: Exception) {
             throw SDKException(e)
         }
-
     }
 
     @Throws(SDKException::class)
@@ -322,10 +311,9 @@ object OntSdk {
         val sign: DataSignature
         try {
             sign = DataSignature()
-            return sign.verifySignature(Account(false, pubkey), Digest.sha256(Digest.sha256(data)), signature)
+            return sign.verifySignature(Account(pubkey), Digest.sha256(Digest.sha256(data)), signature)
         } catch (e: Exception) {
             throw SDKException(e)
         }
-
     }
 }

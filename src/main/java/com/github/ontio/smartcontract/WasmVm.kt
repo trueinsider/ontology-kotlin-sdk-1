@@ -21,33 +21,30 @@ package com.github.ontio.smartcontract
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
 import com.github.ontio.common.ErrorCode
-import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.smartcontract.neovm.abi.AbiFunction
 import com.github.ontio.sdk.exception.SDKException
+import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
 
-import java.util.ArrayList
-import java.util.HashMap
-
-class WasmVm {
-
+object WasmVm {
     @Throws(Exception::class)
     fun sendTransaction(contractAddr: String, payer: String, password: String, salt: ByteArray, gaslimit: Long, gas: Long, func: AbiFunction, preExec: Boolean): String {
         val params = BuildParams.serializeAbiFunction(func)
         if (preExec) {
-            val tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit, gas)
-            val obj = sdk.connect!!.sendRawTransactionPreExec(tx.toHexString()) as String
-            val result = (obj as JSONObject).getString("Result")
+            val tx = makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit, gas)
+            val obj = connect!!.sendRawTransactionPreExec(tx.toHexString()) as JSONObject
+            val result = obj.getString("Result")
             if (Integer.parseInt(result) == 0) {
                 throw SDKException(ErrorCode.OtherError("sendRawTransaction PreExec error: $obj"))
             }
             return result
         } else {
-            val tx = sdk.vm().makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit, gas)
-            sdk.signTx(tx, payer, password, salt)
-            val b = sdk.connect!!.sendRawTransaction(tx.toHexString())
+            val tx = makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit, gas)
+            signTx(tx, payer, password, salt)
+            val b = connect!!.sendRawTransaction(tx.toHexString())
             if (!b) {
                 throw SDKException(ErrorCode.SendRawTxError)
             }
@@ -56,40 +53,40 @@ class WasmVm {
     }
 
     fun buildWasmContractJsonParam(objs: Array<Any>): String {
-        val params = ArrayList()
+        val params = mutableListOf<Map<String, Any>>()
         for (i in objs.indices) {
             val `val` = objs[i]
             if (`val` is String) {
-                val map = HashMap()
-                map.put("type", "string")
-                map.put("value", `val`)
+                val map = mutableMapOf<String, String>()
+                map["type"] = "string"
+                map["value"] = `val`
                 params.add(map)
             } else if (`val` is Int) {
-                val map = HashMap()
-                map.put("type", "int")
-                map.put("value", `val`.toString())
+                val map = mutableMapOf<String, String>()
+                map["type"] = "int"
+                map["value"] = `val`.toString()
                 params.add(map)
             } else if (`val` is Long) {
-                val map = HashMap()
-                map.put("type", "int64")
-                map.put("value", `val`.toString())
+                val map = mutableMapOf<String, String>()
+                map["type"] = "int64"
+                map["value"] = `val`.toString()
                 params.add(map)
             } else if (`val` is IntArray) {
-                val map = HashMap()
-                map.put("type", "int_array")
-                map.put("value", `val`)
+                val map = mutableMapOf<String, Any>()
+                map["type"] = "int_array"
+                map["value"] = `val`
                 params.add(map)
             } else if (`val` is LongArray) {
-                val map = HashMap()
-                map.put("type", "int_array")
-                map.put("value", `val`)
+                val map = mutableMapOf<String, Any>()
+                map["type"] = "int_array"
+                map["value"] = `val`
                 params.add(map)
             } else {
                 continue
             }
         }
-        val result = HashMap()
-        result.put("Params", params)
+        val result = mutableMapOf<String, List<Map<String, Any>>>()
+        result["Params"] = params
         return JSON.toJSONString(result)
     }
 }

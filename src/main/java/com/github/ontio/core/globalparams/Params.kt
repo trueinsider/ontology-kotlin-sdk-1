@@ -19,7 +19,6 @@ class Params(var params: Array<Param>) : Serializable {
     override fun serialize(writer: BinaryWriter) {
         val l = params.size.toLong()
         val aa = Helper.BigIntToNeoBytes(BigInteger.valueOf(l))
-        val bb = Helper.toHexString(aa)
         writer.writeVarBytes(aa)
         for (i in params.indices) {
             writer.writeVarString(params[i].key)

@@ -64,7 +64,7 @@ class ExtendedPublicKey internal constructor(private val hdKey: HdKey) : Derive<
         val parse256_Il = parse256(Il)
         val ki = gMultiplyAndAddPoint(parse256_Il, kPar)
 
-        if (parse256_Il.compareTo(n()) >= 0 || ki.isInfinity) {
+        if (parse256_Il >= n() || ki.isInfinity) {
             return cKDpub(index + 1)
         }
 
@@ -99,14 +99,14 @@ class ExtendedPublicKey internal constructor(private val hdKey: HdKey) : Derive<
     }
 
     fun p2pkhAddress(): String {
-        return encodeAddress(hdKey.network!!.p2pkhVersion(), hdKey.key)
+        return encodeAddress(hdKey.network.p2pkhVersion(), hdKey.key)
     }
 
     fun p2shAddress(): String {
         val script = ByteArray(22)
         script[1] = 20.toByte()
-        hash160into(script, 2, hdKey.key!!)
-        return encodeAddress(hdKey.network!!.p2shVersion(), script)
+        hash160into(script, 2, hdKey.key)
+        return encodeAddress(hdKey.network.p2shVersion(), script)
     }
 
     fun derive(): Derive<ExtendedPublicKey> {

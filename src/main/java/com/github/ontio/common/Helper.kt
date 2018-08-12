@@ -135,7 +135,6 @@ object Helper {
         return data3
     }
 
-
     fun now(): String {
         return SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Date())
     }

@@ -69,8 +69,6 @@ class Contract : Serializable {
     }
 
     companion object {
-
-
         @Throws(IOException::class)
         fun deserializeFrom(value: ByteArray): Contract {
             try {

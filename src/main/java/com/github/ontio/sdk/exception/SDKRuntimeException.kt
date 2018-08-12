@@ -19,21 +19,12 @@
 
 package com.github.ontio.sdk.exception
 
-import com.alibaba.fastjson.JSON
-
 class SDKRuntimeException : RuntimeException {
-    constructor(message: String) : super(message) {
-        initExMsg(message)
-    }
+    constructor(message: String) : super(message)
 
-    constructor(message: String, ex: Throwable) : super(message, ex) {
-        initExMsg(message)
-    }
-
-    private fun initExMsg(message: String) {}
+    constructor(message: String, ex: Throwable) : super(message, ex)
 
     companion object {
-
-        private val serialVersionUID = 2005335065357755315L
+        private const val serialVersionUID = 2005335065357755315L
     }
 }

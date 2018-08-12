@@ -20,39 +20,31 @@
 package com.github.ontio.smartcontract.neovm
 
 import com.alibaba.fastjson.JSON
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
+import com.github.ontio.OntSdk.walletMgr
 import com.github.ontio.common.Common
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.crypto.KeyType
 import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.sdk.info.AccountInfo
+import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
 
 import java.util.ArrayList
 import java.util.LinkedHashMap
 
-class Record() {
-    var contractAddress: String? = null
-        set(codeHash) {
-            field = codeHash.replace("0x", "")
-        }
-
+class Record(contractAddress: String) {
+    val contractAddress = contractAddress.replace("0x", "")
 
     @Throws(Exception::class)
-    fun sendPut(addr: String, password: String, salt: ByteArray, key: String?, value: String?, gaslimit: Long, gas: Long): String? {
-        var addr = addr
-        if (this.contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        if (key == null || value == null || key === "" || value === "") {
+    fun sendPut(addr: String, password: String, salt: ByteArray, key: String, value: String, gaslimit: Long, gas: Long): String? {
+        val addr = addr.replace(Common.didont, "")
+        if (key.isEmpty() || value.isEmpty()) {
             throw SDKException(ErrorCode.NullKeyOrValue)
         }
-        addr = addr.replace(Common.didont, "")
-        val did = (Common.didont + addr).toByteArray()
-        val info = OntSdk.walletMgr!!.getAccountInfo(addr, password, salt)
-        val pk = Helper.hexToBytes(info.pubkey)
+        val info = walletMgr.getAccountInfo(addr, password, salt)
         val list = ArrayList<Any>()
         list.add("Put".toByteArray())
         val tmp = ArrayList<Any>()
@@ -60,39 +52,33 @@ class Record() {
         tmp.add(JSON.toJSONString(constructRecord(value)).toByteArray())
         list.add(tmp)
         val tx = makeInvokeTransaction(list, info.addressBase58, gaslimit, gas)
-        OntSdk.signTx(tx, addr, password, salt)
-        val b = OntSdk.connect!!.sendRawTransaction(tx.toHexString())
+        signTx(tx, addr, password, salt)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
     }
 
     @Throws(Exception::class)
-    fun sendGet(addr: String, password: String, salt: ByteArray, key: String?): String {
-        if (this.contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        if (key == null || key === "") {
+    fun sendGet(addr: String, password: String, salt: ByteArray, key: String): String {
+        if (key === "") {
             throw SDKException(ErrorCode.NullKey)
         }
-        val did = (Common.didont + addr).toByteArray()
-        val info = OntSdk.walletMgr!!.getAccountInfo(addr, password, salt)
-        val pk = Helper.hexToBytes(info.pubkey)
         val list = ArrayList<Any>()
         list.add("Get".toByteArray())
         val tmp = ArrayList<Any>()
         tmp.add(key.toByteArray())
         list.add(tmp)
         val tx = makeInvokeTransaction(list, null, 0, 0)
-        OntSdk.signTx(tx, addr, password, salt)
-        val obj = OntSdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+        signTx(tx, addr, password, salt)
+        val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         return String(Helper.hexToBytes(obj as String))
     }
 
     @Throws(Exception::class)
     fun makeInvokeTransaction(list: List<Any>, payer: String?, gaslimit: Long, gas: Long): Transaction {
         val params = BuildParams.createCodeParamsScript(list)
-        return OntSdk.vm().makeInvokeCodeTransaction(contractAddress, null, params, payer, gaslimit, gas)
+        return makeInvokeCodeTransaction(contractAddress, null, params, payer, gaslimit, gas)
     }
 
     fun constructRecord(text: String): LinkedHashMap<String, Any> {

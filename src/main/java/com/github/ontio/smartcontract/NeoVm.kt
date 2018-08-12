@@ -19,52 +19,37 @@
 
 package com.github.ontio.smartcontract
 
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.addSign
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
 import com.github.ontio.account.Account
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.smartcontract.neovm.abi.AbiFunction
 import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
-import com.github.ontio.smartcontract.neovm.ClaimRecord
-import com.github.ontio.smartcontract.neovm.Nep5
-import com.github.ontio.smartcontract.neovm.Record
 
-class NeoVm {
-    /**
-     * get OntAsset Tx
-     * @return instance
-     */
-    val nep5: Nep5 = Nep5()
-
-    /**
-     * RecordTx
-     * @return instance
-     */
-    val record: Record = Record()
-
-    val claimRecord = ClaimRecord()
-
+object NeoVm {
     @Throws(Exception::class)
-    fun sendTransaction(contractAddr: String, acct: Account?, payerAcct: Account, gaslimit: Long, gasprice: Long, func: AbiFunction?, preExec: Boolean): Any? {
+    fun sendTransaction(contractAddr: String, acct: Account?, payerAcct: Account?, gaslimit: Long, gasprice: Long, func: AbiFunction?, preExec: Boolean): Any? {
         val params = if (func != null) {
             BuildParams.serializeAbiFunction(func)
         } else {
             byteArrayOf()
         }
         if (preExec) {
-            val tx = OntSdk.vm().makeInvokeCodeTransaction(contractAddr, null, params, null, 0, 0)
+            val tx = Vm.makeInvokeCodeTransaction(contractAddr, null, params, null, 0, 0)
             if (acct != null) {
-                OntSdk.signTx(tx, arrayOf(arrayOf(acct)))
+                signTx(tx, arrayOf(arrayOf(acct)))
             }
-            return OntSdk.connect!!.sendRawTransactionPreExec(tx.toHexString())
+            return connect!!.sendRawTransactionPreExec(tx.toHexString())
         } else {
-            val payer = payerAcct.addressU160!!.toBase58()
-            val tx = OntSdk.vm().makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit, gasprice)
-            OntSdk.signTx(tx, arrayOf(arrayOf(acct!!)))
-            if (acct.addressU160!!.toBase58() != payerAcct.addressU160!!.toBase58()) {
-                OntSdk.addSign(tx, payerAcct)
+            val payer = payerAcct!!.addressU160.toBase58()
+            val tx = Vm.makeInvokeCodeTransaction(contractAddr, null, params, payer, gaslimit, gasprice)
+            signTx(tx, arrayOf(arrayOf(acct!!)))
+            if (acct.addressU160.toBase58() != payerAcct.addressU160.toBase58()) {
+                addSign(tx, payerAcct)
             }
-            val b = OntSdk.connect!!.sendRawTransaction(tx.toHexString())
+            val b = connect!!.sendRawTransaction(tx.toHexString())
             if (!b) {
                 throw SDKException(ErrorCode.SendRawTxError)
             }

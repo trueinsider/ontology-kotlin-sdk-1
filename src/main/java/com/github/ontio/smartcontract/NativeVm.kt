@@ -19,59 +19,13 @@
 
 package com.github.ontio.smartcontract
 
-import com.github.ontio.OntSdk
 import com.github.ontio.smartcontract.nativevm.*
 
-class NativeVm {
-    private var ont: Ont? = null
-    private var ong: Ong? = null
-    private var ontId: OntId? = null
-    private var globalParams: GlobalParams? = null
-    private var auth: Auth? = null
-    private var governance: Governance? = null
-    /**
-     * get OntAsset Tx
-     * @return instance
-     */
-    fun ont(): Ont {
-        if (ont == null) {
-            ont = Ont(sdk)
-        }
-        return ont
-    }
-
-    fun ong(): Ong {
-        if (ong == null) {
-            ong = Ong(sdk)
-        }
-        return ong
-    }
-
-    fun ontId(): OntId {
-        if (ontId == null) {
-            ontId = OntId(sdk)
-        }
-        return ontId
-    }
-
-    fun gParams(): GlobalParams {
-        if (globalParams == null) {
-            globalParams = GlobalParams(sdk)
-        }
-        return globalParams
-    }
-
-    fun auth(): Auth {
-        if (auth == null) {
-            auth = Auth(sdk)
-        }
-        return auth
-    }
-
-    fun governance(): Governance {
-        if (governance == null) {
-            governance = Governance(sdk)
-        }
-        return governance
-    }
+object NativeVm {
+    val ont = Ont()
+    val ong = Ong()
+    val ontId = OntId()
+    val globalParams = GlobalParams()
+    val auth = Auth()
+    val governance = Governance()
 }

@@ -39,6 +39,7 @@ constructor(private val type: KeyType, private val scheme: SignatureScheme) {
         var sig = ctx.sign()
         when (type) {
             KeyType.ECDSA, KeyType.SM2 -> sig = DSADERtoPlain(sig)
+            else -> throw SDKException(ErrorCode.UnknownKeyType)
         }
 
         return sig

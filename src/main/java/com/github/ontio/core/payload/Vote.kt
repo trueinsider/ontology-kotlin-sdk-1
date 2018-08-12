@@ -41,12 +41,10 @@ class Vote(var pubKeys: Array<ECPoint>, var account: Address) : Transaction(Tran
     @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
         try {
-            val len = reader.readInt()
-            pubKeys = arrayOfNulls<ECPoint>(len) as Array<ECPoint>
-            for (i in 0 until len) {
-                pubKeys[i] = ECC.secp256r1.curve.createPoint(
-                        BigInteger(1, reader.readVarBytes()), BigInteger(1, reader.readVarBytes()))
-            }
+            pubKeys = Array(reader.readInt()) { ECC.secp256r1.curve.createPoint(
+                    BigInteger(1, reader.readVarBytes()),
+                    BigInteger(1, reader.readVarBytes())
+            ) }
             account = reader.readSerializable(Address::class.java)
         } catch (e: Exception) {
         }

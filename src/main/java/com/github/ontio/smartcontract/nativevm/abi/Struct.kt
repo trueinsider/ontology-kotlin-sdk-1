@@ -1,12 +1,9 @@
 package com.github.ontio.smartcontract.nativevm.abi
 
-import com.github.ontio.common.Address
-
 import java.util.ArrayList
 
-
 class Struct {
-    var list: MutableList<*> = ArrayList()
+    var list: MutableList<Any> = mutableListOf()
     fun add(vararg objs: Any): Struct {
         for (i in objs.indices) {
             list.add(objs[i])

@@ -35,12 +35,8 @@ import java.util.*
 /**
  *
  */
-class Vm() {
-    var codeAddress: String? = null
-        set(codeHash) {
-            field = codeHash.replace("0x", "")
-        }
-
+object Vm {
+    private const val NATIVE_INVOKE_NAME = "Ontology.Native.Invoke"
 
     /**
      *
@@ -59,21 +55,22 @@ class Vm() {
      */
     @Throws(SDKException::class)
     fun makeDeployCodeTransaction(codeStr: String, needStorage: Boolean, name: String, codeVersion: String, author: String, email: String, desp: String, payer: String?, gaslimit: Long, gasprice: Long): DeployCode {
-        val tx = DeployCode()
+        val tx = DeployCode(
+                Helper.hexToBytes(codeStr),
+                needStorage,
+                name,
+                codeVersion,
+                author,
+                email,
+                desp
+        )
         if (payer != null) {
             tx.payer = Address.decodeBase58(payer.replace(Common.didont, ""))
         }
         tx.attributes = emptyArray()
         tx.nonce = Random().nextInt()
-        tx.code = Helper.hexToBytes(codeStr)
-        tx.version = codeVersion
-        tx.needStorage = needStorage
-        tx.name = name
-        tx.author = author
-        tx.email = email
         tx.gasLimit = gaslimit
         tx.gasPrice = gasprice
-        tx.description = desp
         return tx
     }
 
@@ -83,10 +80,9 @@ class Vm() {
         var params = params
         params = Helper.addBytes(params, byteArrayOf(0x67))
         params = Helper.addBytes(params, Address.parse(codeAddr).toArray())
-        val tx = InvokeCode()
+        val tx = InvokeCode(params)
         tx.attributes = emptyArray()
         tx.nonce = Random().nextInt()
-        tx.code = params
         tx.gasLimit = gaslimit
         tx.gasPrice = gasprice
         if (payer != null) {
@@ -106,11 +102,9 @@ class Vm() {
      */
     @Throws(SDKException::class)
     fun makeInvokeCodeTransaction(params: ByteArray, payer: String?, gaslimit: Long, gasprice: Long): InvokeCode {
-
-        val tx = InvokeCode()
+        val tx = InvokeCode(params)
         tx.attributes = emptyArray()
         tx.nonce = Random().nextInt()
-        tx.code = params
         tx.gasLimit = gaslimit
         tx.gasPrice = gasprice
         if (payer != null) {
@@ -120,9 +114,9 @@ class Vm() {
     }
 
     @Throws(SDKException::class)
-    fun buildNativeParams(codeAddr: Address, initMethod: String, args: ByteArray, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+    fun buildNativeParams(codeAddr: Address, initMethod: String, args: ByteArray, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
         val sb = ScriptBuilder()
-        if (args.size > 0) {
+        if (args.isNotEmpty()) {
             sb.add(args)
         }
         sb.emitPushByteArray(initMethod.toByteArray())
@@ -131,9 +125,5 @@ class Vm() {
         sb.emit(ScriptOp.OP_SYSCALL)
         sb.emitPushByteArray(NATIVE_INVOKE_NAME.toByteArray())
         return makeInvokeCodeTransaction(sb.toArray(), payer, gaslimit, gasprice)
-    }
-
-    companion object {
-        var NATIVE_INVOKE_NAME = "Ontology.Native.Invoke"
     }
 }

@@ -31,7 +31,6 @@ import com.github.ontio.sdk.exception.SDKException
  * it mostly used to defined contract address
  */
 class Address @JvmOverloads constructor(value: ByteArray? = null) : UIntBase(20, value), Comparable<Address> {
-
     override fun compareTo(other: Address): Int {
         val x = this.data_bytes
         val y = other.data_bytes
@@ -123,5 +122,4 @@ class Address @JvmOverloads constructor(value: ByteArray? = null) : UIntBase(20,
             return Address(Digest.hash160(script))
         }
     }
-
 }

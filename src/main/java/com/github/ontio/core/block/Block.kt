@@ -85,17 +85,8 @@ open class Block : Inventory() {
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         deserializeUnsigned(reader)
-        var len = reader.readVarInt().toInt()
-        sigData = arrayOfNulls<String>(len) as Array<String>
-        for (i in 0 until len) {
-            this.sigData!![i] = Helper.toHexString(reader.readVarBytes())
-        }
-
-        len = reader.readInt()
-        transactions = arrayOfNulls<Transaction>(len) as Array<Transaction>
-        for (i in transactions.indices) {
-            transactions[i] = Transaction.deserializeFrom(reader)
-        }
+        sigData = Array(reader.readVarInt().toInt()) { Helper.toHexString(reader.readVarBytes()) }
+        transactions = Array(reader.readInt()) { Transaction.deserializeFrom(reader) }
     }
 
     @Throws(IOException::class)
@@ -110,11 +101,7 @@ open class Block : Inventory() {
             consensusData = reader.readLong()
             consensusPayload = reader.readVarBytes()
             nextBookkeeper = reader.readSerializable(Address::class.java)
-            val len = reader.readVarInt().toInt()
-            bookkeepers = arrayOfNulls<ByteArray>(len) as Array<ByteArray>
-            for (i in 0 until len) {
-                this.bookkeepers[i] = reader.readVarBytes()
-            }
+            bookkeepers = Array(reader.readVarInt().toInt()) { reader.readVarBytes() }
             transactions = emptyArray()
         } catch (ex: InstantiationException) {
             throw IOException(ex)
@@ -221,12 +208,11 @@ open class Block : Inventory() {
                     BinaryReader(ms).use { reader ->
                         block.deserializeUnsigned(reader)
                         reader.readByte()
-                        if (txSelector == null) {
-                            block.transactions = emptyArray()
+                        block.transactions = if (txSelector == null) {
+                            emptyArray()
                         } else {
-                            block.transactions = arrayOfNulls<Transaction>(reader.readVarInt(0x10000000).toInt()) as Array<Transaction>
-                            for (i in block.transactions.indices) {
-                                block.transactions[i] = txSelector.apply(reader.readSerializable(UInt256::class.java))
+                            Array(reader.readVarInt(0x10000000).toInt()) {
+                                txSelector.apply(reader.readSerializable(UInt256::class.java))
                             }
                         }
                     }

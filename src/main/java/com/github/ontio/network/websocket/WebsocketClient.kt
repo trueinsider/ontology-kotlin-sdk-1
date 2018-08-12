@@ -120,11 +120,11 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun sendRawTransaction(preExec: Boolean, userid: String?, hexData: String): Any {
+    override fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "sendrawtransaction"
         map["Version"] = "1.0.0"
-        map["Data"] = hexData
+        map["Data"] = sData
         map["Id"] = generateReqId()
         if (preExec) {
             map["PreExec"] = "1"
@@ -136,11 +136,11 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun sendRawTransaction(hexData: String): Any {
+    override fun sendRawTransaction(sData: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "sendrawtransaction"
         map["Version"] = "1.0.0"
-        map["Data"] = hexData
+        map["Data"] = sData
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
         return ""
@@ -292,14 +292,14 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getMerkleProof(hash: String): Any {
+    override fun getMerkleProof(hash: String): Map<String, Any> {
         val map = HashMap<Any, Any>()
         map["Action"] = "getmerkleproof"
         map["Version"] = "1.0.0"
         map["Hash"] = hash
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return ""
+        return emptyMap()
     }
 
     @Throws(ConnectorException::class, IOException::class)

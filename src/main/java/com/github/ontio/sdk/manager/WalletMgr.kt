@@ -168,9 +168,8 @@ class WalletMgr {
 
     @Throws(Exception::class)
     fun importIdentity(label: String, encryptedPrikey: String, password: String, salt: ByteArray, address: String): Identity? {
-        var prikey: String? = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address, salt, walletFile!!.scrypt.n, signatureScheme)
+        val prikey: String? = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address, salt, walletFile!!.scrypt.n, signatureScheme)
         val info = createIdentity(label, password, salt, Helper.hexToBytes(prikey))
-        prikey = null
         return wallet!!.getIdentity(info.ontid)
     }
 
@@ -216,7 +215,7 @@ class WalletMgr {
             Common.didont + Address.addressFromPubKey(acct.serializePublicKey()).toBase58(),
             Helper.toHexString(acct.serializePublicKey()),
             acct.exportGcmEncryptedPrikey(password, salt, walletFile!!.scrypt.n),
-            acct.addressU160!!.toString()
+            acct.addressU160.toString()
         )
     }
 
@@ -233,7 +232,7 @@ class WalletMgr {
             Common.didont + Address.addressFromPubKey(acct.serializePublicKey()).toBase58(),
             Helper.toHexString(acct.serializePublicKey()),
             acct.exportGcmEncryptedPrikey(password, salt, walletFile!!.scrypt.n),
-            acct.addressU160!!.toHexString()
+            acct.addressU160.toHexString()
         )
     }
 
@@ -244,9 +243,8 @@ class WalletMgr {
 
     @Throws(Exception::class)
     fun importAccount(label: String, encryptedPrikey: String, password: String, address: String, salt: ByteArray): Account? {
-        var prikey: String? = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address, salt, walletFile!!.scrypt.n, signatureScheme)
+        val prikey = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address, salt, walletFile!!.scrypt.n, signatureScheme)
         val info = createAccountInfo(label, password, salt, Helper.hexToBytes(prikey))
-        prikey = null
         return wallet!!.getAccount(info.addressBase58)
     }
 
@@ -282,7 +280,7 @@ class WalletMgr {
             Address.addressFromPubKey(acct.serializePublicKey()).toBase58(),
             Helper.toHexString(acct.serializePublicKey()),
             acct.exportGcmEncryptedPrikey(password, salt, walletFile!!.scrypt.n),
-            acct.addressU160!!.toHexString()
+            acct.addressU160.toHexString()
         )
     }
 
@@ -344,7 +342,7 @@ class WalletMgr {
             address,
             Helper.toHexString(acc.serializePublicKey()),
             acc.exportGcmEncryptedPrikey(password, salt, walletFile!!.scrypt.n),
-            acc.addressU160!!.toString()
+            acc.addressU160.toString()
         )
     }
 
@@ -380,7 +378,7 @@ class WalletMgr {
             }
             acct.label = label
             acct.setSalt(salt)
-            acct.publicKey = Helper.toHexString(account.serializePublicKey()!!)
+            acct.publicKey = Helper.toHexString(account.serializePublicKey())
             wallet!!.accounts.add(acct)
         } else {
             for (e in wallet!!.identities) {
@@ -396,7 +394,7 @@ class WalletMgr {
                 wallet!!.defaultOntid = idt.ontid
             }
             idt.controls = ArrayList()
-            val ctl = Control(acct.key, "keys-1", Helper.toHexString(account.serializePublicKey()!!))
+            val ctl = Control(acct.key, "keys-1", Helper.toHexString(account.serializePublicKey()))
             ctl.setSalt(salt)
             ctl.address = acct.address
             idt.controls.add(ctl)

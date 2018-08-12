@@ -25,14 +25,13 @@ import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.common.Address
-import org.bouncycastle.math.ec.ECPoint
 
 import java.io.IOException
-import java.util.Arrays
-import java.util.HashMap
-import java.util.HashSet
 
-class InvokeCode(var code: ByteArray) : Transaction(TransactionType.InvokeCode) {
+class InvokeCode(code: ByteArray) : Transaction(TransactionType.InvokeCode) {
+    var code: ByteArray = code
+        private set
+
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
@@ -50,8 +49,8 @@ class InvokeCode(var code: ByteArray) : Transaction(TransactionType.InvokeCode) 
         writer.writeVarBytes(code)
     }
 
-    override fun json(): Any {
-        val obj = super.json() as MutableMap<String, Any>
+    override fun json(): MutableMap<String, Any> {
+        val obj = super.json()
         val payload = mutableMapOf<String, Any>()
         payload["Code"] = Helper.toHexString(code)
         obj["Payload"] = payload

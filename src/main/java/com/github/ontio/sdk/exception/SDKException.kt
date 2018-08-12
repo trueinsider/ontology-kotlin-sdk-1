@@ -19,27 +19,15 @@
 
 package com.github.ontio.sdk.exception
 
-
-import com.alibaba.fastjson.JSON
-
 class SDKException : Exception {
+    constructor(message: String) : super(message)
 
-    constructor(message: String) : super(message) {
-        initExMsg(message)
-    }
+    constructor(message: String, ex: Throwable) : super(message, ex)
 
-    constructor(message: String, ex: Throwable) : super(message, ex) {
-        initExMsg(message)
-    }
-
-    constructor(ex: Throwable) : super(ex) {}
-
-    private fun initExMsg(message: String) {}
+    constructor(ex: Throwable) : super(ex)
 
     companion object {
-
-        private val serialVersionUID = -3056715808373341597L
+        private const val serialVersionUID = -3056715808373341597L
     }
-
 }
 

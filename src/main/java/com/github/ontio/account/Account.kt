@@ -19,7 +19,6 @@
 
 package com.github.ontio.account
 
-
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.crypto.*
 import com.github.ontio.common.Helper
@@ -51,7 +50,6 @@ import java.util.Arrays
 import java.util.Base64
 import kotlin.experimental.xor
 
-
 class Account {
     lateinit var keyType: KeyType
         private set
@@ -61,9 +59,9 @@ class Account {
         private set
     lateinit var publicKey: PublicKey
         private set
-    var addressU160: Address? = null
+    lateinit var addressU160: Address
         private set
-    var signatureScheme: SignatureScheme? = null
+    lateinit var signatureScheme: SignatureScheme
         private set
 
     // create an account with the specified key type
@@ -91,9 +89,7 @@ class Account {
                 paramSpec = ECGenParameterSpec(curveName)
                 gen = KeyPairGenerator.getInstance("EC", "BC")
             }
-            else ->
-                //should not reach here
-                throw Exception(ErrorCode.UnsupportedKeyType)
+            else -> throw Exception(ErrorCode.UnsupportedKeyType)
         }
         gen.initialize(paramSpec, SecureRandom())
         val keyPair = gen.generateKeyPair()
@@ -140,13 +136,9 @@ class Account {
 
     // construct an account from a serialized pubic key or private key
     @Throws(Exception::class)
-    constructor(fromPrivate: Boolean, pubkey: ByteArray) {
+    constructor(pubkey: ByteArray) {
         Security.addProvider(BouncyCastleProvider())
-        if (fromPrivate) {
-            //parsePrivateKey(data);
-        } else {
-            parsePublicKey(pubkey)
-        }
+        parsePublicKey(pubkey)
     }
 
     @Throws(Exception::class)
@@ -158,7 +150,7 @@ class Account {
             throw Exception(ErrorCode.WithoutPrivate)
         }
 
-        val ctx = SignatureHandler(keyType, signatureScheme!!)
+        val ctx = SignatureHandler(keyType, signatureScheme)
         var paramSpec: AlgorithmParameterSpec? = null
         if (signatureScheme == SignatureScheme.SM3WITHSM2) {
             paramSpec = when (param) {
@@ -168,7 +160,7 @@ class Account {
             }
         }
         return Signature(
-                signatureScheme!!,
+                signatureScheme,
                 paramSpec!!,
                 ctx.generateSignature(privateKey!!, msg, paramSpec)
         ).toBytes()
@@ -190,17 +182,13 @@ class Account {
         val pub = publicKey as BCECPublicKey?
         when (this.keyType) {
             KeyType.ECDSA ->
-                //bs.write(this.keyType.getLabel());
-                //bs.write(Curve.valueOf(pub.getParameters().getCurve()).getLabel());
                 bs.write(pub!!.q.getEncoded(true))
             KeyType.SM2 -> {
                 bs.write(this.keyType.label)
                 bs.write(Curve.valueOf(pub!!.parameters.curve).label)
                 bs.write(pub.q.getEncoded(true))
             }
-            else ->
-                // Should not reach here
-                throw Exception(ErrorCode.UnknownKeyType)
+            else -> throw Exception(ErrorCode.UnknownKeyType)
         }
 
         return bs.toByteArray()
@@ -221,6 +209,7 @@ class Account {
             KeyType.ECDSA -> {
                 this.keyType = KeyType.ECDSA
                 this.curveParams = arrayOf(Curve.P256.toString())
+                signatureScheme = SignatureScheme.SHA256WITHECDSA
                 val spec0 = ECNamedCurveTable.getParameterSpec(Curve.P256.toString())
                 val param0 = ECNamedCurveSpec(spec0.name, spec0.curve, spec0.g, spec0.n)
                 val pubSpec0 = ECPublicKeySpec(
@@ -230,10 +219,14 @@ class Account {
                         param0)
                 val kf0 = KeyFactory.getInstance("EC", "BC")
                 this.publicKey = kf0.generatePublic(pubSpec0)
+                this.addressU160 = Address.addressFromPubKey(serializePublicKey())
             }
             KeyType.SM2 -> {
-                //                this.keyType = KeyType.fromLabel(data[0]);
                 val c = Curve.fromLabel(data[1].toInt())
+                when (c) {
+                    Curve.SM2P256V1 -> signatureScheme = SignatureScheme.SM3WITHSM2
+                    else -> throw Exception(ErrorCode.UnknownCurve)
+                }
                 this.curveParams = arrayOf(c.toString())
                 val spec = ECNamedCurveTable.getParameterSpec(c.toString())
                 val param = ECNamedCurveSpec(spec.name, spec.curve, spec.g, spec.n)
@@ -244,6 +237,7 @@ class Account {
                         param)
                 val kf = KeyFactory.getInstance("EC", "BC")
                 this.publicKey = kf.generatePublic(pubSpec)
+                this.addressU160 = Address.addressFromPubKey(serializePublicKey())
             }
             else -> throw Exception(ErrorCode.UnknownKeyType)
         }
@@ -262,9 +256,7 @@ class Account {
                 }
                 return d
             }
-            else ->
-                // should not reach here
-                throw Exception(ErrorCode.UnknownKeyType)
+            else -> throw Exception(ErrorCode.UnknownKeyType)
         }
     }
 
@@ -380,7 +372,7 @@ class Account {
             val skeySpec = SecretKeySpec(derivedhalf2, "AES")
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             cipher.init(Cipher.ENCRYPT_MODE, skeySpec, GCMParameterSpec(128, iv))
-            cipher.updateAAD(addressU160!!.toBase58().toByteArray())
+            cipher.updateAAD(addressU160.toBase58().toByteArray())
             val encryptedkey = cipher.doFinal(serializePrivateKey())
             return String(Base64.getEncoder().encode(encryptedkey))
         } catch (e: Exception) {
@@ -390,21 +382,20 @@ class Account {
 
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        return if (obj !is Account) {
+        return if (other !is Account) {
             false
-        } else addressU160 == obj.addressU160
+        } else addressU160 == other.addressU160
     }
 
     override fun hashCode(): Int {
-        return addressU160!!.hashCode()
+        return addressU160.hashCode()
     }
 
     companion object {
-
         /**
          * Private Key From WIF
          *
@@ -528,7 +519,7 @@ class Account {
             val cipher = Cipher.getInstance("AES/CTR/NoPadding")
             cipher.init(Cipher.DECRYPT_MODE, skeySpec, IvParameterSpec(iv))
             val rawkey = cipher.doFinal(encryptedkey)
-            val address = Account(rawkey, scheme).addressU160!!.toBase58()
+            val address = Account(rawkey, scheme).addressU160.toBase58()
             val addresshashTmp = Digest.hash256(address.toByteArray())
             val addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4)
             if (!Arrays.equals(addresshash, salt)) {
@@ -558,20 +549,19 @@ class Account {
             System.arraycopy(derivedkey, 0, iv, 0, 12)
             System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32)
 
-            var rawkey = ByteArray(0)
-            try {
+            val rawkey = try {
                 val skeySpec = SecretKeySpec(derivedhalf2, "AES")
                 val cipher = Cipher.getInstance("AES/GCM/NoPadding")
                 cipher.init(Cipher.DECRYPT_MODE, skeySpec, GCMParameterSpec(128, iv))
                 cipher.updateAAD(address.toByteArray())
-                rawkey = cipher.doFinal(encryptedkey)
+                cipher.doFinal(encryptedkey)
             } catch (e: Exception) {
                 e.printStackTrace()
                 throw SDKException(ErrorCode.encryptedPriKeyAddressPasswordErr)
             }
 
             val account = Account(rawkey, scheme)
-            if (address != account.addressU160!!.toBase58()) {
+            if (address != account.addressU160.toBase58()) {
                 throw SDKException(ErrorCode.encryptedPriKeyAddressPasswordErr)
             }
             return Helper.toHexString(rawkey)

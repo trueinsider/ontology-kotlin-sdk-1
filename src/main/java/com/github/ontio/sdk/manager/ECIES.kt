@@ -58,7 +58,7 @@ class ECIES(dig: Digest) {
         @JvmOverloads
         fun Encrypt(pubkey: String, msg: ByteArray, keylen: Int = 32): Array<String>? {
             try {
-                val account = com.github.ontio.account.Account(false, Helper.hexToBytes(pubkey))
+                val account = com.github.ontio.account.Account(Helper.hexToBytes(pubkey))
 
                 val spec = ECNamedCurveTable.getParameterSpec(curveParaSpec[0] as String)
                 val ecDomain = ECDomainParameters(spec.curve, spec.g, spec.n)

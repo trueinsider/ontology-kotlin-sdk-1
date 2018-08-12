@@ -21,7 +21,9 @@ package com.github.ontio.smartcontract.neovm
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.addSign
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.signTx
 import com.github.ontio.account.Account
 import com.github.ontio.common.Common
 import com.github.ontio.common.ErrorCode
@@ -31,19 +33,16 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.smartcontract.neovm.abi.AbiFunction
+import com.github.ontio.smartcontract.NeoVm.sendTransaction
+import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.AbiInfo
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
 
 import java.io.ByteArrayInputStream
 import java.io.IOException
-import java.util.ArrayList
-import java.util.HashMap
 
-import demo.NeoVmDemo.abi
-
-class ClaimRecord() {
-    var contractAddress: String? = "36bb5c053b6b839c8f6b923fe852f91239b9fccc"
+object ClaimRecord {
+    var contractAddress: String = "36bb5c053b6b839c8f6b923fe852f91239b9fccc"
         set(codeHash) {
             field = codeHash.replace("0x", "")
         }
@@ -63,22 +62,18 @@ class ClaimRecord() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendCommit(issuerOntid: String?, password: String?, salt: ByteArray, subjectOntid: String?, claimId: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (issuerOntid == null || issuerOntid == "" || password == null || password == "" || subjectOntid == null || subjectOntid == ""
-                || claimId == null || claimId == "" || payerAcct == null) {
+    fun sendCommit(issuerOntid: String, password: String, salt: ByteArray, subjectOntid: String, claimId: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (issuerOntid.isEmpty() || password.isEmpty() || subjectOntid.isEmpty() || claimId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException(ErrorCode.ParamErr("gaslimit or gasprice is less than 0"))
         }
-        if (this.contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = issuerOntid.replace(Common.didont, "")
-        val tx = makeCommit(issuerOntid, subjectOntid, claimId, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        OntSdk.signTx(tx, addr, password, salt)
-        OntSdk.addSign(tx, payerAcct)
-        val b = OntSdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeCommit(issuerOntid, subjectOntid, claimId, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -96,9 +91,8 @@ class ClaimRecord() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeCommit(issuerOntid: String?, subjectOntid: String?, claimId: String?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (issuerOntid == null || issuerOntid == "" || subjectOntid == null || subjectOntid == "" || payer == null || payer == ""
-                || claimId == null || claimId == "") {
+    fun makeCommit(issuerOntid: String, subjectOntid: String, claimId: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (issuerOntid.isEmpty() || subjectOntid.isEmpty() || payer.isEmpty() || claimId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gaslimit < 0 || gasprice < 0) {
@@ -111,7 +105,7 @@ class ClaimRecord() {
         func!!.name = name
         func.setParamsValue(claimId.toByteArray(), issuerOntid.toByteArray(), subjectOntid.toByteArray())
         val params = BuildParams.serializeAbiFunction(func)
-        return OntSdk.vm().makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer, gaslimit, gasprice)
+        return makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer, gaslimit, gasprice)
     }
 
     /**
@@ -126,22 +120,18 @@ class ClaimRecord() {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendRevoke(issuerOntid: String?, password: String?, salt: ByteArray, claimId: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (issuerOntid == null || issuerOntid == "" || password == null || password == ""
-                || claimId == null || claimId == "" || payerAcct == null) {
+    fun sendRevoke(issuerOntid: String, password: String, salt: ByteArray, claimId: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (issuerOntid.isEmpty() || password.isEmpty() || claimId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException(ErrorCode.ParamErr("gaslimit or gasprice is less than 0"))
         }
-        if (this.contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
         val addr = issuerOntid.replace(Common.didont, "")
-        val tx = makeRevoke(issuerOntid, claimId, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
-        OntSdk.signTx(tx, addr, password, salt)
-        OntSdk.addSign(tx, payerAcct)
-        val b = OntSdk.connect!!.sendRawTransaction(tx.toHexString())
+        val tx = makeRevoke(issuerOntid, claimId, payerAcct.addressU160.toBase58(), gaslimit, gasprice)
+        signTx(tx, addr, password, salt)
+        addSign(tx, payerAcct)
+        val b = connect!!.sendRawTransaction(tx.toHexString())
         return if (b) {
             tx.hash().toString()
         } else null
@@ -155,44 +145,45 @@ class ClaimRecord() {
         func!!.name = name
         func.setParamsValue(claimId.toByteArray(), issuerOntid.toByteArray())
         val params = BuildParams.serializeAbiFunction(func)
-        return OntSdk.vm().makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer, gaslimit, gasprice)
+        return makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer, gaslimit, gasprice)
     }
 
     @Throws(Exception::class)
-    fun sendGetStatus(claimId: String?): String {
-        if (this.contractAddress == null) {
-            throw SDKException(ErrorCode.NullCodeHash)
-        }
-        if (claimId == null || claimId === "") {
+    fun sendGetStatus(claimId: String): String {
+        if (claimId.isEmpty()) {
             throw SDKException(ErrorCode.NullKeyOrValue)
         }
         val abiinfo = JSON.parseObject(abi, AbiInfo::class.java)
         val name = "GetStatus"
         val func = abiinfo.getFunction(name)
         func!!.name = name
-        func.setParamsValue(*claimId.toByteArray())
-        val obj = OntSdk.neovm().sendTransaction(Helper.reverse(this.contractAddress), null, null, 0, 0, func, true)
+        func.setParamsValue(claimId.toByteArray())
+        val obj = sendTransaction(Helper.reverse(this.contractAddress), null, null, 0, 0, func, true)
         val res = (obj as JSONObject).getString("Result")
         if (res == "") {
             return ""
         }
         val bais = ByteArrayInputStream(Helper.hexToBytes(res))
         val br = BinaryReader(bais)
-        val claimTx = ClaimTx()
-        claimTx.deserialize(br)
-        return if (claimTx.status.size == 0) {
+        val claimTx = ClaimTx.deserializeFrom(br)
+        return if (claimTx.status.isEmpty()) {
             String(claimTx.claimId) + "." + "00" + "." + String(claimTx.issuerOntId) + "." + String(claimTx.subjectOntId)
         } else String(claimTx.claimId) + "." + Helper.toHexString(claimTx.status) + "." + String(claimTx.issuerOntId) + "." + String(claimTx.subjectOntId)
     }
 }
 
 internal class ClaimTx : Serializable {
-    var claimId: ByteArray
-    var issuerOntId: ByteArray
-    var subjectOntId: ByteArray
-    var status: ByteArray
+    lateinit var claimId: ByteArray
+        private set
+    lateinit var issuerOntId: ByteArray
+        private set
+    lateinit var subjectOntId: ByteArray
+        private set
+    lateinit var status: ByteArray
+        private set
 
-    constructor() {}
+    private constructor()
+
     constructor(claimId: ByteArray, issuerOntId: ByteArray, subjectOntId: ByteArray, status: ByteArray) {
         this.claimId = claimId
         this.issuerOntId = issuerOntId
@@ -202,20 +193,27 @@ internal class ClaimTx : Serializable {
 
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
-        val dataType = reader.readByte()
-        val length = reader.readVarInt()
-        val dataType2 = reader.readByte()
+        reader.readByte()
+        reader.readVarInt()
+        reader.readByte()
         this.claimId = reader.readVarBytes()
-        val dataType3 = reader.readByte()
+        reader.readByte()
         this.issuerOntId = reader.readVarBytes()
-        val dataType4 = reader.readByte()
+        reader.readByte()
         this.subjectOntId = reader.readVarBytes()
-        val dataType5 = reader.readByte()
+        reader.readByte()
         this.status = reader.readVarBytes()
     }
 
     @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
+    }
 
+    companion object {
+        fun deserializeFrom(reader: BinaryReader): ClaimTx {
+            val claimTx = ClaimTx()
+            claimTx.deserialize(reader)
+            return claimTx
+        }
     }
 }

@@ -28,18 +28,17 @@ class TransactionInput : Serializable {
         this.prevIndex = prevIndex.toShort()
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        if (null == obj) {
+        if (null == other) {
             return false
         }
-        if (obj !is TransactionInput) {
+        if (other !is TransactionInput) {
             return false
         }
-        val other = obj as TransactionInput?
-        return prevHash == other!!.prevHash && prevIndex == other.prevIndex
+        return prevHash == other.prevHash && prevIndex == other.prevIndex
     }
 
     override fun hashCode(): Int {
@@ -54,7 +53,6 @@ class TransactionInput : Serializable {
         try {
             prevHash = reader.readSerializable(UInt256::class.java)
             prevIndex = reader.readShort()
-            //			prevIndex = (short) reader.readVarInt();
         } catch (e: InstantiationException) {
         } catch (e: IllegalAccessException) {
         }
@@ -65,7 +63,6 @@ class TransactionInput : Serializable {
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializable(prevHash)
         writer.writeShort(prevIndex)
-        //		writer.writeVarInt(prevIndex);
     }
 
 

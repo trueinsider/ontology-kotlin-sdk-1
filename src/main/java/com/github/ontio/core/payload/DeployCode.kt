@@ -29,14 +29,28 @@ import com.github.ontio.io.BinaryWriter
 
 
 class DeployCode(
-        var code: ByteArray,
-        var needStorage: Boolean,
-        var name: String,
-        var versionString: String,
-        var author: String,
-        var email: String,
-        var description: String
+        code: ByteArray,
+        needStorage: Boolean,
+        name: String,
+        versionString: String,
+        author: String,
+        email: String,
+        description: String
 ) : Transaction(TransactionType.DeployCode) {
+    var code: ByteArray = code
+        private set
+    var needStorage: Boolean = needStorage
+        private set
+    var name: String = name
+        private set
+    var versionString: String = versionString
+        private set
+    var author: String = author
+        private set
+    var email: String = email
+        private set
+    var description: String = description
+        private set
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null

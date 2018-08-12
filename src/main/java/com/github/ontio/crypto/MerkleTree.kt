@@ -40,13 +40,13 @@ object MerkleTree {
     }
 
     private fun computeRoot(hashes: Array<ByteArray>): ByteArray {
-        var hashes = hashes
         if (hashes.isEmpty()) {
             throw IllegalArgumentException()
         }
         if (hashes.size == 1) {
             return hashes[0]
         }
+        var hashes = hashes
         if (hashes.size % 2 == 1) {
             val temp = arrayOfNulls<ByteArray>(hashes.size + 1) as Array<ByteArray>
             System.arraycopy(hashes, 0, temp, 0, hashes.size)

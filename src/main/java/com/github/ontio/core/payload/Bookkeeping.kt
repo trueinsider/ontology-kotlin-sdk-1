@@ -44,8 +44,8 @@ class Bookkeeping : Transaction(TransactionType.Bookkeeping) {
         writer.writeLong(_nonce)
     }
 
-    override fun json(): Any {
-        val obj = super.json() as MutableMap<String, Any>
+    override fun json(): MutableMap<String, Any> {
+        val obj = super.json()
         val payload = mutableMapOf<String, Any>()
         payload["Nonce"] = _nonce
         obj["Payload"] = payload;
