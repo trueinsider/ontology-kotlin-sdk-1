@@ -32,13 +32,11 @@ import java.util.HashMap
  */
 class Contract : Serializable {
     var version: Byte = 0
-    var constracHash: Address
-    var method: String
-    var args: ByteArray
+    lateinit var constracHash: Address
+    lateinit var method: String
+    lateinit var args: ByteArray
 
-    constructor() {
-
-    }
+    private constructor()
 
     constructor(version: Byte, constracHash: Address, method: String, args: ByteArray) {
         this.version = version

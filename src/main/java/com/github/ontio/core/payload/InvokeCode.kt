@@ -32,9 +32,7 @@ import java.util.Arrays
 import java.util.HashMap
 import java.util.HashSet
 
-class InvokeCode : Transaction(TransactionType.InvokeCode) {
-    var code: ByteArray
-
+class InvokeCode(var code: ByteArray) : Transaction(TransactionType.InvokeCode) {
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
@@ -45,7 +43,6 @@ class InvokeCode : Transaction(TransactionType.InvokeCode) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     @Throws(IOException::class)
@@ -54,10 +51,10 @@ class InvokeCode : Transaction(TransactionType.InvokeCode) {
     }
 
     override fun json(): Any {
-        val obj = super.json() as Map<*, *>
-        val payload = HashMap()
-        payload.put("Code", Helper.toHexString(code))
-        obj.put("Payload", payload)
+        val obj = super.json() as MutableMap<String, Any>
+        val payload = mutableMapOf<String, Any>()
+        payload["Code"] = Helper.toHexString(code)
+        obj["Payload"] = payload
         return obj
     }
 }

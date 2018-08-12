@@ -44,20 +44,20 @@ class Claim {
     var claimStr = ""
         internal set
 
-    constructor(scheme: SignatureScheme, acct: Account, ctx: String, claimMap: Map<*, *>?, metadata: MutableMap<*, *>, publicKeyId: String) {
+    constructor(scheme: SignatureScheme, acct: Account, ctx: String, claimMap: Map<*, *>?, metadata: MutableMap<String, Any>, publicKeyId: String) {
         context = ctx
         claim["Context"] = context
         if (claimMap != null) {
             claim["Content"] = claimMap
         }
-        claim["Metadata"] = MetaData(metadata).json
+        claim["Metadata"] = MetaData(metadata).getJson()
         id = Helper.toHexString(Digest.sha256(JSON.toJSONString(claim).toByteArray()))
         claim["Id"] = id
         claim["Version"] = "v1.0"
         val sign = DataSignature(scheme, acct, getClaim())
         val signature = sign.signature()
         val info = SignatureInfo("", "", publicKeyId, signature)
-        claim["Signature"] = info.json
+        claim["Signature"] = info.getJson()
 
     }
 
@@ -73,13 +73,13 @@ class Claim {
      * @throws Exception
      */
     @Throws(Exception::class)
-    constructor(scheme: SignatureScheme, acct: Account, ctx: String, clmMap: Map<*, *>, metadata: Map<String, String>, clmRevMap: Map<*, *>, publicKeyId: String, expireTime: Long) {
-        val iss = metadata["Issuer"]
-        val sub = metadata["Subject"]
+    constructor(scheme: SignatureScheme, acct: Account, ctx: String, clmMap:Map<String, Any>, metadata: Map<String, String>, clmRevMap: Map<String, Any>, publicKeyId: String, expireTime: Long) {
+        val iss = metadata["Issuer"]!!
+        val sub = metadata["Subject"]!!
         val header = Header("", "", publicKeyId)
         val payload = Payload("v1.0", iss, sub, System.currentTimeMillis() / 1000, expireTime, ctx, clmMap, clmRevMap)
-        val headerStr = JSONObject.toJSONString(header.json)
-        val payloadStr = JSONObject.toJSONString(payload.json)
+        val headerStr = JSONObject.toJSONString(header.getJson())
+        val payloadStr = JSONObject.toJSONString(payload.getJson())
         val headerBytes = Base64.getEncoder().encode(headerStr.toByteArray())
         val payloadBytes = Base64.getEncoder().encode(payloadStr.toByteArray())
         val sign = DataSignature(scheme, acct, String(headerBytes) + "." + String(payloadBytes))
@@ -102,74 +102,64 @@ internal class Header(alg: String, typ: String, var Kid: String)//        Alg = 
 {
     var Alg = "ONT-ES256"
     var Typ = "JWT-X"
-    val json: Any
-        get() {
-            val header = HashMap<String, Any>()
-            header["alg"] = Alg
-            header["typ"] = Typ
-            header["kid"] = Kid
-            return header
-        }
+
+    fun getJson(): Any {
+        val header = HashMap<String, Any>()
+        header["alg"] = Alg
+        header["typ"] = Typ
+        header["kid"] = Kid
+        return header
+    }
 }
 
 internal class Payload(var Ver: String, var Iss: String, var Sub: String, var Iat: Long, var Exp: Long, @field:JSONField(name = "@context")
-var Context: String, clmMap: Map<*, *>, clmRevMap: Map<*, *>) {
-    var Jti: String
-    var ClmMap: Map<String, Any> = HashMap()
-    var ClmRevMap: Map<String, Any> = HashMap()
 
-    val json: Any
-        get() {
-            val payload = HashMap<String, Any>()
-            payload["ver"] = Ver
-            payload["iss"] = Iss
-            payload["sub"] = Sub
-            payload["iat"] = Iat
-            payload["exp"] = Exp
-            payload["jti"] = Jti
-            payload["@context"] = Context
-            payload["clm"] = ClmMap
-            payload["clm-rev"] = ClmRevMap
-            return payload
-        }
+var Context: String, clmMap: Map<String, Any>, clmRevMap: Map<String, Any>) {
+    var Jti: String = Helper.toHexString(Digest.sha256(JSON.toJSONString(getJson()).toByteArray()))
+    var ClmMap: Map<String, Any> = clmMap
+    var ClmRevMap: Map<String, Any> = clmRevMap
 
-    init {
-        ClmMap = clmMap
-        ClmRevMap = clmRevMap
-        Jti = Helper.toHexString(Digest.sha256(JSON.toJSONString(json).toByteArray()))
+    fun getJson(): Any {
+        val payload = HashMap<String, Any>()
+        payload["ver"] = Ver
+        payload["iss"] = Iss
+        payload["sub"] = Sub
+        payload["iat"] = Iat
+        payload["exp"] = Exp
+        payload["jti"] = Jti
+        payload["@context"] = Context
+        payload["clm"] = ClmMap
+        payload["clm-rev"] = ClmRevMap
+        return payload
     }
 }
 
 internal class SignatureInfo(format: String, alg: String, private val PublicKeyId: String, private val Value: ByteArray) {
-
     private val Format = "pgp"
     private val Algorithm = "ECDSAwithSHA256"
 
-    val json: Any
-        get() {
-            val signature = HashMap<String, Any>()
-            signature["Format"] = Format
-            signature["Algorithm"] = Algorithm
-            signature["Value"] = Value
-            signature["PublicKeyId"] = PublicKeyId
-            return signature
-        }
+    fun getJson(): Any {
+        val signature = HashMap<String, Any>()
+        signature["Format"] = Format
+        signature["Algorithm"] = Algorithm
+        signature["Value"] = Value
+        signature["PublicKeyId"] = PublicKeyId
+        return signature
+    }
 }
 
-internal class MetaData(map: MutableMap<*, *>?) {
-
+internal class MetaData(map: MutableMap<String, Any>?) {
     private val CreateTime = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())//"2017-08-25T10:03:04Z";
     private var meta: MutableMap<String, Any> = HashMap()
 
-    val json: Any
-        get() {
-            meta["CreateTime"] = CreateTime
-            val tmp = HashMap<String, Any>()
-            for ((key, value) in meta) {
-                tmp[key] = value
-            }
-            return tmp
+    fun getJson(): Any {
+        meta["CreateTime"] = CreateTime
+        val tmp = HashMap<String, Any>()
+        for ((key, value) in meta) {
+            tmp[key] = value
         }
+        return tmp
+    }
 
     init {
         if (map != null) {

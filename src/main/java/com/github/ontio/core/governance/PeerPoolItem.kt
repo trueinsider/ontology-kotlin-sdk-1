@@ -20,22 +20,25 @@
 package com.github.ontio.core.governance
 
 import com.github.ontio.common.Address
+import com.github.ontio.core.asset.Contract
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
+import java.io.ByteArrayInputStream
 
 import java.io.IOException
 import java.util.HashMap
 
 class PeerPoolItem : Serializable {
     var index: Int = 0
-    var peerPubkey: String
-    var address: Address
+    lateinit var peerPubkey: String
+    lateinit var address: Address
     var status: Int = 0
     var initPos: Long = 0
     var totalPos: Long = 0
 
-    constructor() {}
+    private constructor()
+
     constructor(index: Int, peerPubkey: String, address: Address, status: Int, initPos: Long, totalPos: Long) {
         this.index = index
         this.peerPubkey = peerPubkey
@@ -73,13 +76,22 @@ class PeerPoolItem : Serializable {
     }
 
     fun Json(): Any {
-        val map = HashMap()
-        map.put("index", index)
-        map.put("peerPubkey", peerPubkey)
-        map.put("address", address.toBase58())
-        map.put("status", status)
-        map.put("initPos", initPos)
-        map.put("totalPos", totalPos)
+        val map = mutableMapOf<String, Any>()
+        map["index"] = index
+        map["peerPubkey"] = peerPubkey
+        map["address"] = address.toBase58()
+        map["status"] = status
+        map["initPos"] = initPos
+        map["totalPos"] = totalPos
         return map
+    }
+
+    companion object {
+        @Throws(IOException::class)
+        fun deserializeFrom(reader: BinaryReader): PeerPoolItem {
+            val item = PeerPoolItem()
+            item.deserialize(reader)
+            return item
+        }
     }
 }

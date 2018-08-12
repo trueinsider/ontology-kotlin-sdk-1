@@ -21,30 +21,25 @@ package com.github.ontio.core.transaction
 
 import java.io.*
 import java.util.*
-import java.util.stream.*
 
-import com.alibaba.fastjson.JSON
 import com.github.ontio.common.*
 import com.github.ontio.core.Inventory
 import com.github.ontio.core.InventoryType
 import com.github.ontio.core.asset.Sig
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
-import kotlin.experimental.and
 
 /**
  *
  */
 abstract class Transaction protected constructor(var txType: TransactionType) : Inventory() {
-
     var version: Byte = 0
     var nonce = Random().nextInt()
     var gasPrice: Long = 0
     var gasLimit: Long = 0
     var payer = Address()
-    var attributes: Array<Attribute>
+    var attributes: Array<Attribute>? = null
     var sigs = emptyArray<Sig>()
-
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
@@ -59,7 +54,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         } catch (ex: IllegalAccessException) {
             throw RuntimeException(ex)
         }
-
     }
 
     @Throws(IOException::class)
@@ -90,7 +84,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         } catch (ex: IllegalAccessException) {
             throw IOException(ex)
         }
-
     }
 
     @Throws(IOException::class)
@@ -112,25 +105,24 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         writer.writeLong(gasLimit)
         writer.writeSerializable(payer)
         serializeExclusiveData(writer)
-        writer.writeSerializableArray(attributes)
+        writer.writeSerializableArray(attributes!!)
     }
 
     @Throws(IOException::class)
     protected open fun serializeExclusiveData(writer: BinaryWriter) {
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (obj === this) {
+    override fun equals(other: Any?): Boolean {
+        if (other === this) {
             return true
         }
-        if (obj == null) {
+        if (other == null) {
             return false
         }
-        if (obj !is Transaction) {
+        if (other !is Transaction) {
             return false
         }
-        val tx = obj as Transaction?
-        return hash() == tx!!.hash()
+        return hash() == other.hash()
     }
 
     override fun hashCode(): Int {
@@ -142,16 +134,16 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
     }
 
     open fun json(): Any {
-        val json = HashMap()
-        json.put("Hash", hash().toString())
-        json.put("Version", version.toInt())
-        json.put("Nonce", nonce and -0x1)
-        json.put("TxType", txType.value() and 0xFF)
-        json.put("GasPrice", gasPrice)
-        json.put("GasLimit", gasLimit)
-        json.put("Payer", payer.toBase58())
-        json.put("Attributes", Arrays.stream(attributes).map { p -> p.json() }.toArray<Any>(Object[]::new  /* Currently unsupported in Kotlin */))
-        json.put("Sigs", Arrays.stream<Sig>(sigs).map { p -> p.json() }.toArray<Any>(Object[]::new  /* Currently unsupported in Kotlin */))
+        val json = mutableMapOf<String, Any>()
+        json["Hash"] = hash().toString()
+        json["Version"] = version.toInt()
+        json["Nonce"] = nonce and -0x1
+        json["TxType"] = txType.value().toInt() and 0xFF
+        json["GasPrice"] = gasPrice
+        json["GasLimit"] = gasLimit
+        json["Payer"] = payer.toBase58()
+        json["Attributes"] = attributes!!.map(Attribute::json).toTypedArray()
+        json["Sigs"] = sigs.map(Sig::json).toTypedArray()
         return json
     }
 
@@ -160,7 +152,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
     }
 
     companion object {
-
         @Throws(IOException::class)
         @JvmOverloads
         fun deserializeFrom(value: ByteArray, offset: Int = 0): Transaction {
@@ -180,7 +171,7 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
                 transaction.gasLimit = reader.readLong()
                 transaction.payer = reader.readSerializable(Address::class.java)
                 transaction.deserializeUnsignedWithoutType(reader)
-                transaction.sigs = arrayOfNulls(reader.readVarInt().toInt())
+                transaction.sigs = arrayOfNulls<Sig>(reader.readVarInt().toInt()) as Array<Sig>
                 for (i in transaction.sigs.indices) {
                     transaction.sigs[i] = reader.readSerializable(Sig::class.java)
                 }
@@ -192,7 +183,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
             } catch (ex: IllegalAccessException) {
                 throw IOException(ex)
             }
-
         }
     }
 

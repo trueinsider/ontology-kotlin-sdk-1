@@ -26,13 +26,10 @@ import io.github.novacrypto.bip32.derivation.CkdFunction
 import io.github.novacrypto.bip32.derivation.CkdFunctionDerive
 import io.github.novacrypto.bip32.derivation.Derivation
 import io.github.novacrypto.bip32.derivation.Derive
-import org.spongycastle.math.ec.ECPoint
-
-import java.math.BigInteger
 
 import com.github.ontio.crypto.bip32.BigIntegerUtils.parse256
-import com.github.ontio.crypto.bip32.ByteArrayWriter.head32
-import com.github.ontio.crypto.bip32.ByteArrayWriter.tail32
+import com.github.ontio.crypto.bip32.ByteArrayWriter.Companion.head32
+import com.github.ontio.crypto.bip32.ByteArrayWriter.Companion.tail32
 import com.github.ontio.crypto.bip32.HmacSha512.hmacSha512
 import com.github.ontio.crypto.bip32.Secp256r1SC.gMultiplyAndAddPoint
 import com.github.ontio.crypto.bip32.Secp256r1SC.n
@@ -43,12 +40,10 @@ import io.github.novacrypto.bip32.derivation.CkdFunctionResultCacheDecorator.new
 import io.github.novacrypto.hashing.Hash160.hash160into
 import io.github.novacrypto.hashing.Sha256.sha256Twice
 
-
 /**
  * A BIP32 public key
  */
 class ExtendedPublicKey internal constructor(private val hdKey: HdKey) : Derive<ExtendedPublicKey>, CKDpub, ExtendedKey {
-
     override fun cKDpub(index: Int): ExtendedPublicKey? {
         if (isHardened(index)) {
             return null
@@ -134,7 +129,7 @@ class ExtendedPublicKey internal constructor(private val hdKey: HdKey) : Derive<
         return CkdFunctionDerive(ckdFunction, this)
     }
 
-    override fun network(): Network? {
+    override fun network(): Network {
         return hdKey.network
     }
 
@@ -147,7 +142,6 @@ class ExtendedPublicKey internal constructor(private val hdKey: HdKey) : Derive<
     }
 
     companion object {
-
         fun deserializer(): Deserializer<ExtendedPublicKey> {
             return ExtendedPublicKeyDeserializer.DEFAULT
         }

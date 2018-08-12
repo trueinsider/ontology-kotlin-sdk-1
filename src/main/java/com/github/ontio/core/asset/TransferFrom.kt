@@ -25,7 +25,6 @@ import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 
 import java.io.IOException
-import java.math.BigInteger
 import java.util.HashMap
 
 /**
@@ -44,7 +43,6 @@ class TransferFrom(var sender: Address, var from: Address, var to: Address, var 
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         }
-
     }
 
     @Throws(IOException::class)
@@ -53,9 +51,7 @@ class TransferFrom(var sender: Address, var from: Address, var to: Address, var 
         writer.writeSerializable(from)
         writer.writeSerializable(to)
         writer.writeVarInt(value)
-
     }
-
 
     fun json(): Any {
         val json = HashMap<Any, Any>()
@@ -65,5 +61,4 @@ class TransferFrom(var sender: Address, var from: Address, var to: Address, var 
         json["value"] = value
         return json
     }
-
 }

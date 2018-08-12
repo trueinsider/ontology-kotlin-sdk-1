@@ -19,7 +19,6 @@
 
 package com.github.ontio.sdk.manager
 
-import com.github.ontio.OntSdk
 import com.github.ontio.account.Account
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
@@ -37,16 +36,12 @@ import org.bouncycastle.crypto.params.KeyParameter
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
 import org.bouncycastle.util.encoders.Hex
 
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import java.security.Key
 import java.security.SecureRandom
-import java.security.Security
 
 class ECIES(dig: Digest) {
     init {
@@ -58,9 +53,6 @@ class ECIES(dig: Digest) {
         var curveParaSpec = arrayOf<Any>("P-256")
         var signatureScheme = SignatureScheme.SHA256WITHECDSA
         var digest: Digest = SHA1Digest()
-        fun setDigest(dig: Digest) {
-            digest = dig
-        }
 
         //keylen: 16/24/32
         @JvmOverloads

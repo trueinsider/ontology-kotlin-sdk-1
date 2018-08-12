@@ -20,15 +20,12 @@
 package com.github.ontio.smartcontract.nativevm
 
 import com.alibaba.fastjson.JSON
-import com.alibaba.fastjson.JSONObject
 import com.github.ontio.OntSdk
 import com.github.ontio.account.Account
 import com.github.ontio.common.*
-import com.github.ontio.core.VmType
 import com.github.ontio.core.asset.Sig
 import com.github.ontio.core.governance.PeerPoolItem
 import com.github.ontio.core.governance.VoteInfo
-import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
@@ -164,8 +161,7 @@ class Governance(private val sdk: OntSdk) {
         val length = reader.readInt()
         val peerPoolMap = HashMap<String, PeerPoolItem>()
         for (i in 0 until length) {
-            val item = PeerPoolItem()
-            item.deserialize(reader)
+            val item = PeerPoolItem.deserializeFrom(reader)
             peerPoolMap[item.peerPubkey] = item.Json()
         }
         return if (peerPubkey != null) {
@@ -267,7 +263,7 @@ class Governance(private val sdk: OntSdk) {
         val args = NativeBuildParams.createCodeParamsScript(list)
         val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "approveCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
         val sigs = arrayOfNulls<Sig>(1)
-        sigs[0] = Sig()
+        sigs[0] = Sig(sigData = null)
         sigs[0].pubKeys = arrayOfNulls(pks.size)
         sigs[0].sigData = arrayOfNulls(M)
         sigs[0].M = M
@@ -344,7 +340,7 @@ class Governance(private val sdk: OntSdk) {
         val args = NativeBuildParams.createCodeParamsScript(list)
         val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "rejectCandidate", args, payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
         val sigs = arrayOfNulls<Sig>(1)
-        sigs[0] = Sig()
+        sigs[0] = Sig(sigData = null)
         sigs[0].pubKeys = arrayOfNulls(pks.size)
         sigs[0].sigData = arrayOfNulls(M)
         sigs[0].M = M
@@ -541,7 +537,7 @@ class Governance(private val sdk: OntSdk) {
         val tx = sdk.vm().buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "commitDpos", byteArrayOf(0), payerAcct.addressU160!!.toBase58(), gaslimit, gasprice)
 
         val sigs = arrayOfNulls<Sig>(1)
-        sigs[0] = Sig()
+        sigs[0] = Sig(sigData = null)
         sigs[0].pubKeys = arrayOfNulls(pks.size)
         sigs[0].sigData = arrayOfNulls(M)
         sigs[0].M = M

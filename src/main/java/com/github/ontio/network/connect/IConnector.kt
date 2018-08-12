@@ -25,14 +25,10 @@ import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.network.exception.ConnectorException
 
 interface IConnector {
+    fun getUrl(): String
 
-    val url: String
-    val nodeCount: Int
-    val blockHeight: Int
-    val memPoolTxCount: Any
-    val version: String
     @Throws(ConnectorException::class, IOException::class)
-    fun sendRawTransaction(preExec: Boolean, userid: String, hexData: String): Any
+    fun sendRawTransaction(preExec: Boolean, userid: String?, hexData: String): Any
 
     @Throws(ConnectorException::class, IOException::class)
     fun sendRawTransaction(hexData: String): Any
@@ -42,6 +38,12 @@ interface IConnector {
 
     @Throws(ConnectorException::class, IOException::class)
     fun getRawTransactionJson(txhash: String): Any
+
+    @Throws(ConnectorException::class, IOException::class)
+    fun getNodeCount(): Int
+
+    @Throws(ConnectorException::class, IOException::class)
+    fun getBlockHeight(): Int
 
     @Throws(ConnectorException::class, IOException::class)
     fun getBlock(height: Int): Block
@@ -83,5 +85,11 @@ interface IConnector {
     fun getAllowance(asset: String, from: String, to: String): String
 
     @Throws(ConnectorException::class, IOException::class)
+    fun getMemPoolTxCount(): Any
+
+    @Throws(ConnectorException::class, IOException::class)
     fun getMemPoolTxState(hash: String): Any
+
+    @Throws(ConnectorException::class, IOException::class)
+    fun getVersion(): String
 }

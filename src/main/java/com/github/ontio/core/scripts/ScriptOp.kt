@@ -170,19 +170,17 @@ enum class ScriptOp {
     OP_THROW(0xF0),
     OP_THROWIFNOT(0xF1);
 
-    var byte: Byte = 0
-        private set
+    val byte: Byte
 
-    private constructor(v: Int) {
+    constructor(v: Int) {
         byte = v.toByte()
     }
 
-    private constructor(v: ScriptOp) {
+    constructor(v: ScriptOp) {
         byte = v.byte
     }
 
     companion object {
-
         fun valueOf(v: Int): ScriptOp? {
             for (op in ScriptOp.values()) {
                 if (op.byte == v.toByte()) {

@@ -19,8 +19,8 @@
 
 package com.github.ontio.network.rpc
 
+import com.github.ontio.OntSdk.rpc
 import java.io.IOException
-import java.net.MalformedURLException
 
 import com.github.ontio.common.Helper
 import com.github.ontio.common.UInt256
@@ -32,138 +32,65 @@ import com.github.ontio.network.exception.ConnectorException
 import com.github.ontio.network.exception.RpcException
 
 class RpcClient(url: String) : AbstractConnector() {
-    private var rpc: Interfaces? = null
+    private var rpc: Interfaces = Interfaces(url)
 
-    override val url: String
-        get() = rpc!!.host
+    override fun getUrl() = rpc.host
 
-    override val nodeCount: Int
-        @Throws(RpcException::class, IOException::class)
-        get() {
-            val result = rpc!!.call("getconnectioncount")
-            return result as Int
-        }
+    @Throws(RpcException::class, IOException::class)
+    override fun getNodeCount() = rpc.call("getconnectioncount") as Int
 
-    override val blockHeight: Int
-        @Throws(RpcException::class, IOException::class)
-        get() {
-            val result = rpc!!.call("getblockcount")
-            return result as Int
-        }
-
-    val blockCount: Int
-        @Throws(RpcException::class, IOException::class)
-        get() {
-            val result = rpc!!.call("getblockcount")
-            return result as Int
-        }
-    override val memPoolTxCount: Any
-        @Throws(ConnectorException::class, IOException::class)
-        get() {
-            val result = rpc!!.call("getmempooltxcount")
-            try {
-                return result
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-
-        }
-    override val version: String
-        @Throws(ConnectorException::class, IOException::class)
-        get() {
-            val result = rpc!!.call("getversion")
-            try {
-                return result as String
-            } catch (e: Exception) {
-                throw RuntimeException(e)
-            }
-
-        }
-
-    init {
-        try {
-            this.rpc = Interfaces(url)
-        } catch (e: MalformedURLException) {
-            e.printStackTrace()
-        }
-
-    }
+    @Throws(RpcException::class, IOException::class)
+    override fun getBlockHeight() = rpc.call("getblockcount") as Int
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBalance(address: String): Any? {
-        var result: Any? = null
-        result = rpc!!.call("getbalance", address)
-        return result
-    }
+    override fun getMemPoolTxCount() = rpc.call("getmempooltxcount")
+
+    @Throws(ConnectorException::class, IOException::class)
+    override fun getVersion(): String = rpc.call("getversion") as String
+
+    @Throws(ConnectorException::class, IOException::class)
+    override fun getBalance(address: String) = rpc.call("getbalance", address)
 
     @Throws(RpcException::class, IOException::class)
-    override fun sendRawTransaction(sData: String): String {
-        val result = rpc!!.call("sendrawtransaction", sData)
-        return result as String
-    }
+    override fun sendRawTransaction(sData: String) = rpc.call("sendrawtransaction", sData) as String
 
     @Throws(RpcException::class, IOException::class)
-    override fun sendRawTransaction(preExec: Boolean, userid: String, sData: String): Any? {
-        var result: Any? = null
-        if (preExec) {
-            result = rpc!!.call("sendrawtransaction", sData, 1)
-        } else {
-            result = rpc!!.call("sendrawtransaction", sData)
-        }
-        return result
+    override fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String) = if (preExec) {
+        rpc.call("sendrawtransaction", sData, 1)
+    } else {
+        rpc.call("sendrawtransaction", sData)
     }
 
     @Throws(RpcException::class, IOException::class)
     override fun getRawTransaction(txhash: String): Transaction {
-        val result = rpc!!.call("getrawtransaction", txhash)
+        val result = rpc.call("getrawtransaction", txhash)
         return Transaction.deserializeFrom(Helper.hexToBytes(result as String))
     }
 
     @Throws(RpcException::class, IOException::class)
     override fun getRawTransactionJson(txhash: String): Any {
-        var result: Any? = null
-        result = rpc!!.call("getrawtransaction", txhash)
-        return Transaction.deserializeFrom(Helper.hexToBytes(result as String?)).json()
+        val result = rpc.call("getrawtransaction", txhash)
+        return Transaction.deserializeFrom(Helper.hexToBytes(result as String)).json()
     }
 
     @Throws(RpcException::class, IOException::class)
-    override fun getBlockJson(index: Int): Any? {
-        var result: Any? = null
-        result = rpc!!.call("getblock", index, 1)
-        return result
-    }
+    override fun getBlockJson(index: Int) = rpc.call("getblock", index, 1)
 
     @Throws(RpcException::class, IOException::class)
-    override fun getBlockJson(hash: String): Any? {
-        var result: Any? = null
-        result = rpc!!.call("getblock", hash, 1)
-        return result
-    }
+    override fun getBlockJson(hash: String) = rpc.call("getblock", hash, 1)
 
     @Throws(RpcException::class, IOException::class)
-    override fun getContract(hash: String): Any? {
-        var result: Any? = null
-        result = rpc!!.call("getcontractstate", hash)
-        return result
-    }
+    override fun getContract(hash: String) = rpc.call("getcontractstate", hash)
 
     @Throws(RpcException::class, IOException::class)
-    override fun getContractJson(hash: String): Any? {
-        var result: Any? = null
-        result = rpc!!.call("getcontractstate", hash, 1)
-        return result
-    }
+    override fun getContractJson(hash: String) = rpc.call("getcontractstate", hash, 1)
 
     @Throws(RpcException::class, IOException::class)
-    fun getRawTransaction(txhash: UInt256): String {
-        val result = rpc!!.call("getrawtransaction", txhash.toString())
-        return result as String
-    }
-
+    fun getRawTransaction(txhash: UInt256) = rpc.call("getrawtransaction", txhash.toString()) as String
 
     @Throws(RpcException::class, IOException::class)
     fun getBlock(hash: UInt256): Block {
-        val result = rpc!!.call("getblock", hash.toString())
+        val result = rpc.call("getblock", hash.toString())
         try {
             return Serializable.from(Helper.hexToBytes(result as String), Block::class.java)
         } catch (e: InstantiationException) {
@@ -171,12 +98,11 @@ class RpcClient(url: String) : AbstractConnector() {
         } catch (e: IllegalAccessException) {
             throw RuntimeException(e)
         }
-
     }
 
     @Throws(RpcException::class, IOException::class)
     override fun getBlock(index: Int): Block {
-        val result = rpc!!.call("getblock", index)
+        val result = rpc.call("getblock", index)
         try {
             return Serializable.from(Helper.hexToBytes(result as String), Block::class.java)
         } catch (e: InstantiationException) {
@@ -184,12 +110,11 @@ class RpcClient(url: String) : AbstractConnector() {
         } catch (e: IllegalAccessException) {
             throw RuntimeException(e)
         }
-
     }
 
     @Throws(ConnectorException::class, IOException::class)
     override fun getBlock(hash: String): Block {
-        val result = rpc!!.call("getblock", hash)
+        val result = rpc.call("getblock", hash)
         try {
             return Serializable.from(Helper.hexToBytes(result as String), Block::class.java)
         } catch (e: InstantiationException) {
@@ -197,84 +122,27 @@ class RpcClient(url: String) : AbstractConnector() {
         } catch (e: IllegalAccessException) {
             throw RuntimeException(e)
         }
-
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getSmartCodeEvent(height: Int): Any {
-        val result = rpc!!.call("getsmartcodeevent", height)
-        try {
-            return result
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getSmartCodeEvent(height: Int) = rpc.call("getsmartcodeevent", height)
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getSmartCodeEvent(hash: String): Any {
-        val result = rpc!!.call("getsmartcodeevent", hash)
-        try {
-            return result
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getSmartCodeEvent(hash: String) = rpc.call("getsmartcodeevent", hash)
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBlockHeightByTxHash(hash: String): Int {
-        val result = rpc!!.call("getblockheightbytxhash", hash)
-        try {
-            return result as Int
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getBlockHeightByTxHash(hash: String) = rpc.call("getblockheightbytxhash", hash) as Int
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getStorage(codehash: String, key: String): String {
-        val result = rpc!!.call("getstorage", codehash, key)
-        try {
-            return result as String
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getStorage(codehash: String, key: String) = rpc.call("getstorage", codehash, key) as String
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getMerkleProof(hash: String): Any {
-        val result = rpc!!.call("getmerkleproof", hash)
-        try {
-            return result
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getMerkleProof(hash: String) = rpc.call("getmerkleproof", hash)
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getAllowance(asset: String, from: String, to: String): String {
-        val result = rpc!!.call("getallowance", asset, from, to)
-        try {
-            return result as String
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getAllowance(asset: String, from: String, to: String) = rpc.call("getallowance", asset, from, to) as String
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getMemPoolTxState(hash: String): Any {
-        val result = rpc!!.call("getmempooltxstate", hash)
-        try {
-            return result
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-
-    }
+    override fun getMemPoolTxState(hash: String) = rpc.call("getmempooltxstate", hash)
 }
 

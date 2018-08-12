@@ -33,7 +33,7 @@ class Signature {
             throw Exception(ErrorCode.InvalidSignatureDataLen)
         }
 
-        this.scheme = SignatureScheme.values()[data[0]]
+        this.scheme = SignatureScheme.values()[data[0].toInt()]
         if (scheme == SignatureScheme.SM3WITHSM2) {
             var i = 0
             while (i < data.size && data[i].toInt() != 0) {
@@ -53,14 +53,14 @@ class Signature {
     fun toBytes(): ByteArray {
         val bs = ByteArrayOutputStream()
         try {
-            bs.write(scheme!!.ordinal.toByte().toInt())
+            bs.write(scheme.ordinal.toByte().toInt())
             if (scheme == SignatureScheme.SM3WITHSM2) {
                 // adding the ID
                 bs.write((param as SM2ParameterSpec).id)
                 // padding a 0 as the terminator
                 bs.write(0.toByte().toInt())
             }
-            bs.write(value!!)
+            bs.write(value)
         } catch (e: IOException) {
             e.printStackTrace()
         }

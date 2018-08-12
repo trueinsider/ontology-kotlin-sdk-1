@@ -19,23 +19,17 @@
 
 package com.github.ontio.core.payload
 
-enum class BookkeeperAction private constructor(v: Int) {
+enum class BookkeeperAction(v: Int) {
     BookKeeperAction_ADD(0x00),
     BookKeeperAction_SUB(0x01);
 
-    private val value: Byte
-
-    init {
-        value = v.toByte()
-    }
+    private val value: Byte = v.toByte()
 
     fun value(): Byte {
         return value
     }
 
     companion object {
-
-
         fun valueOf(v: Byte): BookkeeperAction {
             for (e in BookkeeperAction.values()) {
                 if (e.value == v) {

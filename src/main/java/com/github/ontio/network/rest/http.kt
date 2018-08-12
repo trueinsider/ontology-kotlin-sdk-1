@@ -73,18 +73,14 @@ object http {
             out.write(body.toByteArray(charset(DEFAULT_CHARSET)))
             out.flush()
         }
-        val sb = StringBuilder()
+        var str = ""
         http.inputStream.use { `is` ->
             BufferedReader(InputStreamReader(`is`, DEFAULT_CHARSET)).use { reader ->
-                var str: String? = null
-                while ((str = reader.readLine()) != null) {
-                    sb.append(str)
-                    str = null
-                }
+                str = reader.readText()
             }
         }
-        http?.disconnect()
-        return sb.toString()
+        http.disconnect()
+        return str
     }
 
     @Throws(IOException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, KeyManagementException::class)
@@ -113,18 +109,14 @@ object http {
             out.write(body.toByteArray(charset(DEFAULT_CHARSET)))
             out.flush()
         }
-        val sb = StringBuilder()
+        var str = ""
         http.inputStream.use { `is` ->
             BufferedReader(InputStreamReader(`is`, DEFAULT_CHARSET)).use { reader ->
-                var str: String? = null
-                while ((str = reader.readLine()) != null) {
-                    sb.append(str)
-                    str = null
-                }
+                str = reader.readText()
             }
         }
-        http?.disconnect()
-        return sb.toString()
+        http.disconnect()
+        return str
     }
 
     @Throws(Exception::class)
@@ -147,7 +139,7 @@ object http {
     }
 
     @Throws(Exception::class)
-    private operator fun get(url: String, https: Boolean): String {
+    private fun get(url: String, https: Boolean): String {
         val u = URL(url)
         val http = u.openConnection() as HttpURLConnection
         http.connectTimeout = 50000
@@ -163,22 +155,18 @@ object http {
         http.doOutput = true
         http.doInput = true
         http.connect()
-        val sb = StringBuilder()
+        var str = ""
         http.inputStream.use { `is` ->
             BufferedReader(InputStreamReader(`is`, DEFAULT_CHARSET)).use { reader ->
-                var str: String? = null
-                while ((str = reader.readLine()) != null) {
-                    sb.append(str)
-                    str = null
-                }
+                str = reader.readText()
             }
         }
-        http?.disconnect()
-        return sb.toString()
+        http.disconnect()
+        return str
     }
 
     @Throws(Exception::class)
-    private operator fun get(url: String): String {
+    private fun get(url: String): String {
         println(String.format(" GET url=%s, params=%s", url, null))
         return if (url.startsWith("https")) {
             get(url, true)
@@ -188,7 +176,7 @@ object http {
     }
 
     @Throws(Exception::class)
-    operator fun get(url: String, params: Map<String, String>): String {
+    fun get(url: String, params: Map<String, String>): String {
         return if (url.startsWith("https")) {
             get(url + cvtParams(params), true)
         } else {
@@ -223,7 +211,7 @@ object http {
      */
     @Throws(IOException::class)
     private fun close(vararg objs: Closeable) {
-        if (objs != null && objs.size > 0) {
+        if (objs.isNotEmpty()) {
             Arrays.stream(objs).forEach { p ->
                 try {
                     p.close()

@@ -35,10 +35,11 @@ import com.github.ontio.io.BinaryWriter
 /**
  *
  */
-class Bookkeeper : Transaction(TransactionType.Bookkeeper) {
-    var issuer: ECPoint
-    var action: BookkeeperAction
-    var cert: ByteArray
+class Bookkeeper(
+        var issuer: ECPoint,
+        var action: BookkeeperAction,
+        var cert: ByteArray
+) : Transaction(TransactionType.Bookkeeper) {
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null

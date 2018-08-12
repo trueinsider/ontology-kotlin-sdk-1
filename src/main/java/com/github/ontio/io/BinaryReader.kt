@@ -20,7 +20,6 @@
 package com.github.ontio.io
 
 import java.io.*
-import java.lang.reflect.Array
 import java.nio.*
 
 import com.github.ontio.common.ErrorCode
@@ -62,13 +61,9 @@ import com.github.ontio.crypto.ECC
  ******************************************************************************
  */
 class BinaryReader(stream: InputStream) : AutoCloseable {
-    private val reader: DataInputStream
+    private val reader: DataInputStream = DataInputStream(stream)
     private val array = ByteArray(8)
     private val buffer = ByteBuffer.wrap(array).order(ByteOrder.LITTLE_ENDIAN)
-
-    init {
-        this.reader = DataInputStream(stream)
-    }
 
     @Throws(IOException::class)
     override fun close() {
@@ -112,7 +107,7 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
     fun readECPoint(): ECPoint {
         val encoded: ByteArray
         val fb = reader.readByte()
-        when (fb) {
+        when (fb.toInt()) {
             0x00 -> encoded = ByteArray(1)
             0x02, 0x03 -> {
                 encoded = ByteArray(33)
@@ -134,7 +129,7 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
         val data = readBytes(length)
         var count = -1
         while (data[++count].toInt() != 0);
-        return String(data, 0, count, "UTF-8")
+        return String(data, 0, count)
     }
 
     @Throws(IOException::class)
@@ -164,7 +159,7 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
 
     @Throws(InstantiationException::class, IllegalAccessException::class, IOException::class)
     fun <T : Serializable> readSerializableArray(t: Class<T>): Array<T> {
-        val array = Array.newInstance(t, readVarInt(0x10000000).toInt()) as Array<T>
+        val array = java.lang.reflect.Array.newInstance(t, readVarInt(0x10000000).toInt()) as Array<T>
         for (i in array.indices) {
             array[i] = t.newInstance()
             array[i].deserialize(this)
@@ -194,14 +189,11 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
     fun readVarInt(max: Long = java.lang.Long.MAX_VALUE): Long {
         val fb = java.lang.Byte.toUnsignedLong(readByte())
         val value: Long
-        if (fb == 0xFDL) {
-            value = java.lang.Short.toUnsignedLong(readShort())
-        } else if (fb == 0xFEL) {
-            value = Integer.toUnsignedLong(readInt())
-        } else if (fb == 0xFFL) {
-            value = readLong()
-        } else {
-            value = fb
+        value = when (fb) {
+            0xFDL -> java.lang.Short.toUnsignedLong(readShort())
+            0xFEL -> Integer.toUnsignedLong(readInt())
+            0xFFL -> readLong()
+            else -> fb
         }
         if (java.lang.Long.compareUnsigned(value, max) > 0) {
             throw IOException(ErrorCode.ParamError)
@@ -213,14 +205,11 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
     fun readVarInt2(max: Long): Long {
         val fb = java.lang.Byte.toUnsignedLong(readByte())
         val value: Long
-        if (fb == ScriptOp.OP_PUSHDATA1.byte.toLong()) {
-            value = java.lang.Byte.toUnsignedLong(readByte())
-        } else if (fb == ScriptOp.OP_PUSHDATA2.byte.toLong()) {
-            value = java.lang.Short.toUnsignedLong(readShort())
-        } else if (fb == ScriptOp.OP_PUSHDATA4.byte.toLong()) {
-            value = Integer.toUnsignedLong(readInt())
-        } else {
-            value = fb
+        value = when (fb) {
+            ScriptOp.OP_PUSHDATA1.byte.toLong() -> java.lang.Byte.toUnsignedLong(readByte())
+            ScriptOp.OP_PUSHDATA2.byte.toLong() -> java.lang.Short.toUnsignedLong(readShort())
+            ScriptOp.OP_PUSHDATA4.byte.toLong() -> Integer.toUnsignedLong(readInt())
+            else -> fb
         }
         if (java.lang.Long.compareUnsigned(value, max) > 0) {
             throw IOException(ErrorCode.ParamError)
@@ -230,7 +219,7 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
 
     @Throws(IOException::class)
     fun readVarString(): String {
-        return String(readVarBytes(), "UTF-8")
+        return String(readVarBytes())
     }
 
     @Throws(IOException::class)

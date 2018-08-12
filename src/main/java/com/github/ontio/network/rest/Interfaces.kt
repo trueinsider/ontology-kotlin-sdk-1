@@ -19,7 +19,6 @@
 
 package com.github.ontio.network.rest
 
-
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.network.exception.RestfulException
 
@@ -29,52 +28,47 @@ import java.util.HashMap
  *
  */
 internal class Interfaces(val url: String) {
+    @Throws(RestfulException::class)
+    fun getNodeCount(): String {
+        val params = HashMap<String, String>()
+        try {
+            return http.get(url + UrlConsts.Url_get_node_count, params)
+        } catch (e: Exception) {
+            throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
+        }
+    }
 
-    val nodeCount: String
-        @Throws(RestfulException::class)
-        get() {
-            val params = HashMap<String, String>()
-            try {
-                return http.get(url + UrlConsts.Url_get_node_count, params)
-            } catch (e: Exception) {
-                throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
-            }
+    @Throws(RestfulException::class)
+    fun getBlockHeight(): String {
+        val params = HashMap<String, String>()
+        try {
+            return http.get(url + UrlConsts.Url_get_block_height, params)
+        } catch (e: Exception) {
+            throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
+        }
+    }
 
+    @Throws(RestfulException::class)
+    fun getMemPoolTxCount(): String {
+        val params = HashMap<String, String>()
+        try {
+            return http.get(url + UrlConsts.Url_get_mem_pool_tx_count, params)
+        } catch (e: Exception) {
+            throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
         }
 
-    val blockHeight: String
-        @Throws(RestfulException::class)
-        get() {
-            val params = HashMap<String, String>()
-            try {
-                return http.get(url + UrlConsts.Url_get_block_height, params)
-            } catch (e: Exception) {
-                throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
-            }
+    }
 
+    @Throws(RestfulException::class)
+    fun getVersion(): String {
+        val params = HashMap<String, String>()
+        try {
+            return http.get(url + UrlConsts.Url_get_allowance, params)
+        } catch (e: Exception) {
+            throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
         }
-    val memPoolTxCount: String
-        @Throws(RestfulException::class)
-        get() {
-            val params = HashMap<String, String>()
-            try {
-                return http.get(url + UrlConsts.Url_get_mem_pool_tx_count, params)
-            } catch (e: Exception) {
-                throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
-            }
 
-        }
-    val version: String
-        @Throws(RestfulException::class)
-        get() {
-            val params = HashMap<String, String>()
-            try {
-                return http.get(url + UrlConsts.Url_get_allowance, params)
-            } catch (e: Exception) {
-                throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
-            }
-
-        }
+    }
 
     @Throws(RestfulException::class)
     fun sendTransaction(preExec: Boolean, userid: String?, action: String, version: String, data: String): String {

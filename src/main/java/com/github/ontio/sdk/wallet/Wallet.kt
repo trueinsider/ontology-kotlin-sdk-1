@@ -23,10 +23,8 @@ import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.sdk.exception.SDKException
 
-import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Arrays
-import java.util.Date
 
 /**
  *
@@ -40,19 +38,7 @@ class Wallet : Cloneable {
     var scrypt = Scrypt()
     var extra: Any? = null
     var identities: MutableList<Identity> = ArrayList()
-    private var accounts: MutableList<Account> = ArrayList()
-
-    init {
-        identities.clear()
-    }
-
-    fun getAccounts(): List<Account> {
-        return accounts
-    }
-
-    fun setAccounts(accountList: MutableList<Account>) {
-        this.accounts = accountList
-    }
+    var accounts: MutableList<Account> = ArrayList()
 
     fun removeAccount(address: String): Boolean {
         for (e in accounts) {
@@ -187,24 +173,19 @@ class Wallet : Cloneable {
         return identity
     }
 
-    public override fun clone(): Wallet? {
-        var o: Wallet? = null
-        try {
-            o = super.clone() as Wallet
-            val srcAccounts = o.accounts.toTypedArray()
-            val destAccounts = arrayOfNulls<Account>(srcAccounts.size)
-            System.arraycopy(srcAccounts, 0, destAccounts, 0, srcAccounts.size)
-            o.accounts = Arrays.asList(*destAccounts)
+    public override fun clone(): Wallet {
+        val o = super.clone() as Wallet
+        val srcAccounts = o.accounts.toTypedArray()
+        val destAccounts = arrayOfNulls<Account>(srcAccounts.size)
+        System.arraycopy(srcAccounts, 0, destAccounts, 0, srcAccounts.size)
+        o.accounts = Arrays.asList(*destAccounts)
 
-            val srcIdentitys = o.identities.toTypedArray()
-            val destIdentitys = arrayOfNulls<Identity>(srcIdentitys.size)
-            System.arraycopy(srcIdentitys, 0, destIdentitys, 0, srcIdentitys.size)
-            o.identities = Arrays.asList(*destIdentitys)
+        val srcIdentitys = o.identities.toTypedArray()
+        val destIdentitys = arrayOfNulls<Identity>(srcIdentitys.size)
+        System.arraycopy(srcIdentitys, 0, destIdentitys, 0, srcIdentitys.size)
+        o.identities = Arrays.asList(*destIdentitys)
 
-            o.scrypt = o.scrypt.clone()
-        } catch (e: CloneNotSupportedException) {
-            e.printStackTrace()
-        }
+        o.scrypt = o.scrypt.clone()
 
         return o
     }

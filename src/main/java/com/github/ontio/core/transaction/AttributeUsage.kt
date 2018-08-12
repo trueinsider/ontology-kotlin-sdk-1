@@ -20,25 +20,19 @@
 package com.github.ontio.core.transaction
 
 
-enum class AttributeUsage private constructor(v: Int) {
-
+enum class AttributeUsage constructor(v: Int) {
     Nonce(0x00),
     Script(0x20),
     DescriptionUrl(0x81),
     Description(0x90);
 
-    private val value: Byte
-
-    init {
-        value = v.toByte()
-    }
+    private val value: Byte = v.toByte()
 
     fun value(): Byte {
         return value
     }
 
     companion object {
-
         fun valueOf(v: Byte): AttributeUsage {
             for (e in AttributeUsage.values()) {
                 if (e.value == v) {

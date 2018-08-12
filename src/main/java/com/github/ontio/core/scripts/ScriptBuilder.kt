@@ -51,11 +51,10 @@ class ScriptBuilder : AutoCloseable {
         } catch (ex: IOException) {
             throw RuntimeException(ex)
         }
-
     }
 
     fun emitPushBool(b: Boolean): ScriptBuilder {
-        return if (b == true) {
+        return if (b) {
             add(ScriptOp.OP_PUSH1)
         } else add(ScriptOp.OP_PUSH0)
     }
@@ -67,14 +66,9 @@ class ScriptBuilder : AutoCloseable {
         if (number == BigInteger.ZERO) {
             return add(ScriptOp.OP_PUSH0)
         }
-        if (number.compareTo(BigInteger.ZERO) > 0 && number.compareTo(BigInteger.valueOf(16)) <= 0) {
+        if (number > BigInteger.ZERO && number <= BigInteger.valueOf(16)) {
             return add((ScriptOp.OP_PUSH1.byte - 1 + number.toByte()).toByte())
         }
-        //        if (number.longValue() < 0 || number.longValue() >= Long.MAX_VALUE) {
-        //            throw new IllegalArgumentException();
-        //        }
-        //        ByteBuffer byteBuffer = ByteBuffer.allocate(Long.BYTES).order(ByteOrder.LITTLE_ENDIAN);
-        //        byteBuffer.putLong(number.longValue());
         val bytes = Helper.BigIntToNeoBytes(number)
         return emitPushByteArray(bytes)
     }
@@ -94,23 +88,27 @@ class ScriptBuilder : AutoCloseable {
         if (data == null) {
             throw NullPointerException()
         }
-        if (data.size <= ScriptOp.OP_PUSHBYTES75.byte.toInt()) {
-            ms.write(data.size.toByte().toInt())
-            ms.write(data, 0, data.size)
-        } else if (data.size < 0x100) {
-            add(ScriptOp.OP_PUSHDATA1)
-            ms.write(data.size.toByte().toInt())
-            ms.write(data, 0, data.size)
-        } else if (data.size < 0x10000) {
-            add(ScriptOp.OP_PUSHDATA2)
-            ms.write(ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(data.size.toShort()).array(), 0, 2)
-            ms.write(data, 0, data.size)
-        } else if (data.size < 0x100000000L) {
-            add(ScriptOp.OP_PUSHDATA4)
-            ms.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(data.size).array(), 0, 4)
-            ms.write(data, 0, data.size)
-        } else {
-            throw IllegalArgumentException()
+        when {
+            data.size <= ScriptOp.OP_PUSHBYTES75.byte.toInt() -> {
+                ms.write(data.size.toByte().toInt())
+                ms.write(data, 0, data.size)
+            }
+            data.size < 0x100 -> {
+                add(ScriptOp.OP_PUSHDATA1)
+                ms.write(data.size.toByte().toInt())
+                ms.write(data, 0, data.size)
+            }
+            data.size < 0x10000 -> {
+                add(ScriptOp.OP_PUSHDATA2)
+                ms.write(ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(data.size.toShort()).array(), 0, 2)
+                ms.write(data, 0, data.size)
+            }
+            data.size < 0x100000000L -> {
+                add(ScriptOp.OP_PUSHDATA4)
+                ms.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(data.size).array(), 0, 4)
+                ms.write(data, 0, data.size)
+            }
+            else -> throw IllegalArgumentException()
         }
         return this
     }

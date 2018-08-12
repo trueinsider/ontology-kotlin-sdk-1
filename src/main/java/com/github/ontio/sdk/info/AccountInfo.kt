@@ -24,26 +24,13 @@ import com.alibaba.fastjson.JSON
 /**
  *
  */
-class AccountInfo {
-    var addressBase58: String? = null
-    var pubkey: String? = null
-
-    var encryptedPrikey: String? = null
-    var addressU160: String? = null
-    private val prikey: String? = null
-    val prikeyWif: String? = null
-
-    fun setPrikey(prikey: String) {
-        //this.prikey = prikey;
-    }
-
-    fun setPriwif(priwif: String) {
-        //this.prikeyWif = priwif;
-    }
-
+class AccountInfo(
+        val addressBase58: String,
+        val pubkey: String,
+        val encryptedPrikey: String,
+        val addressU160: String
+) {
     override fun toString(): String {
         return JSON.toJSONString(this)
     }
-
-
 }

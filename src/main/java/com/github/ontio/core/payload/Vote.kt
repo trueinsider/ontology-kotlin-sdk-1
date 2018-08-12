@@ -34,10 +34,7 @@ import java.math.BigInteger
 /**
  *
  */
-class Vote : Transaction(TransactionType.Vote) {
-    var pubKeys: Array<ECPoint>
-    var account: Address
-
+class Vote(var pubKeys: Array<ECPoint>, var account: Address) : Transaction(TransactionType.Vote) {
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
@@ -45,7 +42,7 @@ class Vote : Transaction(TransactionType.Vote) {
     override fun deserializeExclusiveData(reader: BinaryReader) {
         try {
             val len = reader.readInt()
-            pubKeys = arrayOfNulls(len)
+            pubKeys = arrayOfNulls<ECPoint>(len) as Array<ECPoint>
             for (i in 0 until len) {
                 pubKeys[i] = ECC.secp256r1.curve.createPoint(
                         BigInteger(1, reader.readVarBytes()), BigInteger(1, reader.readVarBytes()))
@@ -53,7 +50,6 @@ class Vote : Transaction(TransactionType.Vote) {
             account = reader.readSerializable(Address::class.java)
         } catch (e: Exception) {
         }
-
     }
 
     @Throws(IOException::class)

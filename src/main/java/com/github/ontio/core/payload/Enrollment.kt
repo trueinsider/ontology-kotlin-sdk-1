@@ -34,9 +34,7 @@ import java.math.BigInteger
 /**
  *
  */
-class Enrollment : Transaction(TransactionType.Enrollment) {
-    var pubKey: ECPoint
-
+class Enrollment(var pubKey: ECPoint) : Transaction(TransactionType.Enrollment) {
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
@@ -48,7 +46,6 @@ class Enrollment : Transaction(TransactionType.Enrollment) {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     @Throws(IOException::class)

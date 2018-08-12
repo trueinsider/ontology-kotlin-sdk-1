@@ -30,7 +30,6 @@ import java.util.HashMap
 object MerkleVerifier {
     private val hasher = TreeHasher()
 
-
     @Throws(Exception::class)
     fun VerifyLeafHashInclusion(leaf_hash: UInt256,
                                 leaf_index: Int, proof: Array<UInt256>, root_hash: UInt256, tree_size: Int): Boolean {
@@ -85,15 +84,15 @@ object MerkleVerifier {
         var pos = 0
         while (last_node > 0) {
             if (node_index % 2 == 1) {
-                val map = HashMap()
-                map.put("Direction", "Left")
-                map.put("TargetHash", audit_path[pos].toHexString())
+                val map = mutableMapOf<String, String>()
+                map["Direction"] = "Left"
+                map["TargetHash"] = audit_path[pos].toHexString()
                 nodes.add(map)
                 pos += 1
             } else if (node_index < last_node) {
-                val map = HashMap()
-                map.put("Direction", "Right")
-                map.put("TargetHash", audit_path[pos].toHexString())
+                val map = mutableMapOf<String, String>()
+                map["Direction"] = "Right"
+                map["TargetHash"] = audit_path[pos].toHexString()
                 nodes.add(map)
                 pos += 1
             }
@@ -110,12 +109,10 @@ object MerkleVerifier {
             val direction = (targetHashes[i] as Map<*, *>)["Direction"] as String
             val tmp = (targetHashes[i] as Map<*, *>)["TargetHash"] as String
             val targetHash = UInt256.parse(tmp)
-            if (direction == "Left") {
-                calculated_hash = hasher.hash_children(targetHash, calculated_hash)
-            } else if (direction == "Right") {
-                calculated_hash = hasher.hash_children(calculated_hash, targetHash)
-            } else {
-                throw SDKException(ErrorCode.TargetHashesErr)
+            calculated_hash = when (direction) {
+                "Left" -> hasher.hash_children(targetHash, calculated_hash)
+                "Right" -> hasher.hash_children(calculated_hash, targetHash)
+                else -> throw SDKException(ErrorCode.TargetHashesErr)
             }
         }
         if (calculated_hash == UInt256()) {

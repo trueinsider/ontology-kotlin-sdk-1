@@ -19,24 +19,18 @@
 
 package com.github.ontio.core
 
-
-enum class InventoryType private constructor(v: Int) {
+enum class InventoryType constructor(v: Int) {
     TX(0x01),
     Block(0x02),
     Consensus(0xe0);
 
-    private val value: Byte
-
-    init {
-        value = v.toByte()
-    }
+    private val value: Byte = v.toByte()
 
     fun value(): Int {
         return value.toInt()
     }
 
     companion object {
-
         fun from(b: Byte): InventoryType {
             for (t in InventoryType.values()) {
                 if (t.value() == b.toInt()) {

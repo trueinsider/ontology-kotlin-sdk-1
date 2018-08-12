@@ -19,8 +19,6 @@
 
 package com.github.ontio.core.asset
 
-import com.github.ontio.common.Address
-import com.github.ontio.crypto.Digest
 import com.github.ontio.io.*
 
 import java.io.ByteArrayInputStream
@@ -32,11 +30,9 @@ import java.util.HashMap
  *
  */
 class Transfers : Serializable {
-    var states: Array<State>
+    lateinit var states: Array<State>
 
-    constructor() {
-
-    }
+    private constructor()
 
     constructor(states: Array<State>) {
         this.states = states
@@ -45,7 +41,7 @@ class Transfers : Serializable {
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         val len = reader.readVarInt().toInt()
-        states = arrayOfNulls(len)
+        states = arrayOfNulls<State>(len) as Array<State>
         for (i in 0 until len) {
             try {
                 states[i] = reader.readSerializable(State::class.java)
@@ -54,7 +50,6 @@ class Transfers : Serializable {
             } catch (e: IllegalAccessException) {
                 e.printStackTrace()
             }
-
         }
     }
 

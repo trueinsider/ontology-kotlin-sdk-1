@@ -28,13 +28,12 @@ import com.github.ontio.crypto.ECC
 import com.github.ontio.crypto.KeyType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.sdk.exception.SDKException
-import org.bouncycastle.math.ec.ECPoint
+import java.awt.SystemColor.info
 
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.math.BigInteger
-import java.util.ArrayList
-import java.util.Arrays
+import java.util.Comparator
 
 /**
  *
@@ -42,9 +41,8 @@ import java.util.Arrays
 object Program {
     @Throws(IOException::class)
     fun ProgramFromParams(sigData: Array<ByteArray>): ByteArray {
-        var sigData = sigData
+        sigData.sortBy(Helper::toHexString)
         val sb = ScriptBuilder()
-        sigData = Arrays.stream(sigData).sorted { o1, o2 -> Helper.toHexString(o1).compareTo(Helper.toHexString(o2)) }.toArray(byte[][]::new  /* Currently unsupported in Kotlin */)
         for (sig in sigData) {
             sb.emitPushByteArray(sig)
         }
@@ -61,7 +59,6 @@ object Program {
 
     @Throws(Exception::class)
     fun ProgramFromMultiPubKey(m: Int, vararg publicKeys: ByteArray): ByteArray {
-        var publicKeys = publicKeys
         val n = publicKeys.size
 
         if (m <= 0 || m > n || n > Common.MULTI_SIG_MAX_PUBKEY_SIZE) {
@@ -69,7 +66,7 @@ object Program {
         }
         ScriptBuilder().use { sb ->
             sb.emitPushInteger(BigInteger.valueOf(m.toLong()))
-            publicKeys = sortPublicKeys(*publicKeys)
+            val publicKeys = sortPublicKeys(*publicKeys)
             for (publicKey in publicKeys) {
                 sb.emitPushByteArray(publicKey)
             }
@@ -80,86 +77,71 @@ object Program {
     }
 
     fun sortPublicKeys(vararg publicKeys: ByteArray): Array<ByteArray> {
-        var publicKeys = publicKeys
-        publicKeys = Arrays.stream(publicKeys).sorted { o1, o2 ->
+        return publicKeys.copyOf().apply { sortWith(Comparator { o1, o2 ->
             if (KeyType.fromPubkey(o1)!!.label != KeyType.fromPubkey(o2)!!.label) {
-                return@Arrays.stream(publicKeys).sorted if (KeyType.fromPubkey(o1)!!.label >= KeyType.fromPubkey(o2)!!.label) 1 else -1
+                return@Comparator if (KeyType.fromPubkey(o1)!!.label >= KeyType.fromPubkey(o2)!!.label) 1 else -1
             }
             when (KeyType.fromPubkey(o1)) {
                 KeyType.SM2 -> {
                     val p = ByteArray(33)
                     System.arraycopy(o1, 2, p, 0, p.size)
-                    o1 = p
                     val p2 = ByteArray(33)
                     System.arraycopy(o2, 2, p2, 0, p2.size)
-                    o2 = p2
-                    val smPk1 = ECC.sm2p256v1.curve.decodePoint(o1)
-                    val smPk2 = ECC.sm2p256v1.curve.decodePoint(o2)
-                    return@Arrays.stream(publicKeys).sorted ECC . compare smPk1, smPk2)
+                    val smPk1 = ECC.sm2p256v1.curve.decodePoint(p)
+                    val smPk2 = ECC.sm2p256v1.curve.decodePoint(p2)
+                    return@Comparator ECC.compare(smPk1, smPk2)
                 }
                 KeyType.ECDSA -> {
                     val pk1 = ECC.secp256r1.curve.decodePoint(o1)
                     val pk2 = ECC.secp256r1.curve.decodePoint(o2)
-                    return@Arrays.stream(publicKeys).sorted ECC . compare pk1, pk2)
+                    return@Comparator ECC.compare(pk1, pk2)
                 }
                 KeyType.EDDSA ->
                     //TODO
-                    return@Arrays.stream(publicKeys).sorted Helper . toHexString o1.compareTo(Helper.toHexString(o1))
-                else -> return@Arrays.stream(publicKeys).sorted Helper . toHexString o1.compareTo(Helper.toHexString(o1))
+                    return@Comparator Helper.toHexString(o1).compareTo(Helper.toHexString(o1))
+                else -> return@Comparator Helper.toHexString(o1).compareTo(Helper.toHexString(o1))
             }
-        }.toArray(byte[][]::new  /* Currently unsupported in Kotlin */)
-        return publicKeys
+        }) } as Array<ByteArray>
     }
 
     fun getParamInfo(program: ByteArray): Array<ByteArray> {
         val bais = ByteArrayInputStream(program)
         val br = BinaryReader(bais)
-        val list = ArrayList()
+        val list = mutableListOf<ByteArray>()
         while (true) {
             try {
                 list.add(readBytes(br))
             } catch (e: IOException) {
                 break
             }
-
         }
-        val res = arrayOfNulls<ByteArray>(list.size)
-        for (i in list.indices) {
-            res[i] = list.get(i)
-        }
-        return res
+        return list.toTypedArray()
     }
 
     @Throws(IOException::class)
     fun readBytes(br: BinaryReader): ByteArray {
-
         val code = br.readByte()
         val keyLen: Long
-        if (code == ScriptOp.OP_PUSHDATA4.byte) {
-            val temp: Int
-            temp = br.readInt()
-            keyLen = java.lang.Long.valueOf(temp.toLong())
+        keyLen = if (code == ScriptOp.OP_PUSHDATA4.byte) {
+            val temp: Int = br.readInt()
+            temp.toLong()
         } else if (code == ScriptOp.OP_PUSHDATA2.byte) {
-            val temp: Int
-            temp = br.readShort().toInt()
-            keyLen = java.lang.Long.valueOf(temp.toLong())
+            val temp: Int = br.readShort().toInt()
+            temp.toLong()
         } else if (code == ScriptOp.OP_PUSHDATA1.byte) {
-            val temp: Int
-            temp = br.readByte().toInt()
-            keyLen = java.lang.Long.valueOf(temp.toLong())
+            val temp: Int = br.readByte().toInt()
+            temp.toLong()
         } else if (code <= ScriptOp.OP_PUSHBYTES75.byte && code >= ScriptOp.OP_PUSHBYTES1.byte) {
-            keyLen = java.lang.Long.valueOf(code.toLong()) - java.lang.Long.valueOf(ScriptOp.OP_PUSHBYTES1.byte.toLong()) + 1
+            code.toLong() - ScriptOp.OP_PUSHBYTES1.byte.toLong() + 1
         } else {
-            keyLen = 0
+            0
         }
         return br.readBytes(keyLen.toInt())
     }
 
     @Throws(IOException::class)
-    fun getProgramInfo(program: ByteArray): ProgramInfo {
-        val info = ProgramInfo()
+    fun getProgramInfo(program: ByteArray): ProgramInfo? {
         if (program.size <= 2) {
-
         }
         val end = program[program.size - 1]
         val temp = ByteArray(program.size - 1)
@@ -169,12 +151,10 @@ object Program {
         if (end == ScriptOp.OP_CHECKSIG.byte) {
             try {
                 val publicKey = readBytes(reader)
-                info.publicKey = arrayOf(publicKey)
-                info.m = 1.toShort()
+                return ProgramInfo(arrayOf(publicKey), 1.toShort())
             } catch (e: IOException) {
                 e.printStackTrace()
             }
-
         } else if (end == ScriptOp.OP_CHECKMULTISIG.byte) {
             var m: Short = 0
             val len = program[program.size - 2] - ScriptOp.OP_PUSH1.byte + 1
@@ -184,14 +164,13 @@ object Program {
                 e.printStackTrace()
             }
 
-            val pub = arrayOfNulls<ByteArray>(len)
+            val pub = arrayOfNulls<ByteArray>(len) as Array<ByteArray>
             for (i in 0 until len) {
                 pub[i] = reader.readVarBytes()
             }
-            info.publicKey = pub
-            info.m = m
+            return ProgramInfo(pub, m)
         }
-        return info
+        return null
     }
 
     @Throws(IOException::class, SDKException::class)
@@ -202,7 +181,7 @@ object Program {
             return 0
         } else {
             val num = code!!.byte.toInt() - ScriptOp.OP_PUSH1.byte.toInt() + 1
-            if (num >= 1 && num <= 16) {
+            if (num in 1..16) {
                 readOpCode(reader)
                 return num.toShort()
             }
@@ -239,7 +218,7 @@ object Program {
     @Throws(SDKException::class)
     fun programFromMultiPubKey(publicKey: Array<ByteArray>, m: Short): ByteArray {
         val n = publicKey.size
-        if (m >= 1 && m <= n && n <= 1024) {
+        if (m in 1..n && n <= 1024) {
             throw SDKException(ErrorCode.ParamErr("m is wrong"))
         }
         val builder = ScriptBuilder()

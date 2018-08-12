@@ -27,6 +27,7 @@ class Result {
     var Desc: String? = null
     var Result: Any? = null
     var Version: String? = null
+
     override fun toString(): String {
         return JSON.toJSONString(this)
     }

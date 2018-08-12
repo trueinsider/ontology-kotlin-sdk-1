@@ -30,7 +30,6 @@ class Scrypt : Cloneable {
     var dkLen = 64
     private val Salt: String? = null
 
-
     constructor() {}
 
     constructor(n: Int, r: Int, p: Int) {
@@ -39,15 +38,8 @@ class Scrypt : Cloneable {
         this.p = p
     }
 
-    public override fun clone(): Scrypt? {
-        var o: Scrypt? = null
-        try {
-            o = super.clone() as Scrypt
-        } catch (e: CloneNotSupportedException) {
-            e.printStackTrace()
-        }
-
-        return o
+    public override fun clone(): Scrypt {
+        return super.clone() as Scrypt
     }
 
     override fun toString(): String {

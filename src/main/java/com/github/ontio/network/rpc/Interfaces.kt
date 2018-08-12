@@ -37,7 +37,7 @@ import java.util.Random
  */
 class Interfaces @Throws(MalformedURLException::class)
 constructor(url: String) {
-    private val url: URL
+    private val url: URL = URL(url)
 
     private val nextId: Double
         get() {
@@ -47,37 +47,30 @@ constructor(url: String) {
             } while (("" + d).indexOf("E") != -1)
             return d
         }
+
     val host: String
         get() = url.host + " " + url.port
-
-
-    init {
-        this.url = URL(url)
-    }
 
     @Throws(RpcException::class, IOException::class)
     fun call(method: String, vararg params: Any): Any {
         val req = makeRequest(method, params)
         val response = send(req) as Map<*, *>?
-        return if (response == null) {
-            throw RpcException(0, ErrorCode.ConnectUrlErr(url.toString() + "response is null. maybe is connect error"))
-        } else if (response["error"] as Int == 0) {
-            response["result"]
-        } else {
-            throw RpcException(0, JSON.toJSONString(response))
+        return when {
+            response == null -> throw RpcException(0, ErrorCode.ConnectUrlErr(url.toString() + "response is null. maybe is connect error"))
+            response["error"] as Int == 0 -> response["result"]!!
+            else -> throw RpcException(0, JSON.toJSONString(response))
         }
     }
 
-    private fun makeRequest(method: String, params: Array<Any>): Map<*, *> {
-        val request = HashMap()
-        request.put("jsonrpc", "2.0")
-        request.put("method", method)
-        request.put("params", params)
-        request.put("id", 1)
+    private fun makeRequest(method: String, params: Array<out Any>): Map<*, *> {
+        val request = mutableMapOf<String, Any>()
+        request["jsonrpc"] = "2.0"
+        request["method"] = method
+        request["params"] = params
+        request["id"] = 1
         println(String.format("POST url=%s,%s", this.url, JSON.toJSONString(request)))
         return request
     }
-
 
     @Throws(IOException::class)
     fun send(request: Any): Any? {
@@ -85,16 +78,8 @@ constructor(url: String) {
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
-            OutputStreamWriter(connection.outputStream).use { w -> w.write(JSON.toJSONString(request)) }
-            InputStreamReader(connection.inputStream).use { r ->
-                val temp = StringBuffer()
-                var c = 0
-                while ((c = r.read()) != -1) {
-                    temp.append(c.toChar())
-                }
-                //System.out.println("result:"+temp.toString());
-                return JSON.parseObject(temp.toString(), Map<*, *>::class.java)
-            }
+            OutputStreamWriter(connection.outputStream).use { it.write(JSON.toJSONString(request)) }
+            InputStreamReader(connection.inputStream).use { return JSON.parseObject(it.readText(), Map::class.java) }
         } catch (e: IOException) {
         }
 

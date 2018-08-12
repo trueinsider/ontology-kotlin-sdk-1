@@ -25,38 +25,27 @@ import com.github.ontio.common.ErrorCode
 import com.github.ontio.crypto.SignatureScheme
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
-import com.github.ontio.sdk.exception.SDKException
 
 import java.io.IOException
-import java.util.HashSet
-
 
 class DataSignature : Signable {
-    private var account: Account? = null
-    var data: ByteArray? = null
+    private lateinit var scheme: SignatureScheme
+    private lateinit var account: Account
+    lateinit var data: ByteArray
         private set
-    private var scheme: SignatureScheme? = null
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    constructor() {}
+    constructor()
 
-    constructor(data: ByteArray) {
+    constructor(scheme: SignatureScheme, account: Account, data: ByteArray) {
+        this.scheme = scheme
+        this.account = account
         this.data = data
     }
 
-    constructor(scheme: SignatureScheme, acct: Account, data: ByteArray) {
-        this.scheme = scheme
-        this.account = acct
-        this.data = data
-    }
-
-    constructor(scheme: SignatureScheme, acct: Account, data: String) {
-        this.scheme = scheme
-        this.account = acct
-        this.data = data.toByteArray()
-    }
+    constructor(scheme: SignatureScheme, account: Account, data: String) : this(scheme, account, data.toByteArray())
 
     fun signature(): ByteArray {
         try {
@@ -64,12 +53,11 @@ class DataSignature : Signable {
         } catch (e: Exception) {
             throw RuntimeException(ErrorCode.DataSignatureErr)
         }
-
     }
 
     @Throws(Exception::class)
-    override fun sign(account: Account?, scheme: SignatureScheme?): ByteArray {
-        return account!!.generateSignature(hashData, scheme, null)
+    override fun sign(account: Account, scheme: SignatureScheme): ByteArray {
+        return account.generateSignature(hashData, scheme, null)
     }
 
     @Throws(Exception::class)

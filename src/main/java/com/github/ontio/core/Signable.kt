@@ -30,9 +30,7 @@ import com.github.ontio.io.Serializable
 
 import com.github.ontio.common.Address
 
-
 interface Signable : Serializable {
-
     val addressU160ForVerifying: Array<Address>?
 
     val hashData: ByteArray
@@ -55,13 +53,12 @@ interface Signable : Serializable {
     fun serializeUnsigned(writer: BinaryWriter)
 
     @Throws(Exception::class)
-    open fun sign(account: Account, scheme: SignatureScheme): ByteArray {
+    fun sign(account: Account, scheme: SignatureScheme): ByteArray {
         return account.generateSignature(Digest.hash256(hashData), scheme, null)
     }
 
     @Throws(Exception::class)
-    open fun verifySignature(account: Account, data: ByteArray, signature: ByteArray): Boolean {
+    fun verifySignature(account: Account, data: ByteArray, signature: ByteArray): Boolean {
         return account.verifySignature(Digest.hash256(Digest.sha256(data)), signature)
     }
-
 }

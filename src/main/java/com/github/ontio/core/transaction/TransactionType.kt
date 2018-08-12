@@ -22,7 +22,7 @@ package com.github.ontio.core.transaction
 /**
  * list transaction types
  */
-enum class TransactionType private constructor(v: Int) {
+enum class TransactionType constructor(v: Int) {
     Bookkeeping(0x00),
     Bookkeeper(0x02),
     Claim(0x03),
@@ -32,18 +32,13 @@ enum class TransactionType private constructor(v: Int) {
     InvokeCode(0xd1),
     TransferTransaction(0x80);
 
-    private val value: Byte
-
-    init {
-        value = v.toByte()
-    }
+    private val value: Byte = v.toByte()
 
     fun value(): Byte {
         return value
     }
 
     companion object {
-
         fun valueOf(v: Byte): TransactionType {
             for (e in TransactionType.values()) {
                 if (e.value == v) {

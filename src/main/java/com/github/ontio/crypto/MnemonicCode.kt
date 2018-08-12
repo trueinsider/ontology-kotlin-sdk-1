@@ -1,6 +1,5 @@
 package com.github.ontio.crypto
 
-
 import com.github.ontio.account.Account
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.crypto.bip32.ExtendedPrivateKey
@@ -23,7 +22,6 @@ import io.github.novacrypto.bip39.wordlists.English
 import org.bouncycastle.crypto.generators.SCrypt
 
 object MnemonicCode {
-
     fun generateMnemonicCodesStr(): String {
         val sb = StringBuilder()
         val entropy = ByteArray(Words.TWELVE.byteLength())
@@ -40,17 +38,6 @@ object MnemonicCode {
                 .calculateSeed(Arrays.asList(*mnemonicCodesArray), "")
     }
 
-    //    public static byte[] getPrikeyFromMnemonicCodesStr(String mnemonicCodesStr){
-    //        String[] mnemonicCodesArray = mnemonicCodesStr.split(" ");
-    //        byte[] seed = new SeedCalculator()
-    //                .withWordsFromWordList(English.INSTANCE)
-    //                .calculateSeed(Arrays.asList(mnemonicCodesArray), "");
-    //        mnemonicCodesArray = null;
-    //        mnemonicCodesStr = null;
-    //        byte[] prikey = Arrays.copyOfRange(seed,0,32);
-    //        return prikey;
-    //    }
-
     @Throws(Exception::class)
     fun getPrikeyFromMnemonicCodesStrBip44(mnemonicCodesStr: String): ByteArray {
         val seed = MnemonicCode.getSeedFromMnemonicCodesStr(mnemonicCodesStr)
@@ -64,8 +51,6 @@ object MnemonicCode {
 
     @Throws(Exception::class)
     fun encryptMnemonicCodesStr(mnemonicCodesStr: String, password: String, address: String): String {
-        var mnemonicCodesStr = mnemonicCodesStr
-        var password = password
         val N = 4096
         val r = 8
         val p = 8
@@ -74,7 +59,6 @@ object MnemonicCode {
         val addresshashTmp = Digest.sha256(Digest.sha256(address.toByteArray()))
         val salt = Arrays.copyOfRange(addresshashTmp, 0, 4)
         val derivedkey = SCrypt.generate(password.toByteArray(StandardCharsets.UTF_8), salt, N, r, p, dkLen)
-        password = null
 
         val derivedhalf2 = ByteArray(32)
         val iv = ByteArray(16)
@@ -85,15 +69,12 @@ object MnemonicCode {
         val cipher = Cipher.getInstance("AES/CTR/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, skeySpec, IvParameterSpec(iv))
         val encryptedkey = cipher.doFinal(mnemonicCodesStr.toByteArray())
-        mnemonicCodesStr = null
 
         return String(Base64.getEncoder().encode(encryptedkey))
-
     }
 
     @Throws(Exception::class)
     fun decryptMnemonicCodesStr(encryptedMnemonicCodesStr: String?, password: String?, address: String): String {
-        var password = password
         if (encryptedMnemonicCodesStr == null) {
             throw SDKException(ErrorCode.ParamError)
         }
@@ -108,7 +89,6 @@ object MnemonicCode {
         val salt = Arrays.copyOfRange(addresshashTmp, 0, 4)
 
         val derivedkey = SCrypt.generate(password!!.toByteArray(StandardCharsets.UTF_8), salt, N, r, p, dkLen)
-        password = null
         val derivedhalf2 = ByteArray(32)
         val iv = ByteArray(16)
         System.arraycopy(derivedkey, 0, iv, 0, 16)
@@ -129,7 +109,6 @@ object MnemonicCode {
         }
         return mnemonicCodesStr
     }
-
 
     fun getChars(bytes: ByteArray): CharArray {
         val chars = CharArray(bytes.size)

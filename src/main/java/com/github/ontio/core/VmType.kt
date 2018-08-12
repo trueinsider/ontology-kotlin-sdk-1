@@ -22,24 +22,18 @@ package com.github.ontio.core
 /**
  * list vm types
  */
-enum class VmType private constructor(v: Int) {
-
+enum class VmType constructor(v: Int) {
     Native(0xff),
     NEOVM(0x80),
     WASMVM(0x90);
 
-    private val value: Byte
-
-    init {
-        value = v.toByte()
-    }
+    private val value: Byte = v.toByte()
 
     fun value(): Byte {
         return value
     }
 
     companion object {
-
         fun valueOf(v: Byte): VmType {
             for (e in VmType.values()) {
                 if (e.value == v) {

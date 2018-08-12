@@ -28,11 +28,10 @@ import com.github.ontio.crypto.bip32.Secp256r1SC.pointSerP_gMultiply
 import io.github.novacrypto.hashing.Hash160.hash160
 
 internal class HdKey private constructor(builder: Builder) {
-
     private val neutered: Boolean
-    val network: Network?
-    val chainCode: ByteArray?
-    val key: ByteArray?
+    val network: Network
+    val chainCode: ByteArray
+    val key: ByteArray
     private val serializer: Serializer
     val parentFingerprint: Int
     val childNumber: Int
@@ -68,10 +67,10 @@ internal class HdKey private constructor(builder: Builder) {
     fun calculateFingerPrint(): Int {
         val point = publicBuffer
         val o = hash160(point!!)
-        return o[0] and 0xFF shl 24 or
-                (o[1] and 0xFF shl 16) or
-                (o[2] and 0xFF shl 8) or
-                (o[3] and 0xFF)
+        return o[0].toInt() and 0xFF shl 24 or
+                (o[1].toInt() and 0xFF shl 16) or
+                (o[2].toInt() and 0xFF shl 8) or
+                (o[3].toInt() and 0xFF)
     }
 
     fun depth(): Int {
@@ -89,14 +88,20 @@ internal class HdKey private constructor(builder: Builder) {
     }
 
     internal class Builder {
-
-        private var network: Network? = null
-        private var neutered: Boolean = false
-        private var chainCode: ByteArray? = null
-        private var key: ByteArray? = null
-        private var depth: Int = 0
-        private var childNumber: Int = 0
-        private var parentFingerprint: Int = 0
+        internal lateinit var network: Network
+            private set
+        internal var neutered: Boolean = false
+            private set
+        internal lateinit var chainCode: ByteArray
+            private set
+        internal lateinit var key: ByteArray
+            private set
+        internal var depth: Int = 0
+            private set
+        internal var childNumber: Int = 0
+            private set
+        internal var parentFingerprint: Int = 0
+            private set
 
         fun network(network: Network): Builder {
             this.network = network
@@ -108,12 +113,12 @@ internal class HdKey private constructor(builder: Builder) {
             return this
         }
 
-        fun key(key: ByteArray?): Builder {
+        fun key(key: ByteArray): Builder {
             this.key = key
             return this
         }
 
-        fun chainCode(chainCode: ByteArray?): Builder {
+        fun chainCode(chainCode: ByteArray): Builder {
             this.chainCode = chainCode
             return this
         }

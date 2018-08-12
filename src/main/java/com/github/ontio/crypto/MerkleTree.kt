@@ -19,8 +19,6 @@
 
 package com.github.ontio.crypto
 
-import java.util.Arrays
-
 import com.github.ontio.common.UInt256
 
 /**
@@ -33,29 +31,29 @@ object MerkleTree {
      * @return
      */
     fun computeRoot(hashes: Array<UInt256>): UInt256 {
-        if (hashes.size == 0) {
+        if (hashes.isEmpty()) {
             throw IllegalArgumentException()
         }
         return if (hashes.size == 1) {
             hashes[0]
-        } else UInt256(computeRoot(Arrays.stream(hashes).map { p -> p.toArray() }.toArray<ByteArray>(byte[][]::new  /* Currently unsupported in Kotlin */)))
+        } else UInt256(computeRoot(hashes.map(UInt256::toArray).toTypedArray()))
     }
 
     private fun computeRoot(hashes: Array<ByteArray>): ByteArray {
         var hashes = hashes
-        if (hashes.size == 0) {
+        if (hashes.isEmpty()) {
             throw IllegalArgumentException()
         }
         if (hashes.size == 1) {
             return hashes[0]
         }
         if (hashes.size % 2 == 1) {
-            val temp = arrayOfNulls<ByteArray>(hashes.size + 1)
+            val temp = arrayOfNulls<ByteArray>(hashes.size + 1) as Array<ByteArray>
             System.arraycopy(hashes, 0, temp, 0, hashes.size)
             temp[temp.size - 1] = hashes[hashes.size - 1]
             hashes = temp
         }
-        val hashes_new = arrayOfNulls<ByteArray>(hashes.size / 2)
+        val hashes_new = arrayOfNulls<ByteArray>(hashes.size / 2) as Array<ByteArray>
         for (i in hashes_new.indices) {
             val buffer = ByteArray(hashes[i * 2].size + hashes[i * 2 + 1].size)
             System.arraycopy(hashes[i * 2], 0, buffer, 0, hashes[i * 2].size)

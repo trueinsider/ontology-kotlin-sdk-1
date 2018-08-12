@@ -24,18 +24,16 @@ package com.github.ontio.crypto.bip32
 import io.github.novacrypto.bip32.Network
 
 import com.github.ontio.crypto.bip32.Checksum.checksum
-import io.github.novacrypto.hashing.Sha256.sha256Twice
 
 internal class Serializer private constructor(builder: Builder) {
-
-    private val network: Network?
+    private val network: Network
     private val neutered: Boolean
     private val depth: Int
     private val childNumber: Int
     private val fingerprint: Int
 
     private val version: Int
-        get() = if (neutered) network!!.publicVersion else network!!.privateVersion
+        get() = if (neutered) network.publicVersion else network.privateVersion
 
     init {
         network = builder.network
@@ -83,12 +81,16 @@ internal class Serializer private constructor(builder: Builder) {
     }
 
     internal class Builder {
-
-        private var network: Network? = null
-        private var neutered: Boolean = false
-        private var depth: Int = 0
-        private var childNumber: Int = 0
-        private var fingerprint: Int = 0
+        internal lateinit var network: Network
+            private set
+        internal var neutered: Boolean = false
+            private set
+        internal var depth: Int = 0
+            private set
+        internal var childNumber: Int = 0
+            private set
+        internal var fingerprint: Int = 0
+            private set
 
         fun network(network: Network): Builder {
             this.network = network

@@ -2,15 +2,12 @@ package com.github.ontio.crypto
 
 import com.github.ontio.common.ErrorCode
 
-enum class KeyType private constructor(val label: Int) {
+enum class KeyType constructor(val label: Int) {
     ECDSA(0x12),
     SM2(0x13),
     EDDSA(0x14);
 
-
     companion object {
-
-
         // get the crypto.KeyType according to the input label
         @Throws(Exception::class)
         fun fromLabel(label: Byte): KeyType {

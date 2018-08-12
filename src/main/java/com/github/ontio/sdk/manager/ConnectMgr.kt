@@ -22,7 +22,6 @@ package com.github.ontio.sdk.manager
 import java.io.IOException
 
 import com.alibaba.fastjson.JSON
-import com.github.ontio.OntSdk
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
 import com.github.ontio.core.block.Block
@@ -41,25 +40,21 @@ import com.github.ontio.sdk.exception.SDKException
 class ConnectMgr {
     private var connector: IConnector? = null
 
-    private val url: String
-        get() = connector!!.url
+    private fun getUrl() = connector!!.getUrl()
 
-    val nodeCount: Int
-        @Throws(ConnectorException::class, IOException::class)
-        get() = connector!!.nodeCount
+    @Throws(ConnectorException::class, IOException::class)
+    fun getNodeCount(): Int = connector!!.getNodeCount()
 
-    val blockHeight: Int
-        @Throws(ConnectorException::class, IOException::class)
-        get() = connector!!.blockHeight
+    @Throws(ConnectorException::class, IOException::class)
+    fun getBlockHeight(): Int = connector!!.getBlockHeight()
 
-    val memPoolTxCount: Any
-        @Throws(ConnectorException::class, IOException::class)
-        get() = connector!!.memPoolTxCount
-    val version: String
-        @Throws(ConnectorException::class, IOException::class)
-        get() = connector!!.version
+    @Throws(ConnectorException::class, IOException::class)
+    fun getMemPoolTxCount(): Any = connector!!.getMemPoolTxCount()
 
-    constructor(url: String, type: String, lock: Any) {
+    @Throws(ConnectorException::class, IOException::class)
+    fun getVersion(): String = connector!!.getVersion()
+
+    constructor(url: String, type: String, lock: Object) {
         if (type == "websocket") {
             setConnector(WebsocketClient(url, lock))
         }
@@ -97,7 +92,7 @@ class ConnectMgr {
         }
     }
 
-    fun sendSubscribe(map: MutableMap<*, *>) {
+    fun sendSubscribe(map: MutableMap<String, Any>) {
         if (connector is WebsocketClient) {
             (connector as WebsocketClient).sendSubscribe(map)
         }
@@ -121,9 +116,7 @@ class ConnectMgr {
             return true
         }
         val rr = JSON.parseObject(rs, Result::class.java)
-        return if (rr.Error == 0L) {
-            true
-        } else false
+        return rr.Error == 0L
     }
 
     @Throws(ConnectorException::class, IOException::class)
@@ -136,9 +129,7 @@ class ConnectMgr {
             return true
         }
         val rr = JSON.parseObject(rs, Result::class.java)
-        return if (rr.Error == 0L) {
-            true
-        } else false
+        return rr.Error == 0L
     }
 
     @Throws(ConnectorException::class, IOException::class)
@@ -148,7 +139,7 @@ class ConnectMgr {
             try {
                 b = sendRawTransaction(hexData)
             } catch (e: Exception) {
-                if (e.message.contains("\"Error\":58403") && i < reSendTime - 1) {
+                if (e.message!!.contains("\"Error\":58403") && i < reSendTime - 1) {
                     continue
                 } else {
                     e.printStackTrace()
@@ -311,7 +302,7 @@ class ConnectMgr {
             try {
                 Thread.sleep(3000)
                 objEvent = connector!!.getSmartCodeEvent(hash)
-                if (objEvent == "" || objEvent == null) {
+                if (objEvent == "") {
                     Thread.sleep(1000)
                     objTxState = connector!!.getMemPoolTxState(hash)
                     continue
@@ -320,10 +311,10 @@ class ConnectMgr {
                     return objEvent
                 }
             } catch (e: Exception) {
-                if (e.message.contains("UNKNOWN TRANSACTION") && e.message.contains("getmempooltxstate")) {
+                if (e.message!!.contains("UNKNOWN TRANSACTION") && e.message!!.contains("getmempooltxstate")) {
                     notInpool++
                     if ((objEvent == "" || objEvent == null) && notInpool > 1) {
-                        throw SDKException(e.message)
+                        throw SDKException(e.message!!)
                     }
                 } else {
                     continue

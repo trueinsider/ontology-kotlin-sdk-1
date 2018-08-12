@@ -47,6 +47,6 @@ internal class ByteArrayReader(private val bytes: ByteArray) {
     }
 
     fun read(): Int {
-        return 0xff and bytes[idx++]
+        return 0xff and bytes[idx++].toInt()
     }
 }

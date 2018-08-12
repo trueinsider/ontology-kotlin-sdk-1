@@ -21,7 +21,6 @@
 
 package com.github.ontio.crypto.bip32
 
-
 import io.github.novacrypto.bip32.*
 import io.github.novacrypto.bip32.derivation.CkdFunction
 import io.github.novacrypto.bip32.derivation.CkdFunctionDerive
@@ -34,8 +33,8 @@ import java.util.Arrays
 
 import com.github.ontio.crypto.bip32.BigIntegerUtils.parse256
 import com.github.ontio.crypto.bip32.BigIntegerUtils.ser256
-import com.github.ontio.crypto.bip32.ByteArrayWriter.head32
-import com.github.ontio.crypto.bip32.ByteArrayWriter.tail32
+import com.github.ontio.crypto.bip32.ByteArrayWriter.Companion.head32
+import com.github.ontio.crypto.bip32.ByteArrayWriter.Companion.tail32
 import com.github.ontio.crypto.bip32.HmacSha512.hmacSha512
 import com.github.ontio.crypto.bip32.Secp256r1SC.n
 import io.github.novacrypto.base58.Base58.base58Encode
@@ -46,8 +45,7 @@ import io.github.novacrypto.toruntime.CheckedExceptionToRuntime.toRuntime
 /**
  * A BIP32 private key
  */
-class ExtendedPrivateKey(private val hdKey: HdKey) : Derive<ExtendedPrivateKey>, CKDpriv, CKDpub, ExtendedKey {
-
+class ExtendedPrivateKey internal constructor(private val hdKey: HdKey) : Derive<ExtendedPrivateKey>, CKDpriv, CKDpub, ExtendedKey {
     private constructor(network: Network, key: ByteArray, chainCode: ByteArray) : this(HdKey.Builder()
             .network(network)
             .neutered(false)
@@ -56,8 +54,7 @@ class ExtendedPrivateKey(private val hdKey: HdKey) : Derive<ExtendedPrivateKey>,
             .depth(0)
             .childNumber(0)
             .parentFingerprint(0)
-            .build()) {
-    }
+            .build())
 
     override fun extendedKeyByteArray(): ByteArray {
         return hdKey.serialize()
@@ -98,7 +95,7 @@ class ExtendedPrivateKey(private val hdKey: HdKey) : Derive<ExtendedPrivateKey>,
         val parse256_Il = parse256(Il)
         val ki = parse256_Il.add(parse256(key)).mod(n())
 
-        if (parse256_Il.compareTo(n()) >= 0 || ki == BigInteger.ZERO) {
+        if (parse256_Il >= n() || ki == BigInteger.ZERO) {
             return cKDpriv(index + 1)
         }
 
@@ -143,7 +140,7 @@ class ExtendedPrivateKey(private val hdKey: HdKey) : Derive<ExtendedPrivateKey>,
         return CkdFunctionDerive(ckdFunction, this)
     }
 
-    override fun network(): Network? {
+    override fun network(): Network {
         return hdKey.network
     }
 

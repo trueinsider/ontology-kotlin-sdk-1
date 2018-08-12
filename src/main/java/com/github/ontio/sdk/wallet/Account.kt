@@ -34,7 +34,7 @@ class Account {
     var isDefault = false
     var lock = false
     var algorithm = ""
-    var parameters: MutableMap<*, *> = HashMap()
+    var parameters = mutableMapOf<String, Any>()
     var key = ""
     @JSONField(name = "enc-alg")
     var encAlg = "aes-256-gcm"

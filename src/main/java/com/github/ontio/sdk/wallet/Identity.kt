@@ -31,8 +31,9 @@ class Identity {
     var ontid = ""
     var isDefault = false
     var lock = false
-    var controls: List<Control> = ArrayList()
+    var controls: MutableList<Control> = ArrayList()
     var extra: Any? = null
+
     override fun toString(): String {
         return JSON.toJSONString(this)
     }

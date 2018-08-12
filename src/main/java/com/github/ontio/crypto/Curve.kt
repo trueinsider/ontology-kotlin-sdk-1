@@ -5,7 +5,7 @@ import com.github.ontio.sdk.exception.SDKException
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECCurve
 
-enum class Curve private constructor(val label: Int, private val name: String) {
+enum class Curve constructor(val label: Int, private val curveName: String) {
     P224(1, "P-224"),
     P256(2, "P-256"),
     P384(3, "P-384"),
@@ -14,11 +14,10 @@ enum class Curve private constructor(val label: Int, private val name: String) {
     ED25519(25, "ED25519");
 
     override fun toString(): String {
-        return name
+        return curveName
     }
 
     companion object {
-
         @Throws(Exception::class)
         fun valueOf(v: ECCurve): Curve {
             for (c in Curve.values()) {

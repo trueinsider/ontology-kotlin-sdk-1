@@ -21,30 +21,25 @@ package com.github.ontio.core.asset
 
 import com.github.ontio.common.Helper
 import com.github.ontio.core.program.Program
-import com.github.ontio.core.program.ProgramInfo
 import com.github.ontio.io.*
-import com.github.ontio.crypto.ECC
 
 import java.io.IOException
-import java.math.BigInteger
 import java.util.*
 
-import com.github.ontio.core.program.Program.*
+import com.github.ontio.core.program.Program.ProgramFromMultiPubKey
+import com.github.ontio.core.program.Program.ProgramFromParams
+import com.github.ontio.core.program.Program.ProgramFromPubKey
 
 /**
  *
  */
-class Sig : Serializable {
-    var pubKeys: Array<ByteArray>? = null
-    var M: Int = 0
-    var sigData: Array<ByteArray>
-
+class Sig(var M: Int, var pubKeys: Array<ByteArray>, var sigData: Array<ByteArray>) : Serializable {
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         val invocationScript = reader.readVarBytes()
         val verificationScript = reader.readVarBytes()
         sigData = Program.getParamInfo(invocationScript)
-        val info = Program.getProgramInfo(verificationScript)
+        val info = Program.getProgramInfo(verificationScript)!!
         pubKeys = info.publicKey
         M = info.m.toInt()
     }
@@ -53,25 +48,24 @@ class Sig : Serializable {
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(ProgramFromParams(sigData))
         try {
-            if (pubKeys!!.size == 1) {
-                writer.writeVarBytes(ProgramFromPubKey(pubKeys!![0]))
-            } else if (pubKeys!!.size > 1) {
-                writer.writeVarBytes(ProgramFromMultiPubKey(M, *pubKeys!!))
+            if (pubKeys.size == 1) {
+                writer.writeVarBytes(ProgramFromPubKey(pubKeys[0]))
+            } else if (pubKeys.size > 1) {
+                writer.writeVarBytes(ProgramFromMultiPubKey(M, *pubKeys))
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     fun json(): Any {
         val json = HashMap<Any, Any>()
         json["M"] = M
-        val list = ArrayList()
-        for (i in pubKeys!!.indices) {
-            list.add(Helper.toHexString(pubKeys!![i]))
+        val list = mutableListOf<String>()
+        for (i in pubKeys.indices) {
+            list.add(Helper.toHexString(pubKeys[i]))
         }
-        val list2 = ArrayList()
+        val list2 = mutableListOf<String>()
         for (i in sigData.indices) {
             list2.add(Helper.toHexString(sigData[i]))
         }
@@ -81,5 +75,4 @@ class Sig : Serializable {
         //json.put("SigData", Arrays.stream(sigData).map(p->Helper.toHexString(p)).toArray(String[]::new));
         return json
     }
-
 }

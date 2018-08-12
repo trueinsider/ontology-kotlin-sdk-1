@@ -27,7 +27,6 @@ import java.io.*
  * Serialize interface
  */
 interface Serializable {
-
     /**
      * @param reader
      * @throws IOException
@@ -42,7 +41,7 @@ interface Serializable {
     @Throws(IOException::class)
     fun serialize(writer: BinaryWriter)
 
-    open fun toArray(): ByteArray {
+    fun toArray(): ByteArray {
         try {
             ByteArrayOutputStream().use { ms ->
                 BinaryWriter(ms).use { writer ->
@@ -54,10 +53,9 @@ interface Serializable {
         } catch (ex: IOException) {
             throw UnsupportedOperationException(ex)
         }
-
     }
 
-    open fun toHexString(): String {
+    fun toHexString(): String {
         return Helper.toHexString(toArray())
     }
 
@@ -69,9 +67,6 @@ interface Serializable {
             } catch (ex: IOException) {
                 throw IllegalArgumentException(ex)
             }
-
         }
     }
-
-
 }

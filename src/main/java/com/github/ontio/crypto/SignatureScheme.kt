@@ -2,7 +2,7 @@ package com.github.ontio.crypto
 
 import com.github.ontio.common.ErrorCode
 
-enum class SignatureScheme private constructor(private val name: String) {
+enum class SignatureScheme constructor(private val schemeName: String) {
     SHA224WITHECDSA("SHA224withECDSA"),
     SHA256WITHECDSA("SHA256withECDSA"),
     SHA384WITHECDSA("SHA384withECDSA"),
@@ -16,15 +16,14 @@ enum class SignatureScheme private constructor(private val name: String) {
     SM3WITHSM2("SM3withSM2");
 
     override fun toString(): String {
-        return name
+        return schemeName
     }
 
     companion object {
-
         @Throws(Exception::class)
         fun fromScheme(name: String): SignatureScheme {
             for (k in SignatureScheme.values()) {
-                if (k.name == name.toUpperCase()) {
+                if (k.schemeName == name.toUpperCase()) {
                     return k
                 }
             }

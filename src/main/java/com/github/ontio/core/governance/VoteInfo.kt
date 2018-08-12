@@ -28,16 +28,16 @@ import com.github.ontio.io.Serializable
 import java.io.IOException
 import java.util.HashMap
 
-class VoteInfo : Serializable {
-    var peerPubkey: String
-    var address: Address
-    var consensusPos: Long = 0
-    var freezePos: Long = 0
-    var newPos: Long = 0
-    var withdrawPos: Long = 0
-    var withdrawFreezePos: Long = 0
-    var withdrawUnfreezePos: Long = 0
-
+class VoteInfo(
+        var peerPubkey: String,
+        var address: Address,
+        var consensusPos: Long,
+        var freezePos: Long,
+        var newPos: Long,
+        var withdrawPos: Long,
+        var withdrawFreezePos: Long,
+        var withdrawUnfreezePos: Long
+) : Serializable {
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.peerPubkey = reader.readVarString()
@@ -54,24 +54,22 @@ class VoteInfo : Serializable {
         } catch (e: IllegalAccessException) {
             e.printStackTrace()
         }
-
     }
 
     @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
-
     }
 
     fun json(): String {
-        val map = HashMap()
-        map.put("peerPubkey", peerPubkey)
-        map.put("address", address.toBase58())
-        map.put("consensusPos", consensusPos)
-        map.put("freezePos", freezePos)
-        map.put("newPos", newPos)
-        map.put("withdrawPos", withdrawPos)
-        map.put("withdrawFreezePos", withdrawFreezePos)
-        map.put("withdrawUnfreezePos", withdrawUnfreezePos)
+        val map = mutableMapOf<String, Any>()
+        map["peerPubkey"] = peerPubkey
+        map["address"] = address.toBase58()
+        map["consensusPos"] = consensusPos
+        map["freezePos"] = freezePos
+        map["newPos"] = newPos
+        map["withdrawPos"] = withdrawPos
+        map["withdrawFreezePos"] = withdrawFreezePos
+        map["withdrawUnfreezePos"] = withdrawUnfreezePos
         return JSON.toJSONString(map)
     }
 }

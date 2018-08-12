@@ -26,11 +26,12 @@ import com.github.ontio.io.Serializable
 import java.io.IOException
 
 class Attribute : Serializable {
-    var key: ByteArray
-    var valueType: ByteArray
-    var value: ByteArray
+    lateinit var key: ByteArray
+    lateinit var valueType: ByteArray
+    lateinit var value: ByteArray
 
-    constructor() {}
+    constructor()
+
     constructor(key: ByteArray, valueType: ByteArray, value: ByteArray) {
         this.key = key
         this.valueType = valueType

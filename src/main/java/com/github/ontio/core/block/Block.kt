@@ -22,49 +22,38 @@ package com.github.ontio.core.block
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.math.BigInteger
-import java.util.Arrays
-import java.util.HashMap
 import java.util.function.Function
 
 import com.alibaba.fastjson.JSON
 import com.github.ontio.common.*
 import com.github.ontio.core.Inventory
 import com.github.ontio.core.InventoryType
-import com.github.ontio.core.payload.Bookkeeping
-import com.github.ontio.core.payload.DeployCode
-import com.github.ontio.core.payload.InvokeCode
 import com.github.ontio.core.transaction.Transaction
-import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
-import com.github.ontio.io.Serializable
-import com.github.ontio.crypto.ECC
-import org.bouncycastle.math.ec.ECPoint
 
 /**
  * block
  */
 open class Block : Inventory() {
-
     var version: Int = 0
-    var prevBlockHash: UInt256
-    var transactionsRoot: UInt256
-    var blockRoot: UInt256
+    lateinit var prevBlockHash: UInt256
+    lateinit var transactionsRoot: UInt256
+    lateinit var blockRoot: UInt256
     var timestamp: Int = 0
     var height: Int = 0
     var consensusData: Long = 0
-    var consensusPayload: ByteArray
-    var nextBookkeeper: Address
-    var sigData: Array<String>
-    var bookkeepers: Array<ByteArray>
-    var transactions: Array<Transaction>
+    var consensusPayload: ByteArray? = null
+    lateinit var nextBookkeeper: Address
+    var sigData: Array<String>? = null
+    lateinit var bookkeepers: Array<ByteArray>
+    lateinit var transactions: Array<Transaction>
     var hash: UInt256? = null
-    private var _header: Block? = null
+
+    private lateinit var _header: Block
 
     val isHeader: Boolean
-        get() = transactions.size == 0
-
+        get() = transactions.isEmpty()
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
@@ -73,18 +62,18 @@ open class Block : Inventory() {
         if (isHeader) {
             return this
         }
-        if (_header == null) {
+        if (!::_header.isInitialized) {
             _header = Block()
-            _header!!.prevBlockHash = prevBlockHash
-            _header!!.transactionsRoot = this.transactionsRoot
-            _header!!.blockRoot = this.blockRoot
-            _header!!.timestamp = this.timestamp
-            _header!!.height = this.height
-            _header!!.consensusData = this.consensusData
-            _header!!.nextBookkeeper = this.nextBookkeeper
-            _header!!.sigData = this.sigData
-            _header!!.bookkeepers = this.bookkeepers
-            _header!!.transactions = emptyArray()
+            _header.prevBlockHash = prevBlockHash
+            _header.transactionsRoot = this.transactionsRoot
+            _header.blockRoot = this.blockRoot
+            _header.timestamp = this.timestamp
+            _header.height = this.height
+            _header.consensusData = this.consensusData
+            _header.nextBookkeeper = this.nextBookkeeper
+            _header.sigData = this.sigData
+            _header.bookkeepers = this.bookkeepers
+            _header.transactions = emptyArray()
         }
         return _header
     }
@@ -97,13 +86,13 @@ open class Block : Inventory() {
     override fun deserialize(reader: BinaryReader) {
         deserializeUnsigned(reader)
         var len = reader.readVarInt().toInt()
-        sigData = arrayOfNulls(len)
+        sigData = arrayOfNulls<String>(len) as Array<String>
         for (i in 0 until len) {
-            this.sigData[i] = Helper.toHexString(reader.readVarBytes())
+            this.sigData!![i] = Helper.toHexString(reader.readVarBytes())
         }
 
         len = reader.readInt()
-        transactions = arrayOfNulls(len)
+        transactions = arrayOfNulls<Transaction>(len) as Array<Transaction>
         for (i in transactions.indices) {
             transactions[i] = Transaction.deserializeFrom(reader)
         }
@@ -118,11 +107,11 @@ open class Block : Inventory() {
             blockRoot = reader.readSerializable(UInt256::class.java)
             timestamp = reader.readInt()
             height = reader.readInt()
-            consensusData = java.lang.Long.valueOf(reader.readLong())
+            consensusData = reader.readLong()
             consensusPayload = reader.readVarBytes()
             nextBookkeeper = reader.readSerializable(Address::class.java)
             val len = reader.readVarInt().toInt()
-            bookkeepers = arrayOfNulls(len)
+            bookkeepers = arrayOfNulls<ByteArray>(len) as Array<ByteArray>
             for (i in 0 until len) {
                 this.bookkeepers[i] = reader.readVarBytes()
             }
@@ -142,9 +131,9 @@ open class Block : Inventory() {
         for (i in bookkeepers.indices) {
             writer.writeVarBytes(bookkeepers[i])
         }
-        writer.writeVarInt(sigData.size.toLong())
-        for (i in sigData.indices) {
-            writer.writeVarBytes(Helper.hexToBytes(sigData[i]))
+        writer.writeVarInt(sigData!!.size.toLong())
+        for (i in sigData!!.indices) {
+            writer.writeVarBytes(Helper.hexToBytes(sigData!![i]))
         }
         writer.writeInt(transactions.size)
         for (i in transactions.indices) {
@@ -161,17 +150,17 @@ open class Block : Inventory() {
         writer.writeInt(timestamp)
         writer.writeInt(height)
         writer.writeLong(consensusData)
-        writer.writeVarBytes(consensusPayload)
+        writer.writeVarBytes(consensusPayload!!)
         writer.writeSerializable(nextBookkeeper)
     }
 
-    override fun equals(obj: Any?): Boolean {
-        if (this === obj) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
             return true
         }
-        return if (obj !is Block) {
+        return if (other !is Block) {
             false
-        } else this.hash() == obj.hash()
+        } else this.hash() == other.hash()
     }
 
     override fun hashCode(): Int {
@@ -180,34 +169,24 @@ open class Block : Inventory() {
 
 
     fun json(): Any {
-        val json = HashMap()
-        val head = HashMap()
-        json.put("Hash", hash().toString())
+        val json = mutableMapOf<String, Any>()
+        val head = mutableMapOf<String, Any>()
+        json["Hash"] = hash().toString()
 
-        head.put("Version", version)
-        head.put("PrevBlockHash", prevBlockHash.toString())
-        head.put("TransactionsRoot", transactionsRoot.toString())
-        head.put("BlockRoot", blockRoot.toString())
-        head.put("Timestamp", timestamp)
-        head.put("Height", height)
-        head.put("ConsensusData", consensusData and java.lang.Long.MAX_VALUE)
-        head.put("NextBookkeeper", nextBookkeeper.toBase58())
-        head.put("Hash", hash().toString())
-        head.put("SigData", Arrays.stream(sigData).toArray<Any>(Object[]::new  /* Currently unsupported in Kotlin */))
-        head.put("Bookkeepers", Arrays.stream(bookkeepers).map { p -> Helper.toHexString(p) }.toArray<Any>(Object[]::new  /* Currently unsupported in Kotlin */))
+        head["Version"] = version
+        head["PrevBlockHash"] = prevBlockHash.toString()
+        head["TransactionsRoot"] = transactionsRoot.toString()
+        head["BlockRoot"] = blockRoot.toString()
+        head["Timestamp"] = timestamp
+        head["Height"] = height
+        head["ConsensusData"] = consensusData and Long.MAX_VALUE
+        head["NextBookkeeper"] = nextBookkeeper.toBase58()
+        head["Hash"] = hash().toString()
+        head["SigData"] = sigData!!
+        head["Bookkeepers"] = bookkeepers.map(Helper::toHexString).toTypedArray()
 
-        json.put("Header", head)
-        json.put("Transactions", Arrays.stream(transactions).map<Any> { p ->
-            if (p is InvokeCode) {
-                return@Arrays.stream(transactions).map(p).json()
-            } else if (p is DeployCode) {
-                return@Arrays.stream(transactions).map(p).json()
-            } else if (p is Bookkeeping) {
-                return@Arrays.stream(transactions).map(p).json()
-            } else {
-                return@Arrays.stream(transactions).map p . json ()
-            }
-        }.toArray<Any>(Object[]::new  /* Currently unsupported in Kotlin */))
+        json["Header"] = head
+        json["Transactions"] = transactions.map(Transaction::json).toTypedArray()
         return JSON.toJSONString(json)
     }
 
@@ -217,7 +196,7 @@ open class Block : Inventory() {
                 BinaryWriter(ms).use { writer ->
                     serializeUnsigned(writer)
                     writer.writeByte(1.toByte())
-                    writer.writeSerializableArray(Arrays.stream(transactions).map { p -> p.hash() }.toArray(Serializable[]::new  /* Currently unsupported in Kotlin */))
+                    writer.writeSerializableArray(transactions)
                     writer.flush()
                     return ms.toByteArray()
                 }
@@ -245,7 +224,7 @@ open class Block : Inventory() {
                         if (txSelector == null) {
                             block.transactions = emptyArray()
                         } else {
-                            block.transactions = arrayOfNulls(reader.readVarInt(0x10000000).toInt())
+                            block.transactions = arrayOfNulls<Transaction>(reader.readVarInt(0x10000000).toInt()) as Array<Transaction>
                             for (i in block.transactions.indices) {
                                 block.transactions[i] = txSelector.apply(reader.readSerializable(UInt256::class.java))
                             }

@@ -163,7 +163,7 @@ object OntSdk {
         this.connRestful = ConnectMgr(url, "restful")
     }
 
-    fun setWesocket(url: String, lock: Any) {
+    fun setWebsocket(url: String, lock: Object) {
         connWebSocket = ConnectMgr(url, "websocket", lock)
     }
 
@@ -201,11 +201,7 @@ object OntSdk {
             throw SDKException(ErrorCode.ParamErr("the number of transaction signatures should not be over 16"))
         }
         val sigs = mutableListOf(*tx.sigs)
-        sigs.add(Sig().apply {
-            M = 1
-            pubKeys = arrayOf(acct.serializePublicKey())
-            sigData = arrayOf(tx.sign(acct, acct.signatureScheme!!))
-        })
+        sigs.add(Sig(1, arrayOf(acct.serializePublicKey()), arrayOf(tx.sign(acct, acct.signatureScheme!!))))
         tx.sigs = sigs.toTypedArray()
         return tx
     }
@@ -246,11 +242,7 @@ object OntSdk {
             }
         }
         val sigs = mutableListOf(*tx.sigs)
-        sigs.add(Sig().apply {
-            this.M = M
-            this.pubKeys = pubKeys
-            sigData = arrayOf(signatureData)
-        })
+        sigs.add(Sig(M, pubKeys, arrayOf(signatureData)))
         tx.sigs = sigs.toTypedArray()
         return tx
     }
@@ -274,18 +266,14 @@ object OntSdk {
         }
         val sigs = mutableListOf<Sig>()
         for (i in accounts.indices) {
-            sigs.add(Sig().apply {
-                val pubKeys = mutableListOf<ByteArray>()
-                val sigData = mutableListOf<ByteArray>()
-                for (j in 0 until accounts[i].size) {
-                    M++
-                    val signature = tx.sign(accounts[i][j], accounts[i][j].signatureScheme!!)
-                    pubKeys.add(accounts[i][j].serializePublicKey())
-                    sigData.add(signature)
-                }
-                this.pubKeys = pubKeys.toTypedArray()
-                this.sigData = sigData.toTypedArray()
-            })
+            val pubKeys = mutableListOf<ByteArray>()
+            val sigData = mutableListOf<ByteArray>()
+            for (j in 0 until accounts[i].size) {
+                val signature = tx.sign(accounts[i][j], accounts[i][j].signatureScheme!!)
+                pubKeys.add(accounts[i][j].serializePublicKey())
+                sigData.add(signature)
+            }
+            sigs.add(Sig(pubKeys.size, pubKeys.toTypedArray(), sigData.toTypedArray()))
         }
         tx.sigs = sigs.toTypedArray()
         return tx
@@ -309,7 +297,7 @@ object OntSdk {
         }
         val tx = signTx(tx, accounts)
         for (i in tx.sigs.indices) {
-            if (M[i] > tx.sigs[i].pubKeys!!.size || M[i] < 0) {
+            if (M[i] > tx.sigs[i].pubKeys.size || M[i] < 0) {
                 throw SDKException(ErrorCode.ParamError)
             }
             tx.sigs[i].M = M[i]

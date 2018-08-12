@@ -21,6 +21,7 @@ package com.github.ontio.network.websocket
 
 import com.alibaba.fastjson.JSON
 import com.github.ontio.core.block.Block
+import com.github.ontio.core.payload.Bookkeeping
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.network.connect.AbstractConnector
 import com.github.ontio.network.exception.ConnectorException
@@ -32,59 +33,52 @@ import java.util.*
 /**
  *
  */
-class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() {
+class WebsocketClient(private val wsUrl: String, private val lock: Object) : AbstractConnector() {
     private var mWebSocket: WebSocket? = null
     private var logFlag: Boolean = false
     private var reqId: Long = 0
-    private var wsClient: WebsocketClient? = null
-    override val url: String
-        get() = wsUrl
-    override val nodeCount: Int
-        @Throws(ConnectorException::class, IOException::class)
-        get() {
-            val map = HashMap<Any, Any>()
-            map["Action"] = "getconnectioncount"
-            map["Version"] = "1.0.0"
-            map["Id"] = generateReqId()
-            mWebSocket!!.send(JSON.toJSONString(map))
-            return 0
-        }
-    override val blockHeight: Int
-        @Throws(ConnectorException::class, IOException::class)
-        get() {
-            val map = HashMap<Any, Any>()
-            map["Action"] = "getblockheight"
-            map["Version"] = "1.0.0"
-            map["Id"] = generateReqId()
-            mWebSocket!!.send(JSON.toJSONString(map))
-            return 0
-        }
-    override val memPoolTxCount: Any
-        @Throws(ConnectorException::class, IOException::class)
-        get() {
-            val map = HashMap<Any, Any>()
-            map["Action"] = "getmempooltxcount"
-            map["Version"] = "1.0.0"
-            map["Id"] = generateReqId()
-            mWebSocket!!.send(JSON.toJSONString(map))
-            return ""
-        }
-    override val version: String
-        @Throws(ConnectorException::class, IOException::class)
-        get() {
-            val map = HashMap<Any, Any>()
-            map["Action"] = "getversion"
-            map["Version"] = "1.0.0"
-            map["Id"] = generateReqId()
-            mWebSocket!!.send(JSON.toJSONString(map))
-            return ""
-        }
 
-    init {
-        wsUrl = url
-        wsClient = this
+    override fun getUrl() = wsUrl
+
+    @Throws(ConnectorException::class, IOException::class)
+    override fun getNodeCount(): Int {
+        val map = HashMap<Any, Any>()
+        map["Action"] = "getconnectioncount"
+        map["Version"] = "1.0.0"
+        map["Id"] = generateReqId()
+        mWebSocket!!.send(JSON.toJSONString(map))
+        return 0
     }
 
+    @Throws(ConnectorException::class, IOException::class)
+    override fun getBlockHeight(): Int {
+        val map = HashMap<Any, Any>()
+        map["Action"] = "getblockheight"
+        map["Version"] = "1.0.0"
+        map["Id"] = generateReqId()
+        mWebSocket!!.send(JSON.toJSONString(map))
+        return 0
+    }
+
+    @Throws(ConnectorException::class, IOException::class)
+    override fun getMemPoolTxCount(): Any {
+        val map = HashMap<Any, Any>()
+        map["Action"] = "getmempooltxcount"
+        map["Version"] = "1.0.0"
+        map["Id"] = generateReqId()
+        mWebSocket!!.send(JSON.toJSONString(map))
+        return ""
+    }
+
+    @Throws(ConnectorException::class, IOException::class)
+    override fun getVersion(): String {
+        val map = HashMap<Any, Any>()
+        map["Action"] = "getversion"
+        map["Version"] = "1.0.0"
+        map["Id"] = generateReqId()
+        mWebSocket!!.send(JSON.toJSONString(map))
+        return ""
+    }
 
     fun setLog(b: Boolean) {
         logFlag = b
@@ -92,8 +86,7 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
 
     fun startWebsocketThread(log: Boolean) {
         this.logFlag = log
-        val thread = Thread(
-                Runnable { wsClient!!.wsStart() })
+        val thread = Thread(Runnable { wsStart() })
         thread.start()
     }
 
@@ -105,7 +98,7 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
         mWebSocket!!.send(JSON.toJSONString(map))
     }
 
-    fun sendSubscribe(map: MutableMap<*, *>) {
+    fun sendSubscribe(map: MutableMap<String, Any>) {
         map["Action"] = "subscribe"
         map["Version"] = "V1.0.0"
         map["Id"] = generateReqId()
@@ -127,7 +120,7 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun sendRawTransaction(preExec: Boolean, userid: String, hexData: String): Any {
+    override fun sendRawTransaction(preExec: Boolean, userid: String?, hexData: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "sendrawtransaction"
         map["Version"] = "1.0.0"
@@ -154,7 +147,7 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getRawTransaction(txhash: String): Transaction? {
+    override fun getRawTransaction(txhash: String): Transaction {
         val map = HashMap<Any, Any>()
         map["Action"] = "gettransaction"
         map["Version"] = "1.0.0"
@@ -162,11 +155,11 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
         map["Raw"] = "1"
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return Bookkeeping()
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getRawTransactionJson(txhash: String): Any? {
+    override fun getRawTransactionJson(txhash: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "gettransaction"
         map["Version"] = "1.0.0"
@@ -174,11 +167,11 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
         map["Raw"] = "0"
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return ""
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBlock(height: Int): Block? {
+    override fun getBlock(height: Int): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyheight"
         map["Version"] = "1.0.0"
@@ -186,11 +179,11 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
         map["Raw"] = "1"
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return Block()
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBlock(hash: String): Block? {
+    override fun getBlock(hash: String): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyhash"
         map["Version"] = "1.0.0"
@@ -198,40 +191,40 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
         map["Raw"] = "1"
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return Block()
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBlockJson(height: Int): Block? {
+    override fun getBlockJson(height: Int): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyheight"
         map["Version"] = "1.0.0"
         map["Height"] = height
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return Block()
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBlockJson(hash: String): Block? {
+    override fun getBlockJson(hash: String): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyhash"
         map["Version"] = "1.0.0"
         map["Hash"] = hash
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return Block()
     }
 
     @Throws(ConnectorException::class, IOException::class)
-    override fun getBalance(address: String): Any? {
+    override fun getBalance(address: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getbalance"
         map["Version"] = "1.0.0"
         map["Addr"] = address
         map["Id"] = generateReqId()
         mWebSocket!!.send(JSON.toJSONString(map))
-        return null
+        return ""
     }
 
     @Throws(ConnectorException::class, IOException::class)
@@ -334,12 +327,10 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
     }
 
     fun wsStart() {
-        //request = new Request.Builder().url(WS_URL).build();
-        var httpUrl: String? = null
-        if (wsUrl.contains("wss")) {
-            httpUrl = "https://" + wsUrl.split("://".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+        val httpUrl: String = if (wsUrl.contains("wss")) {
+            "https://" + wsUrl.split("://".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
         } else {
-            httpUrl = "http://" + wsUrl.split("://".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+            "http://" + wsUrl.split("://".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
         }
         val request = Request.Builder().url(wsUrl).addHeader("Origin", httpUrl).build()
         val mClient = OkHttpClient.Builder().build()
@@ -384,10 +375,6 @@ class WebsocketClient(url: String, private val lock: Any) : AbstractConnector() 
             }
         })
 
-    }
-
-    companion object {
-        var wsUrl = ""
     }
 }
 

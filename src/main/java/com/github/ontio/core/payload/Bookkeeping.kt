@@ -29,26 +29,26 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 
 class Bookkeeping : Transaction(TransactionType.Bookkeeping) {
-    private var nonce: Long = 0
+    private var _nonce: Long = 0
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
     @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
-        nonce = reader.readLong()
+        _nonce = reader.readLong()
     }
 
     @Throws(IOException::class)
     override fun serializeExclusiveData(writer: BinaryWriter) {
-        writer.writeLong(nonce)
+        writer.writeLong(_nonce)
     }
 
     override fun json(): Any {
-        val obj = super.json() as Map<*, *>
-        val payload = HashMap()
-        payload.put("Nonce", nonce)
-        obj.put("Payload", payload)
+        val obj = super.json() as MutableMap<String, Any>
+        val payload = mutableMapOf<String, Any>()
+        payload["Nonce"] = _nonce
+        obj["Payload"] = payload;
         return obj
     }
 }

@@ -28,14 +28,15 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 
 
-class DeployCode : Transaction(TransactionType.DeployCode) {
-    var code: ByteArray
-    var needStorage: Boolean = false
-    var name: String
-    var version: String
-    var author: String
-    var email: String
-    var description: String
+class DeployCode(
+        var code: ByteArray,
+        var needStorage: Boolean,
+        var name: String,
+        var versionString: String,
+        var author: String,
+        var email: String,
+        var description: String
+) : Transaction(TransactionType.DeployCode) {
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
@@ -46,7 +47,7 @@ class DeployCode : Transaction(TransactionType.DeployCode) {
             code = reader.readVarBytes()
             needStorage = reader.readBoolean()
             name = reader.readVarString()
-            version = reader.readVarString()
+            versionString = reader.readVarString()
             author = reader.readVarString()
             email = reader.readVarString()
             description = reader.readVarString()
@@ -61,7 +62,7 @@ class DeployCode : Transaction(TransactionType.DeployCode) {
         writer.writeVarBytes(code)
         writer.writeBoolean(needStorage)
         writer.writeVarString(name)
-        writer.writeVarString(version)
+        writer.writeVarString(versionString)
         writer.writeVarString(author)
         writer.writeVarString(email)
         writer.writeVarString(description)

@@ -29,7 +29,7 @@ object Base58 {
     /**
      * base58
      */
-    val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    const val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     private val BASE = BigInteger.valueOf(ALPHABET.length.toLong())
 
     /**
@@ -40,7 +40,7 @@ object Base58 {
     fun decode(input: String): ByteArray {
         var bi = BigInteger.ZERO
         for (i in input.length - 1 downTo 0) {
-            val index = ALPHABET.indexOf(input[i].toInt())
+            val index = ALPHABET.indexOf(input[i])
             if (index == -1) {
                 throw IllegalArgumentException()
             }
@@ -65,7 +65,7 @@ object Base58 {
     fun encode(input: ByteArray): String {
         var value = BigInteger(1, input)
         val sb = StringBuilder()
-        while (value.compareTo(BASE) >= 0) {
+        while (value >= BASE) {
             val r = value.divideAndRemainder(BASE)
             sb.insert(0, ALPHABET[r[1].toInt()])
             value = r[0]
@@ -92,7 +92,6 @@ object Base58 {
 
     @Throws(Exception::class)
     fun decodeChecked(input: String): ByteArray {
-
         val decoded = decode(input)
         if (decoded.size < 4) {
             throw Exception(ErrorCode.InputTooShort)

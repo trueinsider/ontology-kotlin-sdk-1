@@ -33,11 +33,12 @@ import java.util.HashMap
  *
  */
 class State : Serializable {
-    var from: Address
-    var to: Address
+    lateinit var from: Address
+    lateinit var to: Address
     var value: Long = 0
 
-    constructor() {}
+    private constructor()
+
     constructor(from: Address, to: Address, amount: Long) {
         this.from = from
         this.to = to
@@ -67,7 +68,6 @@ class State : Serializable {
     }
 
     companion object {
-
         @Throws(IOException::class)
         fun deserializeFrom(value: ByteArray): State {
             try {
@@ -80,8 +80,6 @@ class State : Serializable {
             } catch (ex: IOException) {
                 throw IOException(ex)
             }
-
         }
     }
-
 }

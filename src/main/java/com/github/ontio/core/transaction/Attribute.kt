@@ -28,11 +28,7 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 
-
-class Attribute : Serializable {
-
-    var usage: AttributeUsage
-    var data: ByteArray
+class Attribute(var usage: AttributeUsage, var data: ByteArray) : Serializable {
     var size: Int = 0
 
     @Throws(IOException::class)
@@ -72,11 +68,4 @@ class Attribute : Serializable {
         return ("TransactionAttribute [usage=" + usage + ", data="
                 + Arrays.toString(data) + "]")
     }
-
-    //	@Override
-    //	public void fromJson(JsonReader reader) {
-    //		JObject json = reader.json();
-    //		usage = TransactionAttributeUsage.valueOf((byte)json.get("Usage").asNumber());
-    //		data = Helper.hexToBytes(json.get("Data").asString());
-    //	}
 }

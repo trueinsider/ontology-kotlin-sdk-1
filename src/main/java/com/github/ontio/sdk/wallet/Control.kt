@@ -27,7 +27,7 @@ import java.util.HashMap
 
 class Control {
     var algorithm = "ECDSA"
-    var parameters: MutableMap<*, *> = HashMap()
+    var parameters = mutableMapOf<String, Any>()
     var id = ""
     var key = ""
     var salt = ""
@@ -37,9 +37,7 @@ class Control {
     var address = ""
     var publicKey = ""
 
-    constructor() {
-
-    }
+    constructor()
 
     constructor(key: String, id: String, pubkey: String) {
         this.key = key

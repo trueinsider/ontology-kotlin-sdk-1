@@ -49,7 +49,6 @@ internal class ByteArrayWriter(private val bytes: ByteArray) {
     }
 
     companion object {
-
         fun tail32(bytes64: ByteArray): ByteArray {
             val ir = ByteArray(bytes64.size - 32)
             System.arraycopy(bytes64, 32, ir, 0, ir.size)
