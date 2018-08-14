@@ -13,3 +13,4 @@ test-output
 coverage-error.log
 .gradle/
 out/
+build/
