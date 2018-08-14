@@ -54,11 +54,7 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendTransfer(sendAcct: Account?, recvAddr: String, amount: Long, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (sendAcct == null || payerAcct == null) {
-            throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
-        }
-
+    fun sendTransfer(sendAcct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
@@ -88,8 +84,8 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendTransferFromMultiSignAddr(M: Int, pubKeys: Array<ByteArray>, sendAccts: Array<Account>?, recvAddr: String, amount: Long, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (sendAccts == null || sendAccts.size <= 1 || payerAcct == null) {
+    fun sendTransferFromMultiSignAddr(M: Int, pubKeys: Array<ByteArray>, sendAccts: Array<Account>, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (sendAccts.size <= 1) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
         }
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
@@ -119,8 +115,8 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeTransfer(sender: String?, recvAddr: String?, amount: Long, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (sender == null || recvAddr == null || recvAddr == "" || payer == null || payer == "") {
+    fun makeTransfer(sender: String, recvAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (recvAddr.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
         }
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
@@ -136,8 +132,8 @@ class Ont {
     }
 
     @Throws(Exception::class)
-    fun makeTransfer(states: Array<State>?, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (states == null || payer == null || payer == "") {
+    fun makeTransfer(states: Array<State>, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
@@ -159,8 +155,8 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun queryBalanceOf(address: String?): Long {
-        if (address == null || address == "") {
+    fun queryBalanceOf(address: String): Long {
+        if (address.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("address should not be null"))
         }
         val list = mutableListOf<Any>()
@@ -170,9 +166,9 @@ class Ont {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "balanceOf", arg, null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        return if (res == null || res == "") {
+        return if (res == null || res.isEmpty()) {
             0
-        } else java.lang.Long.valueOf(Helper.reverse(res), 16)
+        } else Helper.reverse(res).toLong(16)
     }
 
     /**
@@ -182,8 +178,8 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun queryAllowance(fromAddr: String?, toAddr: String?): Long {
-        if (fromAddr == null || fromAddr == "" || toAddr == null || toAddr == "") {
+    fun queryAllowance(fromAddr: String, toAddr: String): Long {
+        if (fromAddr.isEmpty() || toAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         val list = mutableListOf<Any>()
@@ -193,9 +189,9 @@ class Ont {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "allowance", arg, null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        return if (res == null || res == "") {
+        return if (res == null || res.isEmpty()) {
             0
-        } else java.lang.Long.valueOf(Helper.reverse(res), 16)
+        } else Helper.reverse(res).toLong(16)
     }
 
     /**
@@ -210,10 +206,7 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendApprove(sendAcct: Account?, recvAddr: String, amount: Long, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (sendAcct == null || payerAcct == null) {
-            throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
-        }
+    fun sendApprove(sendAcct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
@@ -239,8 +232,8 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeApprove(sender: String?, recvAddr: String?, amount: Long, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (sender == null || recvAddr == null || recvAddr == "" || payer == null || payer == "") {
+    fun makeApprove(sender: String, recvAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (recvAddr.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
         }
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
@@ -265,10 +258,7 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendTransferFrom(sendAcct: Account?, fromAddr: String, toAddr: String, amount: Long, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (sendAcct == null || payerAcct == null) {
-            throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
-        }
+    fun sendTransferFrom(sendAcct: Account, fromAddr: String, toAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
         }
@@ -295,8 +285,8 @@ class Ont {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun makeTransferFrom(sender: String?, fromAddr: String?, toAddr: String?, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
-        if (sender == null || fromAddr == null || fromAddr == "" || toAddr == null || toAddr == "") {
+    fun makeTransferFrom(sender: String, fromAddr: String, toAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (fromAddr.isEmpty() || toAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
         }
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
@@ -342,9 +332,9 @@ class Ont {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "decimals", byteArrayOf(0), null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        return if ("" == res) {
+        return if (res == null || res.isEmpty()) {
             0
-        } else java.lang.Long.valueOf(Helper.reverse(res), 16)
+        } else Helper.reverse(res).toLong(16)
     }
 
     /**
@@ -356,8 +346,8 @@ class Ont {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "totalSupply", byteArrayOf(0), null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        return if (res == null || res == "") {
+        return if (res == null || res.isEmpty()) {
             0
-        } else java.lang.Long.valueOf(Helper.reverse(res), 16)
+        } else Helper.reverse(res).toLong(16)
     }
 }

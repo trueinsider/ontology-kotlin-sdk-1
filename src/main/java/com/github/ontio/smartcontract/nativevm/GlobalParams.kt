@@ -46,10 +46,7 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun transferAdmin(adminAccount: Account?, newAdminAddr: Address?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (adminAccount == null || newAdminAddr == null || payerAcct == null) {
-            throw SDKException("parameter should not be null")
-        }
+    fun transferAdmin(adminAccount: Account, newAdminAddr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
         }
@@ -65,8 +62,8 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun transferAdmin(M: Int, accounts: Array<Account>, newAdminAddr: Address?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (accounts.isEmpty() || newAdminAddr == null || payerAcct == null) {
+    fun transferAdmin(M: Int, accounts: Array<Account>, newAdminAddr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (accounts.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (accounts.size < M) {
@@ -85,8 +82,8 @@ class GlobalParams {
     }
 
     @Throws(SDKException::class)
-    fun makeTransferAdmin(newAdminAddr: Address?, payerAddr: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (newAdminAddr == null || payerAddr == null || payerAddr == "") {
+    fun makeTransferAdmin(newAdminAddr: Address, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (gaslimit < 0 || gasprice < 0) {
@@ -101,10 +98,7 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun acceptAdmin(account: Account?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (account == null || payerAcct == null) {
-            throw SDKException("parameter should not be null")
-        }
+    fun acceptAdmin(account: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
         }
@@ -120,8 +114,8 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun acceptAdmin(multiAddr: Address?, M: Int, accounts: Array<Account>, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (accounts.isEmpty() || multiAddr == null || payerAcct == null) {
+    fun acceptAdmin(multiAddr: Address, M: Int, accounts: Array<Account>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (accounts.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (accounts.size < M) {
@@ -140,8 +134,8 @@ class GlobalParams {
     }
 
     @Throws(SDKException::class)
-    fun makeAcceptAdmin(multiAddr: Address?, payerAddr: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (multiAddr == null || payerAddr == null || payerAddr == "") {
+    fun makeAcceptAdmin(multiAddr: Address, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (gaslimit < 0 || gasprice < 0) {
@@ -175,10 +169,7 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun setGlobalParam(operatorAccount: Account?, params: Params?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (operatorAccount == null || params == null || payerAcct == null) {
-            throw SDKException("parameter should not be null")
-        }
+    fun setGlobalParam(operatorAccount: Account, params: Params, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
         }
@@ -194,8 +185,8 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun setGlobalParam(M: Int, operatorAccounts: Array<Account>, params: Params?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (operatorAccounts.isEmpty() || params == null || payerAcct == null) {
+    fun setGlobalParam(M: Int, operatorAccounts: Array<Account>, params: Params, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (operatorAccounts.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (operatorAccounts.size < M) {
@@ -214,8 +205,8 @@ class GlobalParams {
     }
 
     @Throws(SDKException::class)
-    fun makeSetGlobalParam(params: Params?, payerAddr: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (params == null || payerAddr == null || payerAddr == "") {
+    fun makeSetGlobalParam(params: Params, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (gaslimit < 0 || gasprice < 0) {
@@ -234,10 +225,7 @@ class GlobalParams {
 
 
     @Throws(Exception::class)
-    fun setOperator(adminAccount: Account?, addr: Address?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (adminAccount == null || addr == null || payerAcct == null) {
-            throw SDKException("parameter should not be null")
-        }
+    fun setOperator(adminAccount: Account, addr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
         }
@@ -253,8 +241,8 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun setOperator(M: Int, accounts: Array<Account>, addr: Address?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (accounts.isEmpty() || addr == null || payerAcct == null) {
+    fun setOperator(M: Int, accounts: Array<Account>, addr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (accounts.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (accounts.size < M) {
@@ -273,8 +261,8 @@ class GlobalParams {
     }
 
     @Throws(SDKException::class)
-    fun makeSetOperator(addr: Address?, payerAddr: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (addr == null || payerAddr == null || payerAddr == "") {
+    fun makeSetOperator(addr: Address, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (gaslimit < 0 || gasprice < 0) {
@@ -289,10 +277,7 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun createSnapshot(operatorAccount: Account?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (operatorAccount == null || payerAcct == null) {
-            throw SDKException("parameter should not be null")
-        }
+    fun createSnapshot(operatorAccount: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
         }
@@ -308,8 +293,8 @@ class GlobalParams {
     }
 
     @Throws(Exception::class)
-    fun createSnapshot(M: Int, operatorAccounts: Array<Account>, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (operatorAccounts.isEmpty() || payerAcct == null) {
+    fun createSnapshot(M: Int, operatorAccounts: Array<Account>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (operatorAccounts.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (operatorAccounts.size < M) {
@@ -328,8 +313,8 @@ class GlobalParams {
     }
 
     @Throws(SDKException::class)
-    fun makeCreateSnapshot(payerAddr: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (payerAddr == null || payerAddr == "") {
+    fun makeCreateSnapshot(payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
         }
         if (gaslimit < 0 || gasprice < 0) {

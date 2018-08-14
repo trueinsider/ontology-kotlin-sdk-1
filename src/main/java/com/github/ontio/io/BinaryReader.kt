@@ -186,7 +186,7 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
 
     @Throws(IOException::class)
     @JvmOverloads
-    fun readVarInt(max: Long = java.lang.Long.MAX_VALUE): Long {
+    fun readVarInt(max: Long = Long.MAX_VALUE): Long {
         val fb = java.lang.Byte.toUnsignedLong(readByte())
         val value: Long
         value = when (fb) {

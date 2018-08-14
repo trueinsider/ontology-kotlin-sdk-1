@@ -24,8 +24,8 @@ class Auth {
     val contractAddress = "0000000000000000000000000000000000000006"
 
     @Throws(Exception::class)
-    fun sendInit(adminOntId: String?, password: String, salt: ByteArray, contractAddr: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
-        if (adminOntId == null || adminOntId == "") {
+    fun sendInit(adminOntId: String, password: String, salt: ByteArray, contractAddr: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
+        if (adminOntId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         val bos = ByteArrayOutputStream()
@@ -55,8 +55,8 @@ class Auth {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendTransfer(adminOntId: String?, password: String, salt: ByteArray, keyNo: Long, contractAddr: String?, newAdminOntID: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String {
-        if (adminOntId == null || adminOntId == "" || contractAddr == null || contractAddr == "" || newAdminOntID == null || newAdminOntID == "" || payerAcct == null) {
+    fun sendTransfer(adminOntId: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, newAdminOntID: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
+        if (adminOntId.isEmpty() || contractAddr.isEmpty() || newAdminOntID.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -85,8 +85,8 @@ class Auth {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeTransfer(adminOntID: String?, contractAddr: String?, newAdminOntID: String?, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
-        if (adminOntID == null || adminOntID == "" || contractAddr == null || contractAddr == "" || newAdminOntID == null || newAdminOntID == "") {
+    fun makeTransfer(adminOntID: String, contractAddr: String, newAdminOntID: String, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (adminOntID.isEmpty() || contractAddr.isEmpty() || newAdminOntID.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -111,8 +111,8 @@ class Auth {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun verifyToken(ontid: String?, password: String?, salt: ByteArray, keyNo: Long, contractAddr: String?, funcName: String?): String {
-        if (ontid == null || ontid == "" || password == null || password == "" || contractAddr == null || contractAddr == "" || funcName == null || funcName == "") {
+    fun verifyToken(ontid: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, funcName: String): String {
+        if (ontid.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || funcName.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0) {
@@ -135,8 +135,8 @@ class Auth {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeVerifyToken(ontid: String?, contractAddr: String?, funcName: String?, keyNo: Long): Transaction {
-        if (ontid == null || ontid == "" || contractAddr == null || contractAddr == "" || funcName == null || funcName == "") {
+    fun makeVerifyToken(ontid: String, contractAddr: String, funcName: String, keyNo: Long): Transaction {
+        if (ontid.isEmpty() || contractAddr.isEmpty() || funcName.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0) {
@@ -164,8 +164,8 @@ class Auth {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun assignFuncsToRole(adminOntID: String?, password: String, salt: ByteArray, keyNo: Long, contractAddr: String?, role: String?, funcName: Array<String>?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (adminOntID == null || adminOntID == "" || contractAddr == null || contractAddr == "" || role == null || role == "" || funcName == null || funcName.isEmpty() || payerAcct == null) {
+    fun assignFuncsToRole(adminOntID: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, role: String, funcName: Array<String>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (adminOntID.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || funcName.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -194,9 +194,8 @@ class Auth {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeAssignFuncsToRole(adminOntID: String?, contractAddr: String?, role: String?, funcName: Array<String>?, keyNo: Long, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (adminOntID == null || adminOntID == "" || contractAddr == null || contractAddr == "" || role == null || role == "" || funcName == null || funcName.isEmpty()
-                || payer == null || payer == "") {
+    fun makeAssignFuncsToRole(adminOntID: String, contractAddr: String, role: String, funcName: Array<String>, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (adminOntID.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || funcName.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -232,9 +231,8 @@ class Auth {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun assignOntIdsToRole(adminOntId: String?, password: String?, salt: ByteArray, keyNo: Long, contractAddr: String?, role: String?, ontIDs: Array<String>?, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        if (adminOntId == null || adminOntId == "" || password == null || password == "" || contractAddr == null || contractAddr == "" ||
-                role == null || role == "" || ontIDs == null || ontIDs.isEmpty()) {
+    fun assignOntIdsToRole(adminOntId: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, role: String, ontIDs: Array<String>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (adminOntId.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || ontIDs.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -263,9 +261,8 @@ class Auth {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeAssignOntIDsToRole(adminOntId: String?, contractAddr: String?, role: String?, ontIDs: Array<String>?, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
-        if (adminOntId == null || adminOntId == "" || contractAddr == null || contractAddr == "" ||
-                role == null || role == "" || ontIDs == null || ontIDs.isEmpty()) {
+    fun makeAssignOntIDsToRole(adminOntId: String, contractAddr: String, role: String, ontIDs: Array<String>, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (adminOntId.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || ontIDs.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -303,9 +300,8 @@ class Auth {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun delegate(ontid: String?, password: String?, salt: ByteArray, keyNo: Long, contractAddr: String?, toOntId: String?, role: String?, period: Long, level: Long, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == null || ontid == "" || password == null || password == "" || contractAddr == null || contractAddr == "" || toOntId == null || toOntId == "" ||
-                role == null || role == "" || payerAcct == null) {
+    fun delegate(ontid: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, toOntId: String, role: String, period: Long, level: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (ontid.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || toOntId.isEmpty() || role.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (period < 0 || level < 0 || keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -336,9 +332,8 @@ class Auth {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeDelegate(ontid: String?, contractAddr: String?, toAddr: String?, role: String?, period: Long, level: Long, keyNo: Long, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || contractAddr == null || contractAddr == "" || toAddr == null || toAddr == "" ||
-                role == null || role == "" || payer == null || payer == "") {
+    fun makeDelegate(ontid: String, contractAddr: String, toAddr: String, role: String, period: Long, level: Long, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || contractAddr.isEmpty() || toAddr.isEmpty() || role.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (period < 0 || level < 0 || keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -367,9 +362,8 @@ class Auth {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun withdraw(initiatorOntid: String?, password: String?, salt: ByteArray, keyNo: Long, contractAddr: String?, delegate: String, role: String?, payerAcct: Account?, gaslimit: Long, gasprice: Long): String? {
-        if (initiatorOntid == null || initiatorOntid == "" || password == null || password == "" || contractAddr == null || contractAddr == "" ||
-                role == null || role == "" || payerAcct == null) {
+    fun withdraw(initiatorOntid: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, delegate: String, role: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
+        if (initiatorOntid.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || role.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {
@@ -398,9 +392,8 @@ class Auth {
      * @throws SDKException
      */
     @Throws(SDKException::class)
-    fun makeWithDraw(ontid: String?, contractAddr: String?, delegate: String, role: String?, keyNo: Long, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
-        if (ontid == null || ontid == "" || contractAddr == null || contractAddr == "" ||
-                role == null || role == "" || payer == null || payer == "") {
+    fun makeWithDraw(ontid: String, contractAddr: String, delegate: String, role: String, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
+        if (ontid.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (keyNo < 0 || gaslimit < 0 || gasprice < 0) {

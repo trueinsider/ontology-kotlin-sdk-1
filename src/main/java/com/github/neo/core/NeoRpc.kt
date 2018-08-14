@@ -27,9 +27,8 @@ object NeoRpc {
     @Throws(RpcException::class, IOException::class)
     fun call(url: String, method: String, vararg params: Any): Any {
         val req = makeRequest(method, params)
-        val response = send(url, req) as Map<*, *>?
+        val response = send(url, req)
         return when {
-            response == null -> throw RpcException(0, ErrorCode.ConnectUrlErr(url + "response is null. maybe is connect error"))
             response["result"] != null -> response["result"]!!
             response["Result"] != null -> response["Result"]!!
             response["error"] != null -> throw RpcException(0, JSON.toJSONString(response))
@@ -49,18 +48,13 @@ object NeoRpc {
 
 
     @Throws(IOException::class)
-    fun send(url: String, request: Any): Any? {
-        try {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.doOutput = true
-            OutputStreamWriter(connection.outputStream).use { w -> w.write(JSON.toJSONString(request)) }
-            InputStreamReader(connection.inputStream).use { r ->
-                return JSON.parseObject(r.readText(), Map::class.java)
-            }
-        } catch (e: IOException) {
+    fun send(url: String, request: Any): Map<*, *> {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        connection.requestMethod = "POST"
+        connection.doOutput = true
+        OutputStreamWriter(connection.outputStream).use { w -> w.write(JSON.toJSONString(request)) }
+        InputStreamReader(connection.inputStream).use { r ->
+            return JSON.parseObject(r.readText(), Map::class.java)
         }
-
-        return null
     }
 }

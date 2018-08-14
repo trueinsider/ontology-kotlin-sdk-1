@@ -180,7 +180,7 @@ object Program {
         val buff = readBytes(reader)
         val bint = Helper.BigIntFromNeoBytes(buff)
         val num = bint.toLong()
-        if (num > java.lang.Short.MAX_VALUE || num < 16) {
+        if (num > Short.MAX_VALUE || num < 16) {
             throw SDKException(ErrorCode.ParamErr("num is wrong"))
         }
         return num.toShort()

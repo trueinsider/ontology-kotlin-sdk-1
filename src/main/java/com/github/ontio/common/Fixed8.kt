@@ -45,7 +45,7 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
     }
 
     override fun compareTo(other: Fixed8): Int {
-        return java.lang.Long.compare(data, other.data)
+        return data.compareTo(other.data)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -55,7 +55,7 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
     }
 
     override fun hashCode(): Int {
-        return java.lang.Long.valueOf(data).hashCode()
+        return data.hashCode()
     }
 
 
@@ -101,9 +101,9 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
     }
 
     companion object {
-        val MAX_VALUE = Fixed8(java.lang.Long.MAX_VALUE)
+        val MAX_VALUE = Fixed8(Long.MAX_VALUE)
 
-        val MIN_VALUE = Fixed8(java.lang.Long.MIN_VALUE)
+        val MIN_VALUE = Fixed8(Long.MIN_VALUE)
 
 
         val SATOSHI = Fixed8(1)
@@ -118,7 +118,7 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
         }
 
         fun fromLong(`val`: Long): Fixed8 {
-            if (`val` < 0 || `val` > java.lang.Long.MAX_VALUE / D) {
+            if (`val` < 0 || `val` > Long.MAX_VALUE / D) {
                 throw IllegalArgumentException()
             }
             return Fixed8(`val` * D)

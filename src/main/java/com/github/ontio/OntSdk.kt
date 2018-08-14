@@ -212,8 +212,8 @@ object OntSdk {
     }
 
     @Throws(Exception::class)
-    fun addMultiSign(tx: Transaction, M: Int, pubKeys: Array<ByteArray>, signatureData: ByteArray?): Transaction {
-        if (tx.sigs.size > Common.TX_MAX_SIG_SIZE || M > pubKeys.size || M <= 0 || signatureData == null) {
+    fun addMultiSign(tx: Transaction, M: Int, pubKeys: Array<ByteArray>, signatureData: ByteArray): Transaction {
+        if (tx.sigs.size > Common.TX_MAX_SIG_SIZE || M > pubKeys.size || M <= 0) {
             throw SDKException(ErrorCode.ParamError)
         }
         val pubKeys = Program.sortPublicKeys(*pubKeys)

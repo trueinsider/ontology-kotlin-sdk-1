@@ -160,8 +160,8 @@ object ClaimRecord {
         func.setParamsValue(claimId.toByteArray())
         val obj = sendTransaction(Helper.reverse(this.contractAddress), null, null, 0, 0, func, true)
         val res = (obj as JSONObject).getString("Result")
-        if (res == "") {
-            return ""
+        if (res.isEmpty()) {
+            return res
         }
         val bais = ByteArrayInputStream(Helper.hexToBytes(res))
         val br = BinaryReader(bais)

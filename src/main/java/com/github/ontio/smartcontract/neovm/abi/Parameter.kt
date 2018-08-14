@@ -34,42 +34,42 @@ class Parameter {
     var value: String? = null
 
     fun setValue(value: Any?): Boolean {
-        try {
-            if (value == null) {
-                this.value = null
-            } else if ("ByteArray" == type) {
+        when {
+            value == null -> this.value = null
+            "ByteArray" == type -> {
                 val tmp = value as ByteArray?
                 this.value = JSON.toJSONString(tmp)
-            } else if ("String" == type) {
-                this.value = value as String?
-            } else if ("Boolean" == type) {
+            }
+            "String" == type -> this.value = value as String?
+            "Boolean" == type -> {
                 val tmp = value as Boolean
                 this.value = JSON.toJSONString(tmp)
-            } else if ("Integer" == type) {
+            }
+            "Integer" == type -> {
                 val tmp = value as Long
                 this.value = JSON.toJSONString(tmp)
-            } else if ("Array" == type) {
+            }
+            "Array" == type -> {
                 val tmp = value as List<*>?
                 this.value = JSON.toJSONString(tmp)
-            } else if ("InteropInterface" == type) {
+            }
+            "InteropInterface" == type -> {
                 val tmp = value as Any?
                 this.value = JSON.toJSONString(tmp)
-            } else if ("Void" == type) {
-            } else if ("Map" == type) {
+            }
+            "Void" == type -> {
+            }
+            "Map" == type -> {
                 val tmp = value as Map<*, *>?
                 this.value = JSON.toJSONString(tmp)
-            } else if ("Struct" == type) {
+            }
+            "Struct" == type -> {
                 val tmp = value as Struct?
                 this.value = JSON.toJSONString(tmp)
-            } else {
-                throw SDKException(ErrorCode.TypeError)
             }
-            return true
-        } catch (e: Exception) {
-            e.printStackTrace()
+            else -> throw SDKException(ErrorCode.TypeError)
         }
-
-        return false
+        return true
     }
 
     override fun toString(): String {

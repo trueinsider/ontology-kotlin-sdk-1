@@ -54,7 +54,7 @@ constructor(url: String) {
     @Throws(RpcException::class, IOException::class)
     fun call(method: String, vararg params: Any): Any {
         val req = makeRequest(method, params)
-        val response = send(req) as Map<*, *>?
+        val response = send(req)
         return when {
             response == null -> throw RpcException(0, ErrorCode.ConnectUrlErr(url.toString() + "response is null. maybe is connect error"))
             response["error"] as Int == 0 -> response["result"]!!
@@ -73,16 +73,13 @@ constructor(url: String) {
     }
 
     @Throws(IOException::class)
-    fun send(request: Any): Any? {
-        try {
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.doOutput = true
-            OutputStreamWriter(connection.outputStream).use { it.write(JSON.toJSONString(request)) }
-            InputStreamReader(connection.inputStream).use { return JSON.parseObject(it.readText(), Map::class.java) }
-        } catch (e: IOException) {
+    fun send(request: Any): Map<String, Any>? {
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "POST"
+        connection.doOutput = true
+        OutputStreamWriter(connection.outputStream).use { it.write(JSON.toJSONString(request)) }
+        return InputStreamReader(connection.inputStream).use {
+            JSON.parseObject<Map<String, Any>?>(it.readText(), Map::class.java)
         }
-
-        return null
     }
 }

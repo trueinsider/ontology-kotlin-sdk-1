@@ -33,49 +33,43 @@ class Parameter {
     var value: String? = null
 
     fun setValue(value: Any?): Boolean {
-        try {
-            when {
-                value == null -> this.value = null
-                "Byte" == type -> {
-                    val tmp = value as Byte
-                    this.value = JSON.toJSONString(tmp)
-                }
-                "ByteArray" == type -> {
-                    val tmp = value as ByteArray?
-                    this.value = JSON.toJSONString(tmp)
-                }
-                "String" == type -> this.value = value as String?
-                "Bool" == type -> {
-                    val tmp = value as Boolean
-                    this.value = JSON.toJSONString(tmp)
-                }
-                "Int" == type -> {
-                    val tmp = value as Long
-                    this.value = JSON.toJSONString(tmp)
-                }
-                "Array" == type -> {
-                    val tmp = value as List<*>?
-                    this.value = JSON.toJSONString(tmp)
-                }
-                "Uint256" == type -> {
-                }
-                "Address" == type -> {
-                }
-                "Struct" == type -> {
-                    val tmp = value as Struct?
-                    for (i in tmp!!.list.indices) {
-                        subType!![i] = SubType()
-                        subType!![i].setParamsValue(tmp.list)
-                    }
-                }
-                else -> throw SDKException(ErrorCode.TypeError)
+        when {
+            value == null -> this.value = null
+            "Byte" == type -> {
+                val tmp = value as Byte
+                this.value = JSON.toJSONString(tmp)
             }
-            return true
-        } catch (e: Exception) {
-            e.printStackTrace()
+            "ByteArray" == type -> {
+                val tmp = value as ByteArray?
+                this.value = JSON.toJSONString(tmp)
+            }
+            "String" == type -> this.value = value as String?
+            "Bool" == type -> {
+                val tmp = value as Boolean
+                this.value = JSON.toJSONString(tmp)
+            }
+            "Int" == type -> {
+                val tmp = value as Long
+                this.value = JSON.toJSONString(tmp)
+            }
+            "Array" == type -> {
+                val tmp = value as List<*>?
+                this.value = JSON.toJSONString(tmp)
+            }
+            "Uint256" == type -> {
+            }
+            "Address" == type -> {
+            }
+            "Struct" == type -> {
+                val tmp = value as Struct?
+                for (i in tmp!!.list.indices) {
+                    subType!![i] = SubType()
+                    subType!![i].setParamsValue(tmp.list)
+                }
+            }
+            else -> throw SDKException(ErrorCode.TypeError)
         }
-
-        return false
+        return true
     }
 
     override fun toString(): String {

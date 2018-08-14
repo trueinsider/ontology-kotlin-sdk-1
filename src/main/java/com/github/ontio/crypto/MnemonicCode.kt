@@ -74,10 +74,7 @@ object MnemonicCode {
     }
 
     @Throws(Exception::class)
-    fun decryptMnemonicCodesStr(encryptedMnemonicCodesStr: String?, password: String?, address: String): String {
-        if (encryptedMnemonicCodesStr == null) {
-            throw SDKException(ErrorCode.ParamError)
-        }
+    fun decryptMnemonicCodesStr(encryptedMnemonicCodesStr: String, password: String?, address: String): String {
         val encryptedkey = Base64.getDecoder().decode(encryptedMnemonicCodesStr)
 
         val N = 4096

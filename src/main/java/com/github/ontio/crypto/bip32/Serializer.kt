@@ -43,13 +43,7 @@ internal class Serializer private constructor(builder: Builder) {
         fingerprint = builder.fingerprint
     }
 
-    fun serialize(key: ByteArray?, chainCode: ByteArray?): ByteArray {
-        if (key == null) {
-            throw IllegalArgumentException("Key is null")
-        }
-        if (chainCode == null) {
-            throw IllegalArgumentException("Chain code is null")
-        }
+    fun serialize(key: ByteArray, chainCode: ByteArray): ByteArray {
         if (chainCode.size != 32) {
             throw IllegalArgumentException("Chain code must be 32 bytes")
         }

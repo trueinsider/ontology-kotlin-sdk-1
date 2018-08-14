@@ -61,7 +61,7 @@ class Record(contractAddress: String) {
 
     @Throws(Exception::class)
     fun sendGet(addr: String, password: String, salt: ByteArray, key: String): String {
-        if (key === "") {
+        if (key.isEmpty()) {
             throw SDKException(ErrorCode.NullKey)
         }
         val list = ArrayList<Any>()

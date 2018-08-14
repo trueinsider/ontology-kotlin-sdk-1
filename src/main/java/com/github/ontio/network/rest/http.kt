@@ -192,13 +192,7 @@ object http {
         val sb = StringBuilder()
         for (entry in params.entries) {
             val key = entry.key
-            var value: String? = entry.value
-            try {
-                value = if (value == null) value else URLEncoder.encode(value, DEFAULT_CHARSET)
-            } catch (e: UnsupportedEncodingException) {
-                e.printStackTrace()
-            }
-
+            val value = URLEncoder.encode(entry.value, DEFAULT_CHARSET)
             sb.append("&").append(key).append("=").append(value)
         }
         return "?" + sb.toString().substring(1)

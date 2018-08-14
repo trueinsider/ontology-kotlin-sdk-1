@@ -142,8 +142,8 @@ class Account {
     }
 
     @Throws(Exception::class)
-    fun generateSignature(msg: ByteArray?, scheme: SignatureScheme?, param: Any?): ByteArray {
-        if (msg == null || msg.isEmpty()) {
+    fun generateSignature(msg: ByteArray, scheme: SignatureScheme?, param: Any?): ByteArray {
+        if (msg.isEmpty()) {
             throw Exception(ErrorCode.InvalidMessage)
         }
         if (privateKey == null) {
@@ -167,8 +167,8 @@ class Account {
     }
 
     @Throws(Exception::class)
-    fun verifySignature(msg: ByteArray?, signature: ByteArray?): Boolean {
-        if (msg == null || signature == null || msg.isEmpty() || signature.isEmpty()) {
+    fun verifySignature(msg: ByteArray, signature: ByteArray): Boolean {
+        if (msg.isEmpty() || signature.isEmpty()) {
             throw Exception(ErrorCode.AccountInvalidInput)
         }
         val sig = Signature(signature)
@@ -402,10 +402,7 @@ class Account {
          * @param wif get private from wif
          * @return
          */
-        fun getPrivateKeyFromWIF(wif: String?): ByteArray {
-            if (wif == null) {
-                throw NullPointerException()
-            }
+        fun getPrivateKeyFromWIF(wif: String): ByteArray {
             val data = Base58.decode(wif)
             if (data.size != 38 || data[0] != 0x80.toByte() || data[33].toInt() != 0x01) {
                 throw IllegalArgumentException()
@@ -429,10 +426,7 @@ class Account {
          * @throws Exception
          */
         @Throws(Exception::class)
-        fun getEcbDecodedPrivateKey(encryptedPriKey: String?, passphrase: String, n: Int, scheme: SignatureScheme): String {
-            if (encryptedPriKey == null) {
-                throw SDKException(ErrorCode.ParamError)
-            }
+        fun getEcbDecodedPrivateKey(encryptedPriKey: String, passphrase: String, n: Int, scheme: SignatureScheme): String {
             val decoded = Base58.decodeChecked(encryptedPriKey)
             if (decoded.size != 43 || decoded[0] != 0x01.toByte() || decoded[1] != 0x42.toByte() || decoded[2] != 0xe0.toByte()) {
                 throw SDKException(ErrorCode.Decoded3bytesError)
@@ -495,10 +489,7 @@ class Account {
         }
 
         @Throws(Exception::class)
-        fun getCtrDecodedPrivateKey(encryptedPriKey: String?, passphrase: String, salt: ByteArray, n: Int, scheme: SignatureScheme): String {
-            if (encryptedPriKey == null) {
-                throw SDKException(ErrorCode.EncryptedPriKeyError)
-            }
+        fun getCtrDecodedPrivateKey(encryptedPriKey: String, passphrase: String, salt: ByteArray, n: Int, scheme: SignatureScheme): String {
             if (salt.size != 4) {
                 throw SDKException(ErrorCode.ParamError)
             }
@@ -529,10 +520,7 @@ class Account {
         }
 
         @Throws(Exception::class)
-        fun getGcmDecodedPrivateKey(encryptedPriKey: String?, passphrase: String, address: String, salt: ByteArray, n: Int, scheme: SignatureScheme): String {
-            if (encryptedPriKey == null) {
-                throw SDKException(ErrorCode.EncryptedPriKeyError)
-            }
+        fun getGcmDecodedPrivateKey(encryptedPriKey: String, passphrase: String, address: String, salt: ByteArray, n: Int, scheme: SignatureScheme): String {
             if (salt.size != 16) {
                 throw SDKException(ErrorCode.ParamError)
             }

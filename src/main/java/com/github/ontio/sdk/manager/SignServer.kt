@@ -109,7 +109,7 @@ constructor(private val url: String) {
 
     @Throws(Exception::class)
     private fun send(req: Map<*, *>): Any {
-        val response = rpcClient.send(req) as Map<*, *>?
+        val response = rpcClient.send(req)
         println(response)
         return when {
             response == null -> throw RpcException(0, ErrorCode.ConnectUrlErr(url + "response is null. maybe is connect error"))

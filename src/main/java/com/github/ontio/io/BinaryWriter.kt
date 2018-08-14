@@ -75,10 +75,7 @@ class BinaryWriter(stream: OutputStream) : AutoCloseable {
     }
 
     @Throws(IOException::class)
-    fun writeFixedString(v: String?, length: Int) {
-        if (v == null) {
-            throw IllegalArgumentException()
-        }
+    fun writeFixedString(v: String, length: Int) {
         if (v.length > length) {
             throw IllegalArgumentException()
         }

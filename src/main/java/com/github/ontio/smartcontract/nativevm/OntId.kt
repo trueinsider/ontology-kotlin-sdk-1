@@ -208,7 +208,7 @@ class OntId {
 
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        if (res == "") {
+        if (res.isEmpty()) {
             return res
         }
         val bais = ByteArrayInputStream(Helper.hexToBytes(res))
@@ -249,7 +249,7 @@ class OntId {
 
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        return if (res == "") {
+        return if (res.isEmpty()) {
             res
         } else String(Helper.hexToBytes(res))
     }
@@ -267,7 +267,7 @@ class OntId {
 
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        if (res == "") {
+        if (res.isEmpty()) {
             return res
         }
 
@@ -628,7 +628,7 @@ class OntId {
      */
     @Throws(Exception::class)
     fun sendAddAttributes(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        if (ontid == "" || attributes.isEmpty()) {
+        if (ontid.isEmpty() || attributes.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
         }
         if (gasprice < 0 || gaslimit < 0) {
@@ -767,8 +767,8 @@ class OntId {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun verifyMerkleProof(merkleProof: String?): Boolean {
-        if (merkleProof == null || merkleProof == "") {
+    fun verifyMerkleProof(merkleProof: String): Boolean {
+        if (merkleProof.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("claim should not be null"))
         }
         try {
@@ -861,10 +861,7 @@ class OntId {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun verifyOntIdClaim(claim: String?): Boolean {
-        if (claim == null) {
-            throw SDKException(ErrorCode.ParamErr("claim should not be null"))
-        }
+    fun verifyOntIdClaim(claim: String): Boolean {
         val sign: DataSignature?
         try {
 
@@ -904,11 +901,7 @@ class OntId {
      * @throws Exception
      */
     @Throws(Exception::class)
-    fun sendGetDDO(ontid: String?): String {
-        if (ontid == null) {
-            throw SDKException(ErrorCode.ParamErr("ontid should not be null"))
-        }
-
+    fun sendGetDDO(ontid: String): String {
         val list = mutableListOf<ByteArray>()
         list.add(ontid.toByteArray())
         val arg = NativeBuildParams.createCodeParamsScript(list)
@@ -916,7 +909,7 @@ class OntId {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "getDDO", arg, null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
         val res = (obj as JSONObject).getString("Result")
-        if (res == "") {
+        if (res.isEmpty()) {
             return res
         }
         val map = parseDdoData(ontid, res)

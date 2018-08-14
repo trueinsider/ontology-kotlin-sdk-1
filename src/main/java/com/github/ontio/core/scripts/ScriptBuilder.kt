@@ -84,10 +84,7 @@ class ScriptBuilder : AutoCloseable {
     }
 
 
-    fun emitPushByteArray(data: ByteArray?): ScriptBuilder {
-        if (data == null) {
-            throw NullPointerException()
-        }
+    fun emitPushByteArray(data: ByteArray): ScriptBuilder {
         when {
             data.size <= ScriptOp.OP_PUSHBYTES75.byte.toInt() -> {
                 ms.write(data.size.toByte().toInt())

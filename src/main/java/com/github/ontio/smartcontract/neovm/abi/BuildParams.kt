@@ -23,11 +23,8 @@ import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
 import com.github.ontio.core.scripts.ScriptBuilder
-import com.github.ontio.core.scripts.ScriptOp
 import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.smartcontract.neovm.abi.BuildParams.createCodeParamsScript
 
-import java.lang.reflect.Array
 import java.math.BigInteger
 import java.util.ArrayList
 

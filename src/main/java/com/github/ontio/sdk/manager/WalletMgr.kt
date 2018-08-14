@@ -362,7 +362,7 @@ class WalletMgr {
         }
         acct.address = Address.addressFromPubKey(account.serializePublicKey()).toBase58()
         var label = label
-        if (label == null || label == "") {
+        if (label == null || label.isEmpty()) {
             val uuidStr = UUID.randomUUID().toString()
             label = uuidStr.substring(0, 8)
         }

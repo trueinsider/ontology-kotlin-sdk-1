@@ -105,10 +105,7 @@ class Nep5(contractAddress: String) {
     }
 
     @Throws(Exception::class)
-    private fun sendTransfer(acct: Account?, recvAddr: String, amount: Long, payerAcct: Account?, gaslimit: Long, gasprice: Long, preExec: Boolean): Any? {
-        if (acct == null || payerAcct == null) {
-            throw SDKException(ErrorCode.ParamError)
-        }
+    private fun sendTransfer(acct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long, preExec: Boolean): Any? {
         val sendAddr = acct.addressU160.toBase58()
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("Transfer")
@@ -147,7 +144,7 @@ class Nep5(contractAddress: String) {
         func.setParamsValue(Address.decodeBase58(addr).toArray())
         val obj = sendTransaction(this.contractAddress, null, null, 0, 0, func, true)
         var balance = (obj as JSONObject).getString("Result")
-        if (balance == "") {
+        if (balance.isEmpty()) {
             balance = "00"
         }
         return balance
