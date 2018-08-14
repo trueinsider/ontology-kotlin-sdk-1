@@ -19,15 +19,15 @@
 
 package com.github.ontio.core.transaction
 
-import java.io.*
-import java.util.*
-
-import com.github.ontio.common.*
+import com.github.ontio.common.Address
 import com.github.ontio.core.Inventory
 import com.github.ontio.core.InventoryType
 import com.github.ontio.core.asset.Sig
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
+import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.util.*
 
 /**
  *

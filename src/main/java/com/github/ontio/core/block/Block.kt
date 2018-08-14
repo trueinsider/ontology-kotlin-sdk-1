@@ -19,18 +19,19 @@
 
 package com.github.ontio.core.block
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.util.function.Function
-
 import com.alibaba.fastjson.JSON
-import com.github.ontio.common.*
+import com.github.ontio.common.Address
+import com.github.ontio.common.Helper
+import com.github.ontio.common.UInt256
 import com.github.ontio.core.Inventory
 import com.github.ontio.core.InventoryType
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.util.function.Function
 
 /**
  * block

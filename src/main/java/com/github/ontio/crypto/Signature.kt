@@ -1,13 +1,10 @@
 package com.github.ontio.crypto
 
 import com.github.ontio.common.ErrorCode
-import com.github.ontio.sdk.exception.SDKException
 import org.bouncycastle.jcajce.spec.SM2ParameterSpec
-
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.security.spec.AlgorithmParameterSpec
-import java.util.Arrays
+import java.util.*
 
 class Signature {
     var scheme: SignatureScheme

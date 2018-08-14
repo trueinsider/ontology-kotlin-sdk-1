@@ -19,12 +19,13 @@
 
 package com.github.ontio.core.scripts
 
-import java.io.*
-import java.math.BigInteger
-import java.nio.*
-
 import com.github.ontio.common.Helper
 import com.github.ontio.common.UIntBase
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.math.BigInteger
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  */

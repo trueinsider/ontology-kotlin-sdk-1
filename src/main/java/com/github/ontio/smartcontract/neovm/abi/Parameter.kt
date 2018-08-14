@@ -19,11 +19,9 @@
 
 package com.github.ontio.smartcontract.neovm.abi
 
+import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.sdk.exception.SDKException
-import com.alibaba.fastjson.JSON
-
-import java.math.BigInteger
 
 /**
  *

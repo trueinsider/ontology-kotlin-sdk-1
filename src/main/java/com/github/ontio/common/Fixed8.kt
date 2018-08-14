@@ -19,13 +19,10 @@
 
 package com.github.ontio.common
 
-import java.io.IOException
-import java.math.BigDecimal
-import java.util.function.Function
-
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
+import java.math.BigDecimal
 
 /**
  *

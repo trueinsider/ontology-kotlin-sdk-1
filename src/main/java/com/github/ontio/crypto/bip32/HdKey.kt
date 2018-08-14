@@ -21,10 +21,9 @@
 
 package com.github.ontio.crypto.bip32
 
-import io.github.novacrypto.bip32.Network
-
 import com.github.ontio.crypto.bip32.BigIntegerUtils.parse256
 import com.github.ontio.crypto.bip32.Secp256r1SC.pointSerP_gMultiply
+import io.github.novacrypto.bip32.Network
 import io.github.novacrypto.hashing.Hash160.hash160
 
 internal class HdKey private constructor(builder: Builder) {

@@ -24,10 +24,7 @@ import com.github.ontio.core.block.Block
 import com.github.ontio.core.payload.Bookkeeping
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.network.connect.AbstractConnector
-import com.github.ontio.network.exception.ConnectorException
 import okhttp3.*
-
-import java.io.IOException
 import java.util.*
 
 /**

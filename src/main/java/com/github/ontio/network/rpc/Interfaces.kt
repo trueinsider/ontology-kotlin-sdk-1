@@ -22,15 +22,10 @@ package com.github.ontio.network.rpc
 import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.network.exception.RpcException
-
-import java.io.IOException
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
-import java.net.MalformedURLException
 import java.net.URL
-import java.util.HashMap
-import java.util.Random
 
 /**
  *

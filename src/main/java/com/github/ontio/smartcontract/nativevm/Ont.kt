@@ -28,8 +28,8 @@ import com.github.ontio.account.Account
 import com.github.ontio.common.Address
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
+import com.github.ontio.core.asset.State
 import com.github.ontio.core.transaction.Transaction
-import com.github.ontio.core.asset.*
 import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.Vm.buildNativeParams
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams

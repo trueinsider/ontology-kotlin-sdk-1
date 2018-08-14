@@ -24,9 +24,8 @@ import com.github.ontio.common.ErrorCode
 import com.github.ontio.common.Helper
 import com.github.ontio.core.scripts.ScriptBuilder
 import com.github.ontio.sdk.exception.SDKException
-
 import java.math.BigInteger
-import java.util.ArrayList
+import java.util.*
 
 object BuildParams {
     enum class Type constructor(t: Int) {

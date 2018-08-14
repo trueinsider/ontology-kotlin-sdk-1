@@ -24,10 +24,7 @@ import com.github.ontio.common.Helper
 import com.github.ontio.common.UInt256
 import com.github.ontio.crypto.Digest
 import com.github.ontio.sdk.exception.SDKException
-
-import java.security.NoSuchAlgorithmException
-import java.util.ArrayList
-import java.util.Arrays
+import java.util.*
 
 class TreeHasher {
     fun hash_empty(): UInt256 {

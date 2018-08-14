@@ -22,11 +22,9 @@
 package com.github.ontio.crypto.bip32
 
 import io.github.novacrypto.toruntime.CheckedExceptionToRuntime
-
+import io.github.novacrypto.toruntime.CheckedExceptionToRuntime.toRuntime
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-
-import io.github.novacrypto.toruntime.CheckedExceptionToRuntime.toRuntime
 
 internal object HmacSha512 {
     private val HMAC_SHA512 = "HmacSHA512"

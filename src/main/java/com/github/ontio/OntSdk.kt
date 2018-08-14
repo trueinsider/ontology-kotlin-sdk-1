@@ -19,26 +19,20 @@
 
 package com.github.ontio
 
-import com.github.ontio.OntSdk.defaultSignScheme
-import com.github.ontio.OntSdk.rpc
-import com.github.ontio.OntSdk.walletMgr
 import com.github.ontio.account.Account
 import com.github.ontio.common.Common
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.core.DataSignature
+import com.github.ontio.core.asset.Sig
 import com.github.ontio.core.program.Program
 import com.github.ontio.core.transaction.Transaction
-import com.github.ontio.core.asset.Sig
 import com.github.ontio.crypto.Digest
 import com.github.ontio.crypto.SignatureScheme
 import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.sdk.manager.*
-import com.github.ontio.smartcontract.NativeVm
-import com.github.ontio.smartcontract.NeoVm
-import com.github.ontio.smartcontract.Vm
-import com.github.ontio.smartcontract.WasmVm
-
-import java.util.Arrays
+import com.github.ontio.sdk.manager.ConnectMgr
+import com.github.ontio.sdk.manager.SignServer
+import com.github.ontio.sdk.manager.WalletMgr
+import java.util.*
 
 /**
  * Ont Sdk

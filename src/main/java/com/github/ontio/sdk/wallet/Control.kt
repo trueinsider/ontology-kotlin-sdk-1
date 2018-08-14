@@ -21,9 +21,7 @@ package com.github.ontio.sdk.wallet
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.annotation.JSONField
-
-import java.util.Base64
-import java.util.HashMap
+import java.util.*
 
 class Control {
     var algorithm = "ECDSA"

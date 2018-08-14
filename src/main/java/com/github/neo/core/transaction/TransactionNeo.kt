@@ -2,7 +2,9 @@ package com.github.neo.core.transaction
 
 
 import com.github.neo.core.Program
+import com.github.neo.core.TransactionAttribute
 import com.github.neo.core.TransactionInput
+import com.github.neo.core.TransactionOutput
 import com.github.ontio.account.Account
 import com.github.ontio.core.Inventory
 import com.github.ontio.core.InventoryType
@@ -10,9 +12,6 @@ import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.crypto.SignatureScheme
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
-import com.github.neo.core.TransactionAttribute
-import com.github.neo.core.TransactionOutput
-
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.util.*

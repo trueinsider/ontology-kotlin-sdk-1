@@ -1,17 +1,14 @@
 package com.github.ontio.crypto
 
 import com.github.ontio.common.ErrorCode
-import com.github.ontio.common.Helper
 import com.github.ontio.sdk.exception.SDKException
 import org.bouncycastle.asn1.*
-
-import java.awt.*
 import java.io.IOException
 import java.math.BigInteger
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.spec.AlgorithmParameterSpec
-import java.util.Arrays
+import java.util.*
 
 class SignatureHandler constructor(private val type: KeyType, private val scheme: SignatureScheme) {
     private var ctx = when (this.type) {

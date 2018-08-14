@@ -26,8 +26,6 @@ import com.github.ontio.crypto.SignatureScheme
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 
-import java.io.IOException
-
 class DataSignature : Signable {
     private lateinit var scheme: SignatureScheme
     private lateinit var account: Account

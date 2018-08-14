@@ -10,9 +10,6 @@ import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 
-
-import java.io.IOException
-
 class InvocationTransaction(
         version: Byte,
         attributes: Array<TransactionAttribute>,

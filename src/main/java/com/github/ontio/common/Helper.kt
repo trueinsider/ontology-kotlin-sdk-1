@@ -21,8 +21,7 @@ package com.github.ontio.common
 
 import java.math.BigInteger
 import java.text.SimpleDateFormat
-import java.util.Arrays
-import java.util.Date
+import java.util.*
 import kotlin.experimental.inv
 
 /**

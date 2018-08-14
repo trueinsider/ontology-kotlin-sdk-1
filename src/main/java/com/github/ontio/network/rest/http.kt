@@ -19,30 +19,19 @@
 
 package com.github.ontio.network.rest
 
+import com.alibaba.fastjson.JSON
 import java.io.BufferedReader
 import java.io.Closeable
 import java.io.IOException
-import java.io.InputStream
 import java.io.InputStreamReader
-import java.io.OutputStream
-import java.io.UnsupportedEncodingException
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
-import java.security.KeyManagementException
-import java.security.NoSuchAlgorithmException
-import java.security.NoSuchProviderException
 import java.security.SecureRandom
-import java.util.Arrays
-import java.util.HashMap
-import kotlin.collections.Map.Entry
-
+import java.util.*
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
-
-import com.alibaba.fastjson.JSON
 
 object http {
     private val DEFAULT_CHARSET = "UTF-8"

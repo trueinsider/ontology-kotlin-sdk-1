@@ -19,16 +19,14 @@
 
 package com.github.ontio.crypto
 
-import java.security.*
-
 
 import org.bouncycastle.crypto.digests.SHA512Digest
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.crypto.CipherParameters
-import org.bouncycastle.crypto.digests.SHA1Digest
 import org.bouncycastle.crypto.macs.HMac
 import org.bouncycastle.crypto.params.KeyParameter
-import javax.crypto.spec.SecretKeySpec
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.security.Security
 
 object Digest {
     init {

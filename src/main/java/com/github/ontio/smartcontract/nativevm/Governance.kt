@@ -24,7 +24,10 @@ import com.github.ontio.OntSdk.addSign
 import com.github.ontio.OntSdk.connect
 import com.github.ontio.OntSdk.signTx
 import com.github.ontio.account.Account
-import com.github.ontio.common.*
+import com.github.ontio.common.Address
+import com.github.ontio.common.ErrorCode
+import com.github.ontio.common.Helper
+import com.github.ontio.common.UInt256
 import com.github.ontio.core.asset.Sig
 import com.github.ontio.core.governance.PeerPoolItem
 import com.github.ontio.core.governance.VoteInfo
@@ -36,11 +39,10 @@ import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.Vm
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.HashMap
+import java.util.*
 
 class Governance {
     val contractAddress = "0000000000000000000000000000000000000007"

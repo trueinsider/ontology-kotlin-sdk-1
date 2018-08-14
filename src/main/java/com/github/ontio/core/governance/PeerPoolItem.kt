@@ -20,14 +20,9 @@
 package com.github.ontio.core.governance
 
 import com.github.ontio.common.Address
-import com.github.ontio.core.asset.Contract
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
-import java.io.ByteArrayInputStream
-
-import java.io.IOException
-import java.util.HashMap
 
 class PeerPoolItem : Serializable {
     var index: Int = 0

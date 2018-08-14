@@ -28,13 +28,10 @@ import com.github.ontio.common.Address
 import com.github.ontio.common.Helper
 import com.github.ontio.core.globalparams.Params
 import com.github.ontio.core.transaction.Transaction
-import com.github.ontio.network.exception.ConnectorException
 import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.Vm
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
-
-import java.io.IOException
 
 class GlobalParams {
     private val contractAddress = "0000000000000000000000000000000000000004"

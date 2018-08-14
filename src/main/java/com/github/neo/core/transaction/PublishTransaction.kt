@@ -9,10 +9,7 @@ import com.github.ontio.common.Address
 import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
-
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Arrays
+import java.util.*
 
 class PublishTransaction(
         version: Byte,

@@ -22,7 +22,7 @@
 package com.github.ontio.crypto.bip32
 
 import java.math.BigInteger
-import java.util.Arrays
+import java.util.*
 
 internal object BigIntegerUtils {
 

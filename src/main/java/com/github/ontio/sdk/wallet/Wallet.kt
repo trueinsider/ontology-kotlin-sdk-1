@@ -22,9 +22,7 @@ package com.github.ontio.sdk.wallet
 import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.sdk.exception.SDKException
-
-import java.util.ArrayList
-import java.util.Arrays
+import java.util.*
 
 /**
  *

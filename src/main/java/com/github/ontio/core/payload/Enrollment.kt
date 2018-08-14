@@ -21,14 +21,12 @@ package com.github.ontio.core.payload
 
 import com.github.ontio.common.Address
 import com.github.ontio.common.Helper
-import com.github.ontio.core.transaction.TransactionType
-import com.github.ontio.io.BinaryWriter
 import com.github.ontio.core.transaction.Transaction
+import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.crypto.ECC
 import com.github.ontio.io.BinaryReader
+import com.github.ontio.io.BinaryWriter
 import org.bouncycastle.math.ec.ECPoint
-
-import java.io.IOException
 import java.math.BigInteger
 
 /**

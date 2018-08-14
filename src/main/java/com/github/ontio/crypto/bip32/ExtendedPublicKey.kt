@@ -21,12 +21,6 @@
 
 package com.github.ontio.crypto.bip32
 
-import io.github.novacrypto.bip32.*
-import io.github.novacrypto.bip32.derivation.CkdFunction
-import io.github.novacrypto.bip32.derivation.CkdFunctionDerive
-import io.github.novacrypto.bip32.derivation.Derivation
-import io.github.novacrypto.bip32.derivation.Derive
-
 import com.github.ontio.crypto.bip32.BigIntegerUtils.parse256
 import com.github.ontio.crypto.bip32.ByteArrayWriter.Companion.head32
 import com.github.ontio.crypto.bip32.ByteArrayWriter.Companion.tail32
@@ -36,7 +30,13 @@ import com.github.ontio.crypto.bip32.Secp256r1SC.n
 import com.github.ontio.crypto.bip32.Secp256r1SC.pointSerP
 import io.github.novacrypto.base58.Base58.base58Encode
 import io.github.novacrypto.bip32.Index.isHardened
+import io.github.novacrypto.bip32.Network
+import io.github.novacrypto.bip32.Networks
+import io.github.novacrypto.bip32.derivation.CkdFunction
+import io.github.novacrypto.bip32.derivation.CkdFunctionDerive
 import io.github.novacrypto.bip32.derivation.CkdFunctionResultCacheDecorator.newCacheOf
+import io.github.novacrypto.bip32.derivation.Derivation
+import io.github.novacrypto.bip32.derivation.Derive
 import io.github.novacrypto.hashing.Hash160.hash160into
 import io.github.novacrypto.hashing.Sha256.sha256Twice
 

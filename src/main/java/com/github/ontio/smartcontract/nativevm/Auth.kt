@@ -16,9 +16,7 @@ import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.Vm
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
-
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 class Auth {
     val contractAddress = "0000000000000000000000000000000000000006"

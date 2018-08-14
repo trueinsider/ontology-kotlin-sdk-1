@@ -21,9 +21,8 @@ package com.github.ontio.crypto
 
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.sdk.exception.SDKException
-
 import java.math.BigInteger
-import java.util.Arrays
+import java.util.*
 
 object Base58 {
     /**

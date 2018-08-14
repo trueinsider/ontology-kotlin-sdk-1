@@ -37,9 +37,7 @@ import com.github.ontio.smartcontract.NeoVm.sendTransaction
 import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.AbiInfo
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
-
 import java.io.ByteArrayInputStream
-import java.io.IOException
 
 object ClaimRecord {
     var contractAddress: String = "36bb5c053b6b839c8f6b923fe852f91239b9fccc"

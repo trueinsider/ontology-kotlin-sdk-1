@@ -31,9 +31,7 @@ import com.github.ontio.crypto.KeyType
 import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
-
-import java.util.ArrayList
-import java.util.LinkedHashMap
+import java.util.*
 
 class Record(contractAddress: String) {
     val contractAddress = contractAddress.replace("0x", "")

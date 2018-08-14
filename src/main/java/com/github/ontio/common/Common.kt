@@ -20,9 +20,8 @@
 package com.github.ontio.common
 
 import com.github.ontio.crypto.ECC
-
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.*
 
 abstract class Common : AutoCloseable {
     companion object {

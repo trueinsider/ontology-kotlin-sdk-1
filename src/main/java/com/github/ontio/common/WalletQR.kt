@@ -3,9 +3,11 @@ package com.github.ontio.common
 import com.alibaba.fastjson.JSON
 import com.github.ontio.account.Account.Companion.getGcmDecodedPrivateKey
 import com.github.ontio.crypto.SignatureScheme
-import com.github.ontio.sdk.wallet.*
-
-import java.util.Base64
+import com.github.ontio.sdk.wallet.Account
+import com.github.ontio.sdk.wallet.Identity
+import com.github.ontio.sdk.wallet.Scrypt
+import com.github.ontio.sdk.wallet.Wallet
+import java.util.*
 
 object WalletQR {
     fun exportIdentityQRCode(walletFile: Wallet, identity: Identity): Map<*, *> {

@@ -19,13 +19,11 @@
 
 package com.github.ontio.account
 
-import com.github.ontio.common.ErrorCode
-import com.github.ontio.crypto.*
-import com.github.ontio.common.Helper
 import com.github.ontio.common.Address
-import com.github.ontio.crypto.Base58
+import com.github.ontio.common.ErrorCode
+import com.github.ontio.common.Helper
+import com.github.ontio.crypto.*
 import com.github.ontio.crypto.Signature
-import com.github.ontio.crypto.Digest
 import com.github.ontio.sdk.exception.SDKException
 import org.bouncycastle.crypto.generators.SCrypt
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
@@ -36,18 +34,16 @@ import org.bouncycastle.jce.ECPointUtil
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveSpec
 import org.bouncycastle.util.Strings
-
-import javax.crypto.Cipher
-import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.SecretKeySpec
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.*
 import java.security.spec.*
-import java.util.Arrays
-import java.util.Base64
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.experimental.xor
 
 class Account {

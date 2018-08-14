@@ -21,14 +21,13 @@ package com.github.ontio.core.asset
 
 import com.github.ontio.common.Helper
 import com.github.ontio.core.program.Program
-import com.github.ontio.io.*
-
-import java.io.IOException
-import java.util.*
-
 import com.github.ontio.core.program.Program.ProgramFromMultiPubKey
 import com.github.ontio.core.program.Program.ProgramFromParams
 import com.github.ontio.core.program.Program.ProgramFromPubKey
+import com.github.ontio.io.BinaryReader
+import com.github.ontio.io.BinaryWriter
+import com.github.ontio.io.Serializable
+import java.util.*
 
 /**
  *

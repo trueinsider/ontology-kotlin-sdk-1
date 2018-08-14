@@ -21,8 +21,7 @@ package com.github.ontio.network.rest
 
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.network.exception.RestfulException
-
-import java.util.HashMap
+import java.util.*
 
 /**
  *

@@ -19,16 +19,15 @@
 
 package com.github.ontio.crypto
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.UnsupportedEncodingException
 import java.security.*
 import java.security.spec.InvalidParameterSpecException
-import java.util.Arrays
-
+import java.util.*
 import javax.crypto.*
-import javax.crypto.spec.*
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import javax.security.auth.DestroyFailedException
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 
 object AES {
     private val KEY_ALGORITHM = "AES"

@@ -4,22 +4,18 @@ import com.github.ontio.account.Account
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.crypto.bip32.ExtendedPrivateKey
 import com.github.ontio.sdk.exception.SDKException
-
-import java.nio.charset.StandardCharsets
-import java.security.SecureRandom
-import java.util.Arrays
-import java.util.Base64
-
-import javax.crypto.Cipher
-import javax.crypto.spec.IvParameterSpec
-import javax.crypto.spec.SecretKeySpec
-
 import io.github.novacrypto.bip32.networks.Bitcoin
 import io.github.novacrypto.bip39.MnemonicGenerator
 import io.github.novacrypto.bip39.SeedCalculator
 import io.github.novacrypto.bip39.Words
 import io.github.novacrypto.bip39.wordlists.English
 import org.bouncycastle.crypto.generators.SCrypt
+import java.nio.charset.StandardCharsets
+import java.security.SecureRandom
+import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 object MnemonicCode {
     fun generateMnemonicCodesStr(): String {

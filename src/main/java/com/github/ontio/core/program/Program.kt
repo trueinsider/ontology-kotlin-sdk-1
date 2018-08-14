@@ -28,12 +28,10 @@ import com.github.ontio.crypto.ECC
 import com.github.ontio.crypto.KeyType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.sdk.exception.SDKException
-import java.awt.SystemColor.info
-
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.math.BigInteger
-import java.util.Comparator
+import java.util.*
 
 /**
  *

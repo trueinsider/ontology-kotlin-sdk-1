@@ -5,8 +5,6 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 
-import java.io.IOException
-
 /**
  *
  */

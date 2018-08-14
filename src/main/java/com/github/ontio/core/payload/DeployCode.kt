@@ -19,11 +19,9 @@
 
 package com.github.ontio.core.payload
 
-import java.io.IOException
-
 import com.github.ontio.common.Address
-import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.core.transaction.Transaction
+import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 

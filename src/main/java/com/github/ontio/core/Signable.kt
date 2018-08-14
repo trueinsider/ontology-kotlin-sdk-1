@@ -19,16 +19,15 @@
 
 package com.github.ontio.core
 
-import java.io.ByteArrayOutputStream
-import java.io.IOException
 import com.github.ontio.account.Account
+import com.github.ontio.common.Address
 import com.github.ontio.crypto.Digest
 import com.github.ontio.crypto.SignatureScheme
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
-
-import com.github.ontio.common.Address
+import java.io.ByteArrayOutputStream
+import java.io.IOException
 
 interface Signable : Serializable {
     val addressU160ForVerifying: Array<Address>?

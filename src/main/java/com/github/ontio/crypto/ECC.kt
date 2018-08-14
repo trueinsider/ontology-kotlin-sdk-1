@@ -19,12 +19,11 @@
 
 package com.github.ontio.crypto
 
-import java.security.*
-
 import com.github.ontio.common.Helper
-import org.bouncycastle.asn1.x9.*
+import org.bouncycastle.asn1.x9.ECNamedCurveTable
 import org.bouncycastle.crypto.params.ECDomainParameters
 import org.bouncycastle.math.ec.ECPoint
+import java.security.SecureRandom
 
 object ECC {
     private val secp256r1nc = ECNamedCurveTable.getByName("secp256r1")

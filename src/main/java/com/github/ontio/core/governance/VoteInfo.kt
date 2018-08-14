@@ -25,9 +25,6 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 
-import java.io.IOException
-import java.util.HashMap
-
 class VoteInfo(
         var peerPubkey: String,
         var address: Address,

@@ -21,13 +21,11 @@
 
 package com.github.ontio.crypto.bip32
 
-import io.github.novacrypto.bip32.*
-import io.github.novacrypto.bip32.networks.DefaultNetworks
-
-import java.util.Arrays
-
 import com.github.ontio.crypto.bip32.Checksum.confirmExtendedKeyChecksum
 import io.github.novacrypto.base58.Base58.base58Decode
+import io.github.novacrypto.bip32.Networks
+import io.github.novacrypto.bip32.networks.DefaultNetworks
+import java.util.*
 
 internal class ExtendedPublicKeyDeserializer(private val networks: Networks) : Deserializer<ExtendedPublicKey> {
 

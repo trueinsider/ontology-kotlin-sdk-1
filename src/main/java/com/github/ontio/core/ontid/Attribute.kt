@@ -23,8 +23,6 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.io.Serializable
 
-import java.io.IOException
-
 class Attribute : Serializable {
     lateinit var key: ByteArray
     lateinit var valueType: ByteArray

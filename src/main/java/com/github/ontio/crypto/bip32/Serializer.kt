@@ -21,9 +21,8 @@
 
 package com.github.ontio.crypto.bip32
 
-import io.github.novacrypto.bip32.Network
-
 import com.github.ontio.crypto.bip32.Checksum.checksum
+import io.github.novacrypto.bip32.Network
 
 internal class Serializer private constructor(builder: Builder) {
     private val network: Network

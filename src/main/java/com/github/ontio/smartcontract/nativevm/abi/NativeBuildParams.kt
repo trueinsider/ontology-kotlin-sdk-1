@@ -27,11 +27,10 @@ import com.github.ontio.core.scripts.ScriptBuilder
 import com.github.ontio.core.scripts.ScriptOp
 import com.github.ontio.io.BinaryWriter
 import com.github.ontio.sdk.exception.SDKException
-
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.math.BigInteger
-import java.util.ArrayList
+import java.util.*
 
 object NativeBuildParams {
     fun buildParams(vararg params: Any): ByteArray {

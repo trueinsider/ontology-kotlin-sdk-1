@@ -19,14 +19,12 @@
 
 package com.github.ontio.core.payload
 
+import com.github.ontio.common.Address
 import com.github.ontio.common.Helper
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
-import com.github.ontio.common.Address
-
-import java.io.IOException
 
 class InvokeCode(code: ByteArray) : Transaction(TransactionType.InvokeCode) {
     var code: ByteArray = code

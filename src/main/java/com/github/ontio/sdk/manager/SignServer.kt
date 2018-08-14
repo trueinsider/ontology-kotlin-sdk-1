@@ -22,11 +22,7 @@ package com.github.ontio.sdk.manager
 import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.network.exception.RpcException
-import com.github.ontio.network.rest.Interfaces
 import com.github.ontio.network.rpc.Interfaces
-import com.github.ontio.network.rpc.RpcClient
-
-import java.util.HashMap
 
 class SignServer constructor(private val url: String) {
     private val rpcClient: Interfaces = Interfaces(url)

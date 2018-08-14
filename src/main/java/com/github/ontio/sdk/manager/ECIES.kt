@@ -37,11 +37,10 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.util.encoders.Hex
-
+import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import java.security.SecureRandom
 
 class ECIES(dig: Digest) {
     init {

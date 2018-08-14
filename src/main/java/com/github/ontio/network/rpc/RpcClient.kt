@@ -19,18 +19,12 @@
 
 package com.github.ontio.network.rpc
 
-import com.github.ontio.OntSdk.rpc
-import java.io.IOException
-
 import com.github.ontio.common.Helper
 import com.github.ontio.common.UInt256
 import com.github.ontio.core.block.Block
 import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.io.Serializable
 import com.github.ontio.network.connect.AbstractConnector
-import com.github.ontio.network.exception.ConnectorException
-import com.github.ontio.network.exception.RpcException
-import com.github.ontio.network.rest.Interfaces
 
 class RpcClient(url: String) : AbstractConnector() {
     private var rpc: Interfaces = Interfaces(url)

@@ -19,14 +19,15 @@
 
 package com.github.ontio.io
 
-import java.io.*
-import java.nio.*
-
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.core.scripts.ScriptOp
-import org.bouncycastle.math.ec.ECPoint
-
 import com.github.ontio.crypto.ECC
+import org.bouncycastle.math.ec.ECPoint
+import java.io.DataInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /*
  ******************************************************************************

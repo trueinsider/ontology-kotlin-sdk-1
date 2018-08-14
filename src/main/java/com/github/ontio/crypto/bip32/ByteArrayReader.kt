@@ -21,7 +21,7 @@
 
 package com.github.ontio.crypto.bip32
 
-import java.util.Arrays
+import java.util.*
 
 internal class ByteArrayReader(private val bytes: ByteArray) {
     private var idx = 0

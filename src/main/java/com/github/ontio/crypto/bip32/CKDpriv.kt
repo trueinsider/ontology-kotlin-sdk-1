@@ -21,8 +21,6 @@
 
 package com.github.ontio.crypto.bip32
 
-import io.github.novacrypto.bip32.*
-
 interface CKDpriv {
 
     /**
