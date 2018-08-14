@@ -34,12 +34,10 @@ class Bookkeeping : Transaction(TransactionType.Bookkeeping) {
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
         _nonce = reader.readLong()
     }
 
-    @Throws(IOException::class)
     override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeLong(_nonce)
     }

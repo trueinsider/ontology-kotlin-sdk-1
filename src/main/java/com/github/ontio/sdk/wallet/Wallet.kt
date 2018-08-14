@@ -90,7 +90,6 @@ class Wallet : Cloneable {
         return null
     }
 
-    @Throws(Exception::class)
     fun setDefaultAccount(index: Int) {
         if (index >= accounts.size) {
             throw SDKException(ErrorCode.ParamError)
@@ -113,7 +112,6 @@ class Wallet : Cloneable {
         }
     }
 
-    @Throws(Exception::class)
     fun setDefaultIdentity(index: Int) {
         if (index >= identities.size) {
             throw SDKException(ErrorCode.ParamError)

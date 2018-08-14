@@ -23,7 +23,6 @@ class Signature {
     }
 
     // parse a serialized bytes to signature structure
-    @Throws(Exception::class)
     constructor(data: ByteArray) {
         if (data.size < 2) {
             throw Exception(ErrorCode.InvalidSignatureDataLen)

@@ -47,7 +47,6 @@ import com.alibaba.fastjson.JSON
 object http {
     private val DEFAULT_CHARSET = "UTF-8"
 
-    @Throws(IOException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, KeyManagementException::class)
     fun post(url: String, header: Map<String, String>?, body: String, https: Boolean): String {
         val u = URL(url)
         val http = u.openConnection() as HttpURLConnection
@@ -83,12 +82,10 @@ object http {
         return str
     }
 
-    @Throws(IOException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, KeyManagementException::class)
     fun post(url: String, body: String, https: Boolean): String {
         return post(url, null, body, https)
     }
 
-    @Throws(IOException::class, NoSuchAlgorithmException::class, NoSuchProviderException::class, KeyManagementException::class)
     fun delete(url: String, body: String, https: Boolean): String {
         val u = URL(url)
         val http = u.openConnection() as HttpURLConnection
@@ -119,7 +116,6 @@ object http {
         return str
     }
 
-    @Throws(Exception::class)
     fun delete(url: String, params: Map<String, String>, body: Map<String, Any>): String {
         return if (url.startsWith("https")) {
             delete(url + cvtParams(params), JSON.toJSONString(body), true)
@@ -128,7 +124,6 @@ object http {
         }
     }
 
-    @Throws(Exception::class)
     fun post(url: String, params: Map<String, String>, body: Map<String, Any>): String {
         println(String.format("POST url=%s,%s,%s", url, JSON.toJSONString(params), JSON.toJSONString(body)))
         return if (url.startsWith("https")) {
@@ -138,7 +133,6 @@ object http {
         }
     }
 
-    @Throws(Exception::class)
     private fun get(url: String, https: Boolean): String {
         val u = URL(url)
         val http = u.openConnection() as HttpURLConnection
@@ -165,7 +159,6 @@ object http {
         return str
     }
 
-    @Throws(Exception::class)
     private fun get(url: String): String {
         println(String.format(" GET url=%s, params=%s", url, null))
         return if (url.startsWith("https")) {
@@ -175,7 +168,6 @@ object http {
         }
     }
 
-    @Throws(Exception::class)
     fun get(url: String, params: Map<String, String>): String {
         return if (url.startsWith("https")) {
             get(url + cvtParams(params), true)
@@ -203,7 +195,6 @@ object http {
      * @param objs
      * @throws IOException
      */
-    @Throws(IOException::class)
     private fun close(vararg objs: Closeable) {
         if (objs.isNotEmpty()) {
             Arrays.stream(objs).forEach { p ->

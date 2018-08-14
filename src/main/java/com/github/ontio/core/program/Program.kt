@@ -39,7 +39,6 @@ import java.util.Comparator
  *
  */
 object Program {
-    @Throws(IOException::class)
     fun ProgramFromParams(sigData: Array<ByteArray>): ByteArray {
         sigData.sortBy(Helper::toHexString)
         val sb = ScriptBuilder()
@@ -49,7 +48,6 @@ object Program {
         return sb.toArray()
     }
 
-    @Throws(Exception::class)
     fun ProgramFromPubKey(publicKey: ByteArray): ByteArray {
         val sb = ScriptBuilder()
         sb.emitPushByteArray(publicKey)
@@ -57,7 +55,6 @@ object Program {
         return sb.toArray()
     }
 
-    @Throws(Exception::class)
     fun ProgramFromMultiPubKey(m: Int, vararg publicKeys: ByteArray): ByteArray {
         val n = publicKeys.size
 
@@ -118,7 +115,6 @@ object Program {
         return list.toTypedArray()
     }
 
-    @Throws(IOException::class)
     fun readBytes(br: BinaryReader): ByteArray {
         val code = br.readByte()
         val keyLen: Long
@@ -139,7 +135,6 @@ object Program {
         return br.readBytes(keyLen.toInt())
     }
 
-    @Throws(IOException::class)
     fun getProgramInfo(program: ByteArray): ProgramInfo? {
         if (program.size <= 2) {
         }
@@ -160,7 +155,6 @@ object Program {
         return null
     }
 
-    @Throws(IOException::class, SDKException::class)
     fun readNum(reader: BinaryReader): Short {
         val code = readOpCode(reader)
         if (code == ScriptOp.OP_PUSH0) {
@@ -182,7 +176,6 @@ object Program {
         return num.toShort()
     }
 
-    @Throws(IOException::class)
     fun readOpCode(reader: BinaryReader): ScriptOp? {
         return ScriptOp.valueOf(reader.readByte().toInt())
     }
@@ -202,7 +195,6 @@ object Program {
         return builder.toArray()
     }
 
-    @Throws(SDKException::class)
     fun programFromMultiPubKey(publicKey: Array<ByteArray>, m: Short): ByteArray {
         val n = publicKey.size
         if (m in 1..n && n <= 1024) {

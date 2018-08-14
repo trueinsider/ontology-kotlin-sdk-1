@@ -25,7 +25,6 @@ import com.github.ontio.sdk.exception.SDKException
 
 class SubType {
     var parameters: List<Parameter>? = null
-    @Throws(Exception::class)
     fun setParamsValue(vararg objs: Any) {
         if (objs.size != parameters!!.size) {
             throw SDKException(ErrorCode.ParamError)

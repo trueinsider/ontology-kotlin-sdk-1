@@ -47,7 +47,6 @@ abstract class TransactionNeo protected constructor(
     //[NonSerialized]
     private val _references: Map<TransactionInput, TransactionOutput>? = null
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         deserializeUnsigned(reader)
         try {
@@ -61,7 +60,6 @@ abstract class TransactionNeo protected constructor(
         onDeserialized()
     }
 
-    @Throws(IOException::class)
     override fun deserializeUnsigned(reader: BinaryReader) {
         if (type.value() != reader.readByte()) { // type
             throw IOException()
@@ -69,7 +67,6 @@ abstract class TransactionNeo protected constructor(
         deserializeUnsignedWithoutType(reader)
     }
 
-    @Throws(IOException::class)
     private fun deserializeUnsignedWithoutType(reader: BinaryReader) {
         try {
             version = reader.readByte()
@@ -93,17 +90,14 @@ abstract class TransactionNeo protected constructor(
 
     }
 
-    @Throws(IOException::class)
     protected open fun deserializeExclusiveData(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         serializeUnsigned(writer)
         writer.writeSerializableArray(scripts)
     }
 
-    @Throws(IOException::class)
     override fun serializeUnsigned(writer: BinaryWriter) {
         writer.writeByte(type.value())
         writer.writeByte(version)
@@ -113,7 +107,6 @@ abstract class TransactionNeo protected constructor(
         writer.writeSerializableArray(outputs)
     }
 
-    @Throws(IOException::class)
     protected open fun serializeExclusiveData(writer: BinaryWriter) {
     }
 
@@ -140,7 +133,6 @@ abstract class TransactionNeo protected constructor(
     }
 
 
-    @Throws(IOException::class)
     protected fun onDeserialized() {
     }
 
@@ -152,7 +144,6 @@ abstract class TransactionNeo protected constructor(
         return true
     }
 
-    @Throws(Exception::class)
     override fun sign(account: Account, scheme: SignatureScheme): ByteArray {
         val bys = account.generateSignature(hashData, scheme, null)
         val signature = ByteArray(64)
@@ -162,13 +153,10 @@ abstract class TransactionNeo protected constructor(
 
     companion object {
 
-        @Throws(IOException::class)
-        @JvmOverloads
         fun deserializeFrom(value: ByteArray, offset: Int = 0): TransactionNeo {
             ByteArrayInputStream(value, offset, value.size - offset).use { ms -> BinaryReader(ms).use { reader -> return deserializeFrom(reader) } }
         }
 
-        @Throws(IOException::class)
         fun deserializeFrom(reader: BinaryReader): TransactionNeo {
             try {
                 val type = TransactionType.valueOf(reader.readByte())

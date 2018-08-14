@@ -179,7 +179,6 @@ object BuildParams {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun serializeAbiFunction(abiFunction: AbiFunction): ByteArray {
         val list = ArrayList<Any>()
         list.add(abiFunction.name!!.toByteArray())

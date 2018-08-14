@@ -65,45 +65,37 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
     private val array = ByteArray(8)
     private val buffer = ByteBuffer.wrap(array).order(ByteOrder.LITTLE_ENDIAN)
 
-    @Throws(IOException::class)
     override fun close() {
         reader.close()
     }
 
-    @Throws(IOException::class)
     fun read(buffer: ByteArray) {
         reader.readFully(buffer)
     }
 
-    @Throws(IOException::class)
     fun read(buffer: ByteArray, index: Int, length: Int) {
         reader.readFully(buffer, index, length)
     }
 
-    @Throws(IOException::class)
     fun readBoolean(): Boolean {
         return reader.readBoolean()
     }
 
-    @Throws(IOException::class)
     fun readByte(): Byte {
         return reader.readByte()
     }
 
-    @Throws(IOException::class)
     fun readBytes(count: Int): ByteArray {
         val buffer = ByteArray(count)
         reader.readFully(buffer)
         return buffer
     }
 
-    @Throws(IOException::class)
     fun readDouble(): Double {
         reader.readFully(array, 0, 8)
         return buffer.getDouble(0)
     }
 
-    @Throws(IOException::class)
     fun readECPoint(): ECPoint {
         val encoded: ByteArray
         val fb = reader.readByte()
@@ -124,7 +116,6 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
         return ECC.secp256r1.curve.decodePoint(encoded)
     }
 
-    @Throws(IOException::class)
     fun readFixedString(length: Int): String {
         val data = readBytes(length)
         var count = -1
@@ -132,32 +123,27 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
         return String(data, 0, count)
     }
 
-    @Throws(IOException::class)
     fun readFloat(): Float {
         reader.readFully(array, 0, 4)
         return buffer.getFloat(0)
     }
 
-    @Throws(IOException::class)
     fun readInt(): Int {
         reader.readFully(array, 0, 4)
         return buffer.getInt(0)
     }
 
-    @Throws(IOException::class)
     fun readLong(): Long {
         reader.readFully(array, 0, 8)
         return buffer.getLong(0)
     }
 
-    @Throws(InstantiationException::class, IllegalAccessException::class, IOException::class)
     fun <T : Serializable> readSerializable(t: Class<T>): T {
         val obj = t.newInstance()
         obj.deserialize(this)
         return obj
     }
 
-    @Throws(InstantiationException::class, IllegalAccessException::class, IOException::class)
     fun <T : Serializable> readSerializableArray(t: Class<T>): Array<T> {
         val array = java.lang.reflect.Array.newInstance(t, readVarInt(0x10000000).toInt()) as Array<T>
         for (i in array.indices) {
@@ -167,25 +153,19 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
         return array
     }
 
-    @Throws(IOException::class)
     fun readShort(): Short {
         reader.readFully(array, 0, 2)
         return buffer.getShort(0)
     }
 
-    @Throws(IOException::class)
     fun readVarBytes2(): ByteArray {
         return readBytes(readVarInt2(0X7fffffc7).toInt())
     }
 
-    @Throws(IOException::class)
-    @JvmOverloads
     fun readVarBytes(max: Int = 0X7fffffc7): ByteArray {
         return readBytes(readVarInt(max.toLong()).toInt())
     }
 
-    @Throws(IOException::class)
-    @JvmOverloads
     fun readVarInt(max: Long = Long.MAX_VALUE): Long {
         val fb = java.lang.Byte.toUnsignedLong(readByte())
         val value: Long
@@ -201,7 +181,6 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
         return value
     }
 
-    @Throws(IOException::class)
     fun readVarInt2(max: Long): Long {
         val fb = java.lang.Byte.toUnsignedLong(readByte())
         val value: Long
@@ -217,17 +196,14 @@ class BinaryReader(stream: InputStream) : AutoCloseable {
         return value
     }
 
-    @Throws(IOException::class)
     fun readVarString(): String {
         return String(readVarBytes())
     }
 
-    @Throws(IOException::class)
     fun available(): Int {
         return reader.available()
     }
 
-    @Throws(IOException::class)
     fun Seek(n: Long): Long {
         reader.reset()
         return reader.skip(n)

@@ -90,7 +90,6 @@ object Base58 {
         return encode(input)
     }
 
-    @Throws(Exception::class)
     fun decodeChecked(input: String): ByteArray {
         val decoded = decode(input)
         if (decoded.size < 4) {

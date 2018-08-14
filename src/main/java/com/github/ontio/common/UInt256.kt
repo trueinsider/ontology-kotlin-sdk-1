@@ -23,8 +23,7 @@ package com.github.ontio.common
  * Custom type which inherits base class defines 32-bit data,
  * it mostly used to defined transaction identity
  */
-class UInt256 @JvmOverloads constructor(value: ByteArray? = null) : UIntBase(32, value), Comparable<UInt256> {
-
+class UInt256 constructor(value: ByteArray? = null) : UIntBase(32, value), Comparable<UInt256> {
     override fun compareTo(other: UInt256): Int {
         val x = this.data_bytes
         val y = other.data_bytes

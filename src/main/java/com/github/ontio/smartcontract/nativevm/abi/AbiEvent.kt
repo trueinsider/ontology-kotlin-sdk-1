@@ -30,7 +30,6 @@ class AbiEvent {
     var name: String? = null
     var returntype: String? = null
     var parameters: List<Parameter>? = null
-    @Throws(Exception::class)
     fun setParamsValue(vararg objs: Any) {
         if (objs.size != parameters!!.size) {
             throw SDKException(ErrorCode.ParamError)

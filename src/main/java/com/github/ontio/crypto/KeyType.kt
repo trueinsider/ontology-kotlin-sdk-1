@@ -9,7 +9,6 @@ enum class KeyType constructor(val label: Int) {
 
     companion object {
         // get the crypto.KeyType according to the input label
-        @Throws(Exception::class)
         fun fromLabel(label: Byte): KeyType {
             for (k in KeyType.values()) {
                 if (k.label == label.toInt()) {

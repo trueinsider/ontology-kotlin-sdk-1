@@ -50,17 +50,14 @@ class Nep5(contractAddress: String) {
             "{\"name\":\"BalanceOf\",\"parameters\":[{\"name\":\"address\",\"type\":\"ByteArray\"}],\"returntype\":\"Integer\"}]," +
             "\"events\":[{\"name\":\"transfer\",\"parameters\":[{\"name\":\"arg1\",\"type\":\"ByteArray\"},{\"name\":\"arg2\",\"type\":\"ByteArray\"},{\"name\":\"arg3\",\"type\":\"Integer\"}],\"returntype\":\"Void\"}]}"
 
-    @Throws(Exception::class)
     fun sendInit(acct: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         return sendInit(acct, payerAcct, gaslimit, gasprice, false) as String
     }
 
-    @Throws(Exception::class)
     fun sendInitPreExec(acct: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): Long {
         return sendInit(acct, payerAcct, gaslimit, gasprice, true) as Long
     }
 
-    @Throws(Exception::class)
     private fun sendInit(acct: Account?, payerAcct: Account?, gaslimit: Long, gasprice: Long, preExec: Boolean): Any? {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("Init")
@@ -94,17 +91,14 @@ class Nep5(contractAddress: String) {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendTransfer(acct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         return sendTransfer(acct, recvAddr, amount, payerAcct, gaslimit, gasprice, false) as String
     }
 
-    @Throws(Exception::class)
     fun sendTransferPreExec(acct: Account, recvAddr: String, amount: Long): Long {
         return sendTransfer(acct, recvAddr, amount, acct, 0, 0, true) as Long
     }
 
-    @Throws(Exception::class)
     private fun sendTransfer(acct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long, preExec: Boolean): Any? {
         val sendAddr = acct.addressU160.toBase58()
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
@@ -125,7 +119,6 @@ class Nep5(contractAddress: String) {
         return sendTransaction(contractAddress, acct, payerAcct, gaslimit, gasprice, func, preExec)
     }
 
-    @Throws(Exception::class)
     fun makeTransfer(sendAddr: String, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): Transaction {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("Transfer")
@@ -136,7 +129,6 @@ class Nep5(contractAddress: String) {
         return makeInvokeCodeTransaction(contractAddress, null, params, payer, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     fun queryBalanceOf(addr: String): String {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("BalanceOf")
@@ -150,7 +142,6 @@ class Nep5(contractAddress: String) {
         return balance
     }
 
-    @Throws(Exception::class)
     fun queryTotalSupply(): String {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("TotalSupply")
@@ -160,7 +151,6 @@ class Nep5(contractAddress: String) {
         return (obj as JSONObject).getString("Result")
     }
 
-    @Throws(Exception::class)
     fun queryName(): String {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("Name")
@@ -170,7 +160,6 @@ class Nep5(contractAddress: String) {
         return (obj as JSONObject).getString("Result")
     }
 
-    @Throws(Exception::class)
     fun queryDecimals(): String {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("Decimals")
@@ -180,7 +169,6 @@ class Nep5(contractAddress: String) {
         return (obj as JSONObject).getString("Result")
     }
 
-    @Throws(Exception::class)
     fun querySymbol(): String {
         val abiinfo = JSON.parseObject(nep5abi, AbiInfo::class.java)
         val func = abiinfo.getFunction("Symbol")

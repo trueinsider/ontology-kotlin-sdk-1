@@ -30,7 +30,7 @@ import com.github.ontio.io.Serializable
 /**
  *
  */
-class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Serializable {
+class Fixed8 constructor(data: Long = 0) : Comparable<Fixed8>, Serializable {
     var data: Long = 0
         private set
 
@@ -90,12 +90,10 @@ class Fixed8 @JvmOverloads constructor(data: Long = 0) : Comparable<Fixed8>, Ser
         return Fixed8(-data)
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeLong(data)
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         data = reader.readLong()
     }

@@ -34,7 +34,6 @@ import java.math.BigInteger
 import java.util.ArrayList
 
 object NativeBuildParams {
-    @Throws(SDKException::class)
     fun buildParams(vararg params: Any): ByteArray {
         val baos = ByteArrayOutputStream()
         val bw = BinaryWriter(baos)
@@ -113,7 +112,6 @@ object NativeBuildParams {
         return createCodeParamsScript(sb, list)
     }
 
-    @Throws(Exception::class)
     fun serializeAbiFunction(abiFunction: AbiFunction): ByteArray {
         val list = ArrayList<Any>()
         list.add(abiFunction.name!!.toByteArray())

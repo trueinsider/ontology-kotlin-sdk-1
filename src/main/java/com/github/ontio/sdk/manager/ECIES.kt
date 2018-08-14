@@ -55,7 +55,6 @@ class ECIES(dig: Digest) {
         var digest: Digest = SHA1Digest()
 
         //keylen: 16/24/32
-        @JvmOverloads
         fun Encrypt(pubkey: String, msg: ByteArray, keylen: Int = 32): Array<String>? {
             val account = com.github.ontio.account.Account(Helper.hexToBytes(pubkey))
 
@@ -86,7 +85,6 @@ class ECIES(dig: Digest) {
             return arrayOf(Helper.toHexString(IV), Helper.toHexString(out), Helper.toHexString(ciphertext))
         }
 
-        @Throws(Exception::class)
         fun Decrypt(account: Account, params: Array<String>): ByteArray? {
             if (params.size != 3) {
                 throw Exception(ErrorCode.ParamError)
@@ -94,7 +92,6 @@ class ECIES(dig: Digest) {
             return Decrypt(account.serializePrivateKey(), Helper.hexToBytes(params[0]), Helper.hexToBytes(params[1]), Helper.hexToBytes(params[2]), 32)
         }
 
-        @Throws(Exception::class)
         fun Decrypt(prikey: String, params: Array<String>): ByteArray? {
             if (params.size != 3) {
                 throw Exception(ErrorCode.ParamError)
@@ -102,7 +99,6 @@ class ECIES(dig: Digest) {
             return Decrypt(Helper.hexToBytes(prikey), Helper.hexToBytes(params[0]), Helper.hexToBytes(params[1]), Helper.hexToBytes(params[2]), 32)
         }
 
-        @JvmOverloads
         fun Decrypt(prikey: ByteArray, IV: ByteArray, key_cxt: ByteArray, ciphertext: ByteArray, keylen: Int = 32): ByteArray? {
             val account = com.github.ontio.account.Account(prikey, signatureScheme)
 

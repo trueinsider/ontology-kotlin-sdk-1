@@ -61,7 +61,6 @@ object ClaimRecord {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendCommit(issuerOntid: String, password: String, salt: ByteArray, subjectOntid: String, claimId: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (issuerOntid.isEmpty() || password.isEmpty() || subjectOntid.isEmpty() || claimId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -90,7 +89,6 @@ object ClaimRecord {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeCommit(issuerOntid: String, subjectOntid: String, claimId: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (issuerOntid.isEmpty() || subjectOntid.isEmpty() || payer.isEmpty() || claimId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -119,7 +117,6 @@ object ClaimRecord {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendRevoke(issuerOntid: String, password: String, salt: ByteArray, claimId: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (issuerOntid.isEmpty() || password.isEmpty() || claimId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -137,7 +134,6 @@ object ClaimRecord {
         } else null
     }
 
-    @Throws(Exception::class)
     fun makeRevoke(issuerOntid: String, claimId: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         val abiinfo = JSON.parseObject(abi, AbiInfo::class.java)
         val name = "Revoke"
@@ -148,7 +144,6 @@ object ClaimRecord {
         return makeInvokeCodeTransaction(Helper.reverse(contractAddress), null, params, payer, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     fun sendGetStatus(claimId: String): String {
         if (claimId.isEmpty()) {
             throw SDKException(ErrorCode.NullKeyOrValue)
@@ -191,7 +186,6 @@ internal class ClaimTx : Serializable {
         this.status = status
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         reader.readByte()
         reader.readVarInt()
@@ -205,7 +199,6 @@ internal class ClaimTx : Serializable {
         this.status = reader.readVarBytes()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
     }
 

@@ -31,7 +31,6 @@ import java.util.HashMap
  *
  */
 class TransferFrom(var sender: Address, var from: Address, var to: Address, var value: Long) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         sender = reader.readSerializable(Address::class.java)
         from = reader.readSerializable(Address::class.java)
@@ -39,7 +38,6 @@ class TransferFrom(var sender: Address, var from: Address, var to: Address, var 
         value = reader.readVarInt()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializable(sender)
         writer.writeSerializable(from)

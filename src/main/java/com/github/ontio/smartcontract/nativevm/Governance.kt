@@ -53,7 +53,6 @@ class Governance {
      * @throws IOException
      */
     val peerInfoAll: String?
-        @Throws(ConnectorException::class, IOException::class)
         get() = getPeerPoolMap(null)
 
     /**
@@ -70,7 +69,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun registerCandidate(account: Account, peerPubkey: String, initPos: Long, ontid: String, ontidpwd: String, salt: ByteArray, keyNo: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         //        byte[] params = new RegisterCandidateParam(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"registerCandidate",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
@@ -90,7 +88,6 @@ class Governance {
         } else null
     }
 
-    @Throws(Exception::class)
     fun unRegisterCandidate(account: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey, account.addressU160))
@@ -106,7 +103,6 @@ class Governance {
         } else null
     }
 
-    @Throws(Exception::class)
     fun withdrawOng(account: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val list = mutableListOf<Any>()
         list.add(Struct().add(account.addressU160))
@@ -129,7 +125,6 @@ class Governance {
      * @throws ConnectorException
      * @throws IOException
      */
-    @Throws(ConnectorException::class, IOException::class)
     fun getPeerInfo(peerPubkey: String): String? {
         return getPeerPoolMap(peerPubkey)
     }
@@ -140,7 +135,6 @@ class Governance {
      * @throws ConnectorException
      * @throws IOException
      */
-    @Throws(ConnectorException::class, IOException::class)
     private fun getPeerPoolMap(peerPubkey: String?): String? {
         val view = connect!!.getStorage(Helper.reverse(contractAddress), Helper.toHexString("governanceView".toByteArray()))
         val bais = ByteArrayInputStream(Helper.hexToBytes(view))
@@ -206,7 +200,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun approveCandidate(adminAccount: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
@@ -235,7 +228,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun approveCandidate(multiAddress: Address, M: Int, accounts: Array<Account>, publicKeys: Array<ByteArray>, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val pks = Array(accounts.size + publicKeys.size) { i ->
             if (i < accounts.size) {
@@ -270,7 +262,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun rejectCandidate(adminAccount: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
@@ -299,7 +290,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun rejectCandidate(multiAddress: Address, M: Int, accounts: Array<Account>, publicKeys: Array<ByteArray>, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val pks = Array(accounts.size + publicKeys.size) { i ->
             if (i < accounts.size) {
@@ -336,7 +326,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun voteForPeer(account: Account, peerPubkey: Array<String>, posList: LongArray, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (peerPubkey.size != posList.size) {
             throw SDKException(ErrorCode.ParamError)
@@ -377,7 +366,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun unVoteForPeer(account: Account, peerPubkey: Array<String>, posList: LongArray, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (peerPubkey.size != posList.size) {
             throw SDKException(ErrorCode.ParamError)
@@ -418,7 +406,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun withdraw(account: Account, peerPubkey: Array<String>, withdrawList: LongArray, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (peerPubkey.size != withdrawList.size) {
             throw SDKException(ErrorCode.ParamError)
@@ -457,7 +444,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun commitDpos(adminAccount: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "commitDpos", byteArrayOf(0), payerAcct.addressU160.toBase58(), gaslimit, gasprice)
         signTx(tx, arrayOf(arrayOf(adminAccount)))
@@ -468,7 +454,6 @@ class Governance {
         } else null
     }
 
-    @Throws(Exception::class)
     fun commitDpos(multiAddress: Address, M: Int, accounts: Array<Account>, publicKeys: Array<ByteArray>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val pks = Array(accounts.size + publicKeys.size) { i ->
             if (i < accounts.size) {
@@ -500,7 +485,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun blackNode(peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         //        byte[] params = new BlackNodeParam(peerPubkey).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"blackNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
@@ -525,7 +509,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun whiteNode(peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         //        byte[] params = new WhiteNodeParam(peerPubkey).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"whiteNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
@@ -551,7 +534,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun quitNode(account: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         //        byte[] params = new QuitNodeParam(peerPubkey,account.getAddressU160()).toArray();
         //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"quitNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
@@ -580,7 +562,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun updateConfig(config: Configuration, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val list = mutableListOf<Any>()
         list.add(Struct().add(config.toArray()))
@@ -607,7 +588,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun updateGlobalParam(candidateFee: Long, minInitStake: Long, candidateNum: Long, A: Long, B: Long, Yita: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val list = mutableListOf<Any>()
         list.add(Struct().add(candidateFee, minInitStake, candidateNum, A, B, Yita))
@@ -628,7 +608,6 @@ class Governance {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun callSplit(payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         val tx = Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "callSplit", byteArrayOf(), payerAcct.addressU160.toBase58(), gaslimit, gasprice)
         signTx(tx, arrayOf(arrayOf(payerAcct)))
@@ -655,14 +634,12 @@ internal class GovernanceView : Serializable {
         this.txhash = txhash
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.view = reader.readInt()
         this.height = reader.readInt()
         this.txhash = reader.readSerializable(UInt256::class.java)
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeInt(view)
         writer.writeInt(height)
@@ -670,7 +647,6 @@ internal class GovernanceView : Serializable {
     }
 
     companion object {
-        @Throws(IOException::class)
         fun deserializeFrom(reader: BinaryReader): GovernanceView {
             val governanceView = GovernanceView()
             governanceView.deserialize(reader)
@@ -680,11 +656,9 @@ internal class GovernanceView : Serializable {
 }
 
 internal class RegisterSyncNodeParam(var peerPubkey: String, var address: String, var initPos: Long) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
         writer.writeVarString(address)
@@ -693,11 +667,9 @@ internal class RegisterSyncNodeParam(var peerPubkey: String, var address: String
 }
 
 internal class ApproveCandidateParam(var peerPubkey: String) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
     }
@@ -705,23 +677,19 @@ internal class ApproveCandidateParam(var peerPubkey: String) : Serializable {
 
 internal class RejectCandidateParam(var peerPubkey: String) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
     }
 }
 
 internal class RegisterCandidateParam(var peerPubkey: String, var address: Address, var initPos: Long, var caller: ByteArray, var keyNo: Long) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
         writer.writeSerializable(address)
@@ -732,11 +700,9 @@ internal class RegisterCandidateParam(var peerPubkey: String, var address: Addre
 }
 
 internal class VoteForPeerParam(var address: Address, var peerPubkeys: Array<String>, var posList: LongArray) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializable(address)
         writer.writeVarInt(peerPubkeys.size.toLong())
@@ -751,11 +717,9 @@ internal class VoteForPeerParam(var address: Address, var peerPubkeys: Array<Str
 }
 
 internal class WithdrawParam(var address: Address, var peerPubkeys: Array<String>, var withdrawList: LongArray) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializable(address)
         writer.writeVarInt(peerPubkeys.size.toLong())
@@ -770,11 +734,9 @@ internal class WithdrawParam(var address: Address, var peerPubkeys: Array<String
 }
 
 internal class QuitNodeParam(var peerPubkey: String, var address: Address) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
         writer.writeSerializable(address)
@@ -782,33 +744,27 @@ internal class QuitNodeParam(var peerPubkey: String, var address: Address) : Ser
 }
 
 internal class BlackNodeParam(var peerPubkey: String) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
     }
 }
 
 internal class WhiteNodeParam(var peerPubkey: String) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(peerPubkey)
     }
 }
 
 internal class VoteCommitDposParam(var address: String, var pos: Long) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarString(address)
         writer.writeVarString(pos.toString())
@@ -824,11 +780,9 @@ class Configuration : Serializable {
     var hashMsgDelay: Long = 10000
     var peerHandshakeTimeout: Long = 10
     var maxBlockChangeView: Long = 1000
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarInt(N)
         writer.writeVarInt(C)
@@ -843,12 +797,10 @@ class Configuration : Serializable {
 
 internal class GovernanceGlobalParam(var candidateFee: Long, var minInitStake: Long, var candidateNum: Long, var A: Long, var B: Long, var Yita: Long) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarInt(candidateFee)
         writer.writeVarInt(minInitStake)

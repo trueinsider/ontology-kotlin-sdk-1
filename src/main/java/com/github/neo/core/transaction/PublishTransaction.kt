@@ -32,7 +32,6 @@ class PublishTransaction(
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
         script = reader.readVarBytes()
         val param = reader.readVarBytes()
@@ -46,7 +45,6 @@ class PublishTransaction(
         description = String(reader.readVarBytes(65535))
     }
 
-    @Throws(IOException::class)
     override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeVarBytes(script)
         writer.writeVarBytes(toByte(parameterList))

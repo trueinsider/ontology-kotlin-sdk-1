@@ -53,7 +53,6 @@ object Vm {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeDeployCodeTransaction(codeStr: String, needStorage: Boolean, name: String, codeVersion: String, author: String, email: String, desp: String, payer: String?, gaslimit: Long, gasprice: Long): DeployCode {
         val tx = DeployCode(
                 Helper.hexToBytes(codeStr),
@@ -75,7 +74,6 @@ object Vm {
     }
 
     //NEO makeInvokeCodeTransaction
-    @Throws(SDKException::class)
     fun makeInvokeCodeTransaction(codeAddr: String, method: String?, params: ByteArray, payer: String?, gaslimit: Long, gasprice: Long): InvokeCode {
         var params = params
         params = Helper.addBytes(params, byteArrayOf(0x67))
@@ -100,7 +98,6 @@ object Vm {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeInvokeCodeTransaction(params: ByteArray, payer: String?, gaslimit: Long, gasprice: Long): InvokeCode {
         val tx = InvokeCode(params)
         tx.attributes = emptyArray()
@@ -113,7 +110,6 @@ object Vm {
         return tx
     }
 
-    @Throws(SDKException::class)
     fun buildNativeParams(codeAddr: Address, initMethod: String, args: ByteArray, payer: String?, gaslimit: Long, gasprice: Long): Transaction {
         val sb = ScriptBuilder()
         if (args.isNotEmpty()) {

@@ -29,7 +29,6 @@ import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
 
 object NeoVm {
-    @Throws(Exception::class)
     fun sendTransaction(contractAddr: String, acct: Account?, payerAcct: Account?, gaslimit: Long, gasprice: Long, func: AbiFunction?, preExec: Boolean): Any? {
         val params = if (func != null) {
             BuildParams.serializeAbiFunction(func)

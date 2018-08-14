@@ -42,16 +42,12 @@ class ConnectMgr {
 
     private fun getUrl() = connector!!.getUrl()
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getNodeCount(): Int = connector!!.getNodeCount()
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockHeight(): Int = connector!!.getBlockHeight()
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getMemPoolTxCount(): Any = connector!!.getMemPoolTxCount()
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getVersion(): String = connector!!.getVersion()
 
     constructor(url: String, type: String, lock: Object) {
@@ -106,7 +102,6 @@ class ConnectMgr {
         this.connector = connector
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun sendRawTransaction(tx: Transaction): Boolean {
         val rs = connector!!.sendRawTransaction(Helper.toHexString(tx.toArray())) as String
         if (connector is RpcClient) {
@@ -119,7 +114,6 @@ class ConnectMgr {
         return rr.Error == 0L
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun sendRawTransaction(hexData: String): Boolean {
         val rs = connector!!.sendRawTransaction(hexData) as String
         if (connector is RpcClient) {
@@ -132,7 +126,6 @@ class ConnectMgr {
         return rr.Error == 0L
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun trySendRawTransaction(hexData: String, reSendTime: Int): Boolean {
         var b = false
         for (i in 0 until reSendTime) {
@@ -157,7 +150,6 @@ class ConnectMgr {
      * @throws ConnectorException
      * @throws Exception
      */
-    @Throws(ConnectorException::class, Exception::class)
     fun sendRawTransactionSync(hexData: String): Any {
         return syncSendRawTransaction(hexData)
     }
@@ -169,7 +161,6 @@ class ConnectMgr {
      * @throws ConnectorException
      * @throws Exception
      */
-    @Throws(ConnectorException::class, Exception::class)
     fun syncSendRawTransaction(hexData: String): Any {
         connector!!.sendRawTransaction(hexData)
         val hash = Transaction.deserializeFrom(Helper.hexToBytes(hexData)).hash().toString()
@@ -177,7 +168,6 @@ class ConnectMgr {
         return waitResult(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun sendRawTransactionPreExec(hexData: String): Any? {
         val rs = connector!!.sendRawTransaction(true, null, hexData)
         if (connector is RpcClient) {
@@ -192,21 +182,18 @@ class ConnectMgr {
         } else null
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getTransaction(txhash: String): Transaction {
         var txhash = txhash
         txhash = txhash.replace("0x", "")
         return connector!!.getRawTransaction(txhash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getTransactionJson(txhash: String): Any {
         var txhash = txhash
         txhash = txhash.replace("0x", "")
         return connector!!.getRawTransactionJson(txhash)
     }
 
-    @Throws(ConnectorException::class, IOException::class, SDKException::class)
     fun getBlock(height: Int): Block {
         if (height < 0) {
             throw SDKException(ErrorCode.ParamError)
@@ -214,85 +201,71 @@ class ConnectMgr {
         return connector!!.getBlock(height)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlock(hash: String): Block {
         return connector!!.getBlock(hash)
 
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBalance(address: String): Any {
         return connector!!.getBalance(address)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockJson(height: Int): Any {
         return connector!!.getBlockJson(height)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockJson(hash: String): Any {
         return connector!!.getBlockJson(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getContract(hash: String): Any {
         var hash = hash
         hash = hash.replace("0x", "")
         return connector!!.getContractJson(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getContractJson(hash: String): Any {
         var hash = hash
         hash = hash.replace("0x", "")
         return connector!!.getContractJson(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getSmartCodeEvent(height: Int): Any {
         return connector!!.getSmartCodeEvent(height)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getSmartCodeEvent(hash: String): Any {
         return connector!!.getSmartCodeEvent(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockHeightByTxHash(hash: String): Int {
         var hash = hash
         hash = hash.replace("0x", "")
         return connector!!.getBlockHeightByTxHash(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getStorage(codehash: String, key: String): String {
         var codehash = codehash
         codehash = codehash.replace("0x", "")
         return connector!!.getStorage(codehash, key)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getMerkleProof(hash: String): Map<String, Any> {
         var hash = hash
         hash = hash.replace("0x", "")
         return connector!!.getMerkleProof(hash)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getAllowance(asset: String, from: String, to: String): String {
         return connector!!.getAllowance(asset, from, to)
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getMemPoolTxState(hash: String): Any {
         var hash = hash
         hash = hash.replace("0x", "")
         return connector!!.getMemPoolTxState(hash)
     }
 
-    @Throws(Exception::class)
     fun waitResult(hash: String): Any {
         var objEvent: Any? = null
         var notInpool = 0

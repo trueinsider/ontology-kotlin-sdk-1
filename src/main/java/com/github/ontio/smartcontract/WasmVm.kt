@@ -30,7 +30,6 @@ import com.github.ontio.smartcontract.Vm.makeInvokeCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.BuildParams
 
 object WasmVm {
-    @Throws(Exception::class)
     fun sendTransaction(contractAddr: String, payer: String, password: String, salt: ByteArray, gaslimit: Long, gas: Long, func: AbiFunction, preExec: Boolean): String {
         val params = BuildParams.serializeAbiFunction(func)
         if (preExec) {

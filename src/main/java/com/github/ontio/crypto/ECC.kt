@@ -42,13 +42,10 @@ object ECC {
         } else a.yCoord.toBigInteger().compareTo(b.yCoord.toBigInteger())
     }
 
-
     fun toString(p: ECPoint): String {
         return Helper.toHexString(p.getEncoded(true))
     }
 
-
-    @JvmOverloads
     fun generateKey(len: Int = 32): ByteArray {
         val key = ByteArray(len)
         val sr = SecureRandom()

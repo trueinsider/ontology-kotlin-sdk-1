@@ -22,16 +22,15 @@ package com.github.ontio.sdk.manager
 import com.alibaba.fastjson.JSON
 import com.github.ontio.common.ErrorCode
 import com.github.ontio.network.exception.RpcException
+import com.github.ontio.network.rest.Interfaces
 import com.github.ontio.network.rpc.Interfaces
 import com.github.ontio.network.rpc.RpcClient
 
 import java.util.HashMap
 
-class SignServer @Throws(Exception::class)
-constructor(private val url: String) {
+class SignServer constructor(private val url: String) {
     private val rpcClient: Interfaces = Interfaces(url)
 
-    @Throws(Exception::class)
     fun sendSigRawTx(rawTx: String): Any {
         val req = mutableMapOf<String, Any>()
         req["jsonrpc"] = "2.0"
@@ -43,7 +42,6 @@ constructor(private val url: String) {
         return send(req)
     }
 
-    @Throws(Exception::class)
     fun sendMultiSigRawTx(rawTx: String, m: Int, pubkeys: Array<String>): Any {
         val req = mutableMapOf<String, Any>()
         req["jsonrpc"] = "2.0"
@@ -57,7 +55,6 @@ constructor(private val url: String) {
         return send(req)
     }
 
-    @Throws(Exception::class)
     fun sendSigTransferTx(asset: String, from: String, to: String, amount: Long, gasLimit: Long, gasPrice: Long): Any {
         val req = mutableMapOf<String, Any>()
         req["jsonrpc"] = "2.0"
@@ -74,7 +71,6 @@ constructor(private val url: String) {
         return send(req)
     }
 
-    @Throws(Exception::class)
     fun sendSigNativeInvokeTx(contractAddr: String, method: String, version: Int, gasLimit: Long, gasPrice: Long, parameters: Map<*, *>): Any {
         val req = mutableMapOf<String, Any>()
         req["jsonrpc"] = "2.0"
@@ -91,7 +87,6 @@ constructor(private val url: String) {
         return send(req)
     }
 
-    @Throws(Exception::class)
     fun sendSigNeoInvokeTx(contractAddr: String, version: Int, gasLimit: Long, gasPrice: Long, parameters: Map<*, *>): Any {
         val req = mutableMapOf<String, Any>()
         req["jsonrpc"] = "2.0"
@@ -107,7 +102,6 @@ constructor(private val url: String) {
         return send(req)
     }
 
-    @Throws(Exception::class)
     private fun send(req: Map<*, *>): Any {
         val response = rpcClient.send(req)
         println(response)

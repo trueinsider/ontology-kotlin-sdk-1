@@ -82,14 +82,12 @@ open class Block : Inventory() {
         return InventoryType.Block
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         deserializeUnsigned(reader)
         sigData = Array(reader.readVarInt().toInt()) { Helper.toHexString(reader.readVarBytes()) }
         transactions = Array(reader.readInt()) { Transaction.deserializeFrom(reader) }
     }
 
-    @Throws(IOException::class)
     override fun deserializeUnsigned(reader: BinaryReader) {
         try {
             version = reader.readInt()
@@ -111,7 +109,6 @@ open class Block : Inventory() {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         serializeUnsigned(writer)
         writer.writeVarInt(bookkeepers.size.toLong())
@@ -128,7 +125,6 @@ open class Block : Inventory() {
         }
     }
 
-    @Throws(IOException::class)
     override fun serializeUnsigned(writer: BinaryWriter) {
         writer.writeInt(version)
         writer.writeSerializable(prevBlockHash)
@@ -200,7 +196,6 @@ open class Block : Inventory() {
 
     companion object {
 
-        @Throws(IOException::class)
         fun fromTrimmedData(data: ByteArray, index: Int, txSelector: Function<UInt256, Transaction>?): Block {
             val block = Block()
             ByteArrayInputStream(data, index, data.size - index).use { ms ->

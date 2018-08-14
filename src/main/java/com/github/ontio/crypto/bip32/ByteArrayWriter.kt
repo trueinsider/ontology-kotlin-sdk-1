@@ -26,7 +26,6 @@ import java.util.Arrays
 internal class ByteArrayWriter(private val bytes: ByteArray) {
     private var idx = 0
 
-    @JvmOverloads
     fun concat(bytesSource: ByteArray, length: Int = bytesSource.size) {
         System.arraycopy(bytesSource, 0, bytes, idx, length)
         idx += length

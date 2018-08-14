@@ -38,14 +38,12 @@ class Attribute : Serializable {
         this.value = value
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.key = reader.readVarBytes()
         this.valueType = reader.readVarBytes()
         this.value = reader.readVarBytes()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(key)
         writer.writeVarBytes(valueType)

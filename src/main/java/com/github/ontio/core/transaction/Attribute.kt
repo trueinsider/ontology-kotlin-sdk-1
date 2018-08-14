@@ -31,7 +31,6 @@ import com.github.ontio.io.Serializable
 class Attribute(var usage: AttributeUsage, var data: ByteArray) : Serializable {
     var size: Int = 0
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeByte(usage.value())
         if (usage == AttributeUsage.Script
@@ -44,7 +43,6 @@ class Attribute(var usage: AttributeUsage, var data: ByteArray) : Serializable {
         }
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         usage = AttributeUsage.valueOf(reader.readByte())
         if (usage == AttributeUsage.Script

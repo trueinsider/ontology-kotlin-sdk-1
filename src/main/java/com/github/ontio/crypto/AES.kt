@@ -38,7 +38,6 @@ object AES {
         Security.addProvider(BouncyCastleProvider())
     }
 
-    @Throws(IllegalBlockSizeException::class, BadPaddingException::class)
     fun decrypt(encryptedData: ByteArray, key: ByteArray, iv: ByteArray): ByteArray {
         if (key.size != 32 || iv.size != 16) {
             throw IllegalArgumentException()

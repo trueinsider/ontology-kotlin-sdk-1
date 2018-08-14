@@ -18,7 +18,6 @@ import java.util.UUID
  */
 class SmartContract {
     companion object {
-        @Throws(Exception::class)
         fun makeInvocationTransaction(contractAddress: String, addr: ByteArray, abiFunction: AbiFunction): InvocationTransaction {
             val contractAddress = contractAddress.replace("0x", "")
             var params = serializeAbiFunction(abiFunction)
@@ -28,7 +27,6 @@ class SmartContract {
             return makeInvocationTransaction(params, addr)
         }
 
-        @Throws(Exception::class)
         private fun serializeAbiFunction(abiFunction: AbiFunction): ByteArray {
             val list = ArrayList<Any>()
             list.add(abiFunction.name!!.toByteArray())
@@ -94,7 +92,6 @@ class SmartContract {
             return sb.toArray()
         }
 
-        @Throws(Exception::class)
         fun makePublishTransaction(
                 codeStr: String,
                 needStorage: Boolean,
@@ -120,7 +117,6 @@ class SmartContract {
                 desp
         )
 
-        @Throws(Exception::class)
         fun makeInvocationTransaction(paramsHexStr: ByteArray, addr: ByteArray) = InvocationTransaction(
                 1,
                 arrayOf(

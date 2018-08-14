@@ -35,12 +35,10 @@ class InvokeCode(code: ByteArray) : Transaction(TransactionType.InvokeCode) {
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     public override fun deserializeExclusiveData(reader: BinaryReader) {
         code = reader.readVarBytes()
     }
 
-    @Throws(IOException::class)
     public override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeVarBytes(code)
     }

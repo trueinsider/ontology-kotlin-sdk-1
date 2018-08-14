@@ -30,14 +30,12 @@ class TransactionOutput : Serializable {
     /**
      * byte
      */
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializable(assetId)
         writer.writeSerializable(value)
         writer.writeSerializable(scriptHash)
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         try {
             assetId = reader.readSerializable(UInt256::class.java)

@@ -38,7 +38,6 @@ class Vote(var pubKeys: Array<ECPoint>, var account: Address) : Transaction(Tran
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
         try {
             pubKeys = Array(reader.readInt()) { ECC.secp256r1.curve.createPoint(
@@ -50,7 +49,6 @@ class Vote(var pubKeys: Array<ECPoint>, var account: Address) : Transaction(Tran
         }
     }
 
-    @Throws(IOException::class)
     override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeInt(pubKeys.size)
         for (pubkey in pubKeys) {

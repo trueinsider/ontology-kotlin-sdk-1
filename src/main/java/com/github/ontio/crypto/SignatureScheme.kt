@@ -20,7 +20,6 @@ enum class SignatureScheme constructor(private val schemeName: String) {
     }
 
     companion object {
-        @Throws(Exception::class)
         fun fromScheme(name: String): SignatureScheme {
             for (k in SignatureScheme.values()) {
                 if (k.schemeName == name.toUpperCase()) {

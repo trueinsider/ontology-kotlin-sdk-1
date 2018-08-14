@@ -48,7 +48,6 @@ class PeerPoolItem : Serializable {
         this.totalPos = totalPos
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.index = reader.readInt()
         this.peerPubkey = reader.readVarString()
@@ -58,7 +57,6 @@ class PeerPoolItem : Serializable {
         this.totalPos = reader.readLong()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeInt(index)
         writer.writeVarString(peerPubkey)
@@ -80,7 +78,6 @@ class PeerPoolItem : Serializable {
     }
 
     companion object {
-        @Throws(IOException::class)
         fun deserializeFrom(reader: BinaryReader): PeerPoolItem {
             val item = PeerPoolItem()
             item.deserialize(reader)

@@ -44,7 +44,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         deserializeUnsigned(reader)
         try {
@@ -56,7 +55,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         }
     }
 
-    @Throws(IOException::class)
     override fun deserializeUnsigned(reader: BinaryReader) {
         txType = TransactionType.valueOf(reader.readByte())
         nonce = reader.readInt()
@@ -68,7 +66,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         deserializeUnsignedWithoutType(reader)
     }
 
-    @Throws(IOException::class)
     private fun deserializeUnsignedWithoutType(reader: BinaryReader) {
         try {
             deserializeExclusiveData(reader)
@@ -80,17 +77,14 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         }
     }
 
-    @Throws(IOException::class)
     protected open fun deserializeExclusiveData(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         serializeUnsigned(writer)
         writer.writeSerializableArray(sigs)
     }
 
-    @Throws(IOException::class)
     override fun serializeUnsigned(writer: BinaryWriter) {
         writer.writeByte(version)
         writer.writeByte(txType.value())
@@ -102,7 +96,6 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         writer.writeSerializableArray(attributes!!)
     }
 
-    @Throws(IOException::class)
     protected open fun serializeExclusiveData(writer: BinaryWriter) {
     }
 
@@ -146,13 +139,10 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
     }
 
     companion object {
-        @Throws(IOException::class)
-        @JvmOverloads
         fun deserializeFrom(value: ByteArray, offset: Int = 0): Transaction {
             ByteArrayInputStream(value, offset, value.size - offset).use { ms -> BinaryReader(ms).use { reader -> return deserializeFrom(reader) } }
         }
 
-        @Throws(IOException::class)
         fun deserializeFrom(reader: BinaryReader): Transaction {
             try {
                 val ver = reader.readByte()

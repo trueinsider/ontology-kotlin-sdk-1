@@ -31,11 +31,9 @@ class X509 : X509TrustManager {
         return null
     }
 
-    @Throws(CertificateException::class)
     override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {
     }
 
-    @Throws(CertificateException::class)
     override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {
     }
 }

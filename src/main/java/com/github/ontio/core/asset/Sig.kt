@@ -34,7 +34,6 @@ import com.github.ontio.core.program.Program.ProgramFromPubKey
  *
  */
 class Sig(var M: Int, var pubKeys: Array<ByteArray>, var sigData: Array<ByteArray>) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         val invocationScript = reader.readVarBytes()
         val verificationScript = reader.readVarBytes()
@@ -44,7 +43,6 @@ class Sig(var M: Int, var pubKeys: Array<ByteArray>, var sigData: Array<ByteArra
         M = info.m.toInt()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(ProgramFromParams(sigData))
         if (pubKeys.size == 1) {

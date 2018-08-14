@@ -77,14 +77,12 @@ class WalletMgr {
             return null
         }
 
-    @Throws(Exception::class)
     constructor(wallet: Wallet, scheme: SignatureScheme) {
         this.signatureScheme = scheme
         this.wallet = wallet
         this.walletFile = wallet
     }
 
-    @Throws(Exception::class)
     constructor(path: String, scheme: SignatureScheme) {
         this.signatureScheme = scheme
         this.filePath = path
@@ -105,7 +103,6 @@ class WalletMgr {
         writeWallet()
     }
 
-    @Throws(Exception::class)
     private constructor(path: String, label: String, password: String, scheme: SignatureScheme) {
         this.signatureScheme = scheme
         this.filePath = path
@@ -130,7 +127,6 @@ class WalletMgr {
         }
     }
 
-    @Throws(IOException::class)
     private fun writeFile(filePath: String?, sets: String) {
         val fw = FileWriter(filePath!!)
         val out = PrintWriter(fw)
@@ -149,24 +145,20 @@ class WalletMgr {
         return wallet
     }
 
-    @Throws(Exception::class)
     fun saveWallet(): Wallet? {
         return writeWallet()
     }
 
-    @Throws(Exception::class)
     fun writeWallet(): Wallet? {
         writeFile(filePath, JSON.toJSONString(wallet))
         walletFile = wallet!!.clone()
         return walletFile
     }
 
-    @Throws(Exception::class)
     fun importIdentity(encryptedPrikey: String, password: String, salt: ByteArray, address: String): Identity? {
         return importIdentity("", encryptedPrikey, password, salt, address)
     }
 
-    @Throws(Exception::class)
     fun importIdentity(label: String, encryptedPrikey: String, password: String, salt: ByteArray, address: String): Identity? {
         val prikey: String? = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address, salt, walletFile!!.scrypt.n, signatureScheme)
         val info = createIdentity(label, password, salt, Helper.hexToBytes(prikey))
@@ -174,41 +166,34 @@ class WalletMgr {
     }
 
 
-    @Throws(Exception::class)
     fun createIdentity(password: String): Identity? {
         return createIdentity("", password)
     }
 
-    @Throws(Exception::class)
     fun createIdentity(label: String, password: String): Identity? {
         val info = createIdentity(label, password, ECC.generateKey())
         return wallet!!.getIdentity(info.ontid)
     }
 
-    @Throws(Exception::class)
     fun createIdentityFromPriKey(label: String, password: String, prikey: String): Identity? {
         val info = createIdentity(label, password, Helper.hexToBytes(prikey))
         return wallet!!.getIdentity(info.ontid)
     }
 
-    @Throws(Exception::class)
     fun createIdentityFromPriKey(password: String, prikey: String?): Identity? {
         val info = createIdentity("", password, Helper.hexToBytes(prikey))
         return wallet!!.getIdentity(info.ontid)
     }
 
-    @Throws(Exception::class)
     fun createIdentityInfo(password: String): IdentityInfo {
         return createIdentityInfo("", password)
     }
 
-    @Throws(Exception::class)
     fun createIdentityInfo(label: String, password: String): IdentityInfo {
         return createIdentity(label, password, ECC.generateKey())
     }
 
 
-    @Throws(Exception::class)
     fun getIdentityInfo(ontid: String, password: String, salt: ByteArray): IdentityInfo {
         val acct = getAccountByAddress(Address.decodeBase58(ontid.replace(Common.didont, "")), password, salt)
         return IdentityInfo(
@@ -219,13 +204,11 @@ class WalletMgr {
         )
     }
 
-    @Throws(Exception::class)
     private fun createIdentity(label: String, password: String, prikey: ByteArray): IdentityInfo {
         val salt = ECC.generateKey(16)
         return createIdentity(label, password, salt, prikey)
     }
 
-    @Throws(Exception::class)
     private fun createIdentity(label: String, password: String, salt: ByteArray, prikey: ByteArray): IdentityInfo {
         val acct = createAccount(label, password, salt, prikey, false)
         return IdentityInfo(
@@ -236,43 +219,36 @@ class WalletMgr {
         )
     }
 
-    @Throws(Exception::class)
     fun importAccount(encryptedPrikey: String, password: String, address: String, salt: ByteArray): Account? {
         return importAccount("", encryptedPrikey, password, address, salt)
     }
 
-    @Throws(Exception::class)
     fun importAccount(label: String, encryptedPrikey: String, password: String, address: String, salt: ByteArray): Account? {
         val prikey = com.github.ontio.account.Account.getGcmDecodedPrivateKey(encryptedPrikey, password, address, salt, walletFile!!.scrypt.n, signatureScheme)
         val info = createAccountInfo(label, password, salt, Helper.hexToBytes(prikey))
         return wallet!!.getAccount(info.addressBase58)
     }
 
-    @Throws(Exception::class)
     fun createAccounts(count: Int, password: String) {
         for (i in 0 until count) {
             createAccount("", password)
         }
     }
 
-    @Throws(Exception::class)
     fun createAccount(password: String): Account? {
         return createAccount("", password)
     }
 
-    @Throws(Exception::class)
     fun createAccount(label: String, password: String): Account? {
         val info = createAccountInfo(label, password, ECC.generateKey())
         return wallet!!.getAccount(info.addressBase58)
     }
 
-    @Throws(Exception::class)
     private fun createAccountInfo(label: String, password: String, prikey: ByteArray): AccountInfo {
         val salt = ECC.generateKey(16)
         return createAccountInfo(label, password, salt, prikey)
     }
 
-    @Throws(Exception::class)
     private fun createAccountInfo(label: String, password: String, salt: ByteArray, prikey: ByteArray): AccountInfo {
         val acct = createAccount(label, password, salt, prikey, true)
         SecureRandom().nextBytes(prikey)
@@ -284,57 +260,46 @@ class WalletMgr {
         )
     }
 
-    @Throws(Exception::class)
     fun createAccountFromPriKey(password: String, prikey: String): Account? {
         val info = createAccountInfo("", password, Helper.hexToBytes(prikey))
         return wallet!!.getAccount(info.addressBase58)
     }
 
-    @Throws(Exception::class)
     fun createAccountFromPriKey(label: String, password: String, prikey: String): Account? {
         val info = createAccountInfo(label, password, Helper.hexToBytes(prikey))
         return wallet!!.getAccount(info.addressBase58)
     }
 
-    @Throws(Exception::class)
     fun createAccountInfo(password: String): AccountInfo {
         return createAccountInfo("", password)
     }
 
-    @Throws(Exception::class)
     fun createAccountInfo(label: String, password: String): AccountInfo {
         return createAccountInfo(label, password, ECC.generateKey())
     }
 
-    @Throws(Exception::class)
     fun createAccountInfoFromPriKey(password: String, prikey: String): AccountInfo {
         return createAccountInfo("", password, Helper.hexToBytes(prikey))
     }
 
-    @Throws(Exception::class)
     fun createAccountInfoFromPriKey(label: String, password: String, prikey: String): AccountInfo {
         return createAccountInfo(label, password, Helper.hexToBytes(prikey))
     }
 
-    @Throws(Exception::class)
     fun createIdentityInfoFromPriKey(label: String, password: String, prikey: String): IdentityInfo {
         return createIdentity(label, password, Helper.hexToBytes(prikey))
     }
 
-    @Throws(Exception::class)
     fun privateKeyToWif(privateKey: String): String {
         val act = com.github.ontio.account.Account(Helper.hexToBytes(privateKey), signatureScheme)
         return act.exportWif()
     }
 
-    @Throws(Exception::class)
-    @JvmOverloads
     fun getAccount(address: String, password: String, salt: ByteArray = wallet!!.getAccount(address)!!.getSalt()): com.github.ontio.account.Account {
         val address = address.replace(Common.didont, "")
         return getAccountByAddress(Address.decodeBase58(address), password, salt)
     }
 
-    @Throws(Exception::class)
     fun getAccountInfo(address: String, password: String, salt: ByteArray): AccountInfo {
         val address = address.replace(Common.didont, "")
         val acc = getAccountByAddress(Address.decodeBase58(address), password, salt)
@@ -347,7 +312,6 @@ class WalletMgr {
     }
 
 
-    @Throws(Exception::class)
     private fun createAccount(label: String?, password: String?, salt: ByteArray, privateKey: ByteArray, accountFlag: Boolean): com.github.ontio.account.Account {
         val account = com.github.ontio.account.Account(privateKey, signatureScheme)
         val acct: Account = when (signatureScheme) {
@@ -403,7 +367,6 @@ class WalletMgr {
         return account
     }
 
-    @Throws(Exception::class)
     private fun getAccountByAddress(address: Address, password: String, salt: ByteArray): com.github.ontio.account.Account {
         try {
             for (e in wallet!!.accounts) {

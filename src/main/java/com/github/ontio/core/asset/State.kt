@@ -45,14 +45,12 @@ class State : Serializable {
         this.value = amount
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         from = Address(reader.readVarBytes())
         to = Address(reader.readVarBytes())
         value = Helper.BigIntFromNeoBytes(reader.readVarBytes()).toLong()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(from.toArray())
         writer.writeVarBytes(to.toArray())
@@ -68,7 +66,6 @@ class State : Serializable {
     }
 
     companion object {
-        @Throws(IOException::class)
         fun deserializeFrom(value: ByteArray): State {
             try {
                 val offset = 0

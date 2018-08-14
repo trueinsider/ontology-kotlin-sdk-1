@@ -23,7 +23,6 @@ import java.io.IOException
 class Auth {
     val contractAddress = "0000000000000000000000000000000000000006"
 
-    @Throws(Exception::class)
     fun sendInit(adminOntId: String, password: String, salt: ByteArray, contractAddr: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         if (adminOntId.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -54,7 +53,6 @@ class Auth {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendTransfer(adminOntId: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, newAdminOntID: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         if (adminOntId.isEmpty() || contractAddr.isEmpty() || newAdminOntID.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -84,7 +82,6 @@ class Auth {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeTransfer(adminOntID: String, contractAddr: String, newAdminOntID: String, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (adminOntID.isEmpty() || contractAddr.isEmpty() || newAdminOntID.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -110,7 +107,6 @@ class Auth {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun verifyToken(ontid: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, funcName: String): String {
         if (ontid.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || funcName.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -134,7 +130,6 @@ class Auth {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeVerifyToken(ontid: String, contractAddr: String, funcName: String, keyNo: Long): Transaction {
         if (ontid.isEmpty() || contractAddr.isEmpty() || funcName.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -163,7 +158,6 @@ class Auth {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun assignFuncsToRole(adminOntID: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, role: String, funcName: Array<String>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (adminOntID.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || funcName.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -193,7 +187,6 @@ class Auth {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeAssignFuncsToRole(adminOntID: String, contractAddr: String, role: String, funcName: Array<String>, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (adminOntID.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || funcName.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -230,7 +223,6 @@ class Auth {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun assignOntIdsToRole(adminOntId: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, role: String, ontIDs: Array<String>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (adminOntId.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || ontIDs.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -260,7 +252,6 @@ class Auth {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeAssignOntIDsToRole(adminOntId: String, contractAddr: String, role: String, ontIDs: Array<String>, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (adminOntId.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || ontIDs.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -299,7 +290,6 @@ class Auth {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun delegate(ontid: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, toOntId: String, role: String, period: Long, level: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || toOntId.isEmpty() || role.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -331,7 +321,6 @@ class Auth {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeDelegate(ontid: String, contractAddr: String, toAddr: String, role: String, period: Long, level: Long, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || contractAddr.isEmpty() || toAddr.isEmpty() || role.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -361,7 +350,6 @@ class Auth {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun withdraw(initiatorOntid: String, password: String, salt: ByteArray, keyNo: Long, contractAddr: String, delegate: String, role: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (initiatorOntid.isEmpty() || password.isEmpty() || contractAddr.isEmpty() || role.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -391,7 +379,6 @@ class Auth {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeWithDraw(ontid: String, contractAddr: String, delegate: String, role: String, keyNo: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || contractAddr.isEmpty() || role.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -406,7 +393,6 @@ class Auth {
         return Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "withdraw", arg, payer, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     fun queryAuth(contractAddr: String, ontid: String): Any {
         return connect!!.getStorage(contractAddr, contractAddr + Helper.toHexString("role".toByteArray()) + Helper.toHexString(ontid.toByteArray()))
     }
@@ -414,14 +400,12 @@ class Auth {
 
 internal class TransferParam(var contractAddr: ByteArray, var newAdminOntID: ByteArray, var KeyNo: Long) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.contractAddr = reader.readVarBytes()
         this.newAdminOntID = reader.readVarBytes()
         KeyNo = reader.readVarInt()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(this.contractAddr)
         writer.writeVarBytes(this.newAdminOntID)
@@ -431,12 +415,10 @@ internal class TransferParam(var contractAddr: ByteArray, var newAdminOntID: Byt
 
 internal class VerifyTokenParam(var contractAddr: ByteArray, var caller: ByteArray, var fn: ByteArray, var keyNo: Long) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(this.contractAddr)
         writer.writeVarBytes(this.caller)
@@ -447,7 +429,6 @@ internal class VerifyTokenParam(var contractAddr: ByteArray, var caller: ByteArr
 
 internal class FuncsToRoleParam(var contractAddr: ByteArray, var adminOntID: ByteArray, var role: ByteArray, var funcNames: Array<String>, var keyNo: Long) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.contractAddr = reader.readVarBytes()
         this.adminOntID = reader.readVarBytes()
@@ -456,7 +437,6 @@ internal class FuncsToRoleParam(var contractAddr: ByteArray, var adminOntID: Byt
         this.keyNo = reader.readVarInt()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(this.contractAddr)
         writer.writeVarBytes(this.adminOntID)
@@ -471,7 +451,6 @@ internal class FuncsToRoleParam(var contractAddr: ByteArray, var adminOntID: Byt
 
 internal class OntIDsToRoleParam(var contractAddr: ByteArray, var adminOntID: ByteArray, var role: ByteArray, var persons: Array<ByteArray>, var keyNo: Long) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.contractAddr = reader.readVarBytes()
         this.adminOntID = reader.readVarBytes()
@@ -480,7 +459,6 @@ internal class OntIDsToRoleParam(var contractAddr: ByteArray, var adminOntID: By
         this.keyNo = reader.readVarInt()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(this.contractAddr)
         writer.writeVarBytes(this.adminOntID)
@@ -495,12 +473,10 @@ internal class OntIDsToRoleParam(var contractAddr: ByteArray, var adminOntID: By
 
 internal class DelegateParam(var contractAddr: ByteArray, var from: ByteArray, var to: ByteArray, var role: ByteArray, var period: Long, var level: Long, var keyNo: Long) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(this.contractAddr)
         writer.writeVarBytes(this.from)
@@ -513,12 +489,10 @@ internal class DelegateParam(var contractAddr: ByteArray, var from: ByteArray, v
 }
 
 internal class AuthWithdrawParam(var contractAddr: ByteArray, var initiator: ByteArray, var delegate: ByteArray, var role: ByteArray, var keyNo: Long) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(this.contractAddr)
         writer.writeVarBytes(this.initiator)

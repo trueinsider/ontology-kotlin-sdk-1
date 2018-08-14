@@ -72,7 +72,6 @@ class Claim {
      * @param expireTime
      * @throws Exception
      */
-    @Throws(Exception::class)
     constructor(scheme: SignatureScheme, acct: Account, ctx: String, clmMap:Map<String, Any>, metadata: Map<String, String>, clmRevMap: Map<String, Any>, publicKeyId: String, expireTime: Long) {
         val iss = metadata["Issuer"]!!
         val sub = metadata["Subject"]!!

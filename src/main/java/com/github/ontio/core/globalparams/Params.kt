@@ -10,12 +10,10 @@ import java.math.BigInteger
 
 class Params(var params: Array<Param>) : Serializable {
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         val l = params.size.toLong()
         val aa = Helper.BigIntToNeoBytes(BigInteger.valueOf(l))

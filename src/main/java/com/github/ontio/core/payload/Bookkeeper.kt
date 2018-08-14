@@ -44,7 +44,6 @@ class Bookkeeper(
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
         issuer = ECC.secp256r1.curve.createPoint(
                 BigInteger(1, reader.readVarBytes()), BigInteger(1, reader.readVarBytes()))
@@ -52,7 +51,6 @@ class Bookkeeper(
         cert = reader.readVarBytes()
     }
 
-    @Throws(IOException::class)
     override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeVarBytes(Helper.removePrevZero(issuer.xCoord.toBigInteger().toByteArray()))
         writer.writeVarBytes(Helper.removePrevZero(issuer.yCoord.toBigInteger().toByteArray()))

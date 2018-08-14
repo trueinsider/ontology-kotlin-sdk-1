@@ -18,7 +18,6 @@ enum class Curve constructor(val label: Int, private val curveName: String) {
     }
 
     companion object {
-        @Throws(Exception::class)
         fun valueOf(v: ECCurve): Curve {
             for (c in Curve.values()) {
                 if (ECNamedCurveTable.getParameterSpec(c.toString()).curve.equals(v)) {
@@ -29,7 +28,6 @@ enum class Curve constructor(val label: Int, private val curveName: String) {
             throw Exception(ErrorCode.UnknownCurve)
         }
 
-        @Throws(Exception::class)
         fun fromLabel(v: Int): Curve {
             for (c in Curve.values()) {
                 if (c.label == v) {

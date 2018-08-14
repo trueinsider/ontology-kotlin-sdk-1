@@ -14,17 +14,14 @@ import java.util.HashMap
 
 object NeoRpc {
 
-    @Throws(Exception::class)
     fun sendRawTransaction(url: String, sData: String): Any {
         return call(url, "sendrawtransaction", sData)
     }
 
-    @Throws(Exception::class)
     fun getBalance(url: String, contractAddr: String, addr: String): Any {
         return call(url, "getstorage", contractAddr, addr)
     }
 
-    @Throws(RpcException::class, IOException::class)
     fun call(url: String, method: String, vararg params: Any): Any {
         val req = makeRequest(method, params)
         val response = send(url, req)
@@ -47,7 +44,6 @@ object NeoRpc {
     }
 
 
-    @Throws(IOException::class)
     fun send(url: String, request: Any): Map<*, *> {
         val connection = URL(url).openConnection() as HttpURLConnection
         connection.requestMethod = "POST"

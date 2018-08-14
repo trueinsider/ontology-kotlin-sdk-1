@@ -38,7 +38,6 @@ object MnemonicCode {
                 .calculateSeed(Arrays.asList(*mnemonicCodesArray), "")
     }
 
-    @Throws(Exception::class)
     fun getPrikeyFromMnemonicCodesStrBip44(mnemonicCodesStr: String): ByteArray {
         val seed = MnemonicCode.getSeedFromMnemonicCodesStr(mnemonicCodesStr)
         val key = ExtendedPrivateKey.fromSeed(seed, "Nist256p1 seed".toByteArray(charset("UTF-8")), Bitcoin.MAIN_NET)
@@ -49,7 +48,6 @@ object MnemonicCode {
         return tmp
     }
 
-    @Throws(Exception::class)
     fun encryptMnemonicCodesStr(mnemonicCodesStr: String, password: String, address: String): String {
         val N = 4096
         val r = 8
@@ -73,7 +71,6 @@ object MnemonicCode {
         return String(Base64.getEncoder().encode(encryptedkey))
     }
 
-    @Throws(Exception::class)
     fun decryptMnemonicCodesStr(encryptedMnemonicCodesStr: String, password: String?, address: String): String {
         val encryptedkey = Base64.getDecoder().decode(encryptedMnemonicCodesStr)
 

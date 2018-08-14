@@ -60,7 +60,6 @@ object OntSdk {
     var DEFAULT_GAS_LIMIT: Long = 20000
 
     val rpc: ConnectMgr
-        @Throws(SDKException::class)
         get() {
             if (!::connRpc.isInitialized) {
                 throw SDKException(ErrorCode.ConnRestfulNotInit)
@@ -69,7 +68,6 @@ object OntSdk {
         }
 
     val restful: ConnectMgr
-        @Throws(SDKException::class)
         get() {
             if (!::connRestful.isInitialized) {
                 throw SDKException(ErrorCode.ConnRestfulNotInit)
@@ -96,7 +94,6 @@ object OntSdk {
         }
 
     val webSocket: ConnectMgr
-        @Throws(SDKException::class)
         get() {
             if (!::connWebSocket.isInitialized) {
                 throw SDKException(ErrorCode.WebsocketNotInit)
@@ -104,7 +101,6 @@ object OntSdk {
             return connWebSocket
         }
 
-    @Throws(SDKException::class)
     fun getSignServer(): SignServer {
         if (!::signServer.isInitialized) {
             throw SDKException(ErrorCode.OtherError("signServer null"))
@@ -137,7 +133,6 @@ object OntSdk {
         walletMgr.signatureScheme = scheme
     }
 
-    @Throws(Exception::class)
     fun setSignServer(url: String) {
         this.signServer = SignServer(url)
     }
@@ -171,12 +166,10 @@ object OntSdk {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun addSign(tx: Transaction, addr: String, password: String, salt: ByteArray): Transaction {
         return addSign(tx, walletMgr.getAccount(addr, password, salt))
     }
 
-    @Throws(Exception::class)
     fun addSign(tx: Transaction, acct: Account): Transaction {
         if (tx.sigs.size >= Common.TX_MAX_SIG_SIZE) {
             throw SDKException(ErrorCode.ParamErr("the number of transaction signatures should not be over 16"))
@@ -196,13 +189,11 @@ object OntSdk {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun addMultiSign(tx: Transaction, M: Int, pubKeys: Array<ByteArray>, acct: Account): Transaction {
         addMultiSign(tx, M, pubKeys, tx.sign(acct, acct.signatureScheme))
         return tx
     }
 
-    @Throws(Exception::class)
     fun addMultiSign(tx: Transaction, M: Int, pubKeys: Array<ByteArray>, signatureData: ByteArray): Transaction {
         if (tx.sigs.size > Common.TX_MAX_SIG_SIZE || M > pubKeys.size || M <= 0) {
             throw SDKException(ErrorCode.ParamError)
@@ -228,7 +219,6 @@ object OntSdk {
         return tx
     }
 
-    @Throws(Exception::class)
     fun signTx(tx: Transaction, address: String, password: String, salt: ByteArray) = signTx(
             tx,
             arrayOf(arrayOf(walletMgr.getAccount(address.replace(Common.didont, ""), password, salt)))
@@ -240,7 +230,6 @@ object OntSdk {
      * @param accounts
      * @return
      */
-    @Throws(Exception::class)
     fun signTx(tx: Transaction, accounts: Array<Array<Account>>): Transaction {
         if (accounts.size > Common.TX_MAX_SIG_SIZE) {
             throw SDKException(ErrorCode.ParamErr("the number of transaction signatures should not be over 16"))
@@ -268,7 +257,6 @@ object OntSdk {
      * @return
      * @throws SDKException
      */
-    @Throws(Exception::class)
     fun signTx(tx: Transaction, accounts: Array<Array<Account>>, M: IntArray): Transaction {
         if (accounts.size > Common.TX_MAX_SIG_SIZE) {
             throw SDKException(ErrorCode.ParamErr("the number of transaction signatures should not be over 16"))
@@ -286,7 +274,6 @@ object OntSdk {
         return tx
     }
 
-    @Throws(SDKException::class)
     fun signatureData(acct: com.github.ontio.account.Account, data: ByteArray): ByteArray {
         val sign: DataSignature
         try {
@@ -297,7 +284,6 @@ object OntSdk {
         }
     }
 
-    @Throws(SDKException::class)
     fun verifySignature(pubkey: ByteArray, data: ByteArray, signature: ByteArray): Boolean {
         val sign: DataSignature
         try {

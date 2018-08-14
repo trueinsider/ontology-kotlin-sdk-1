@@ -39,13 +39,11 @@ class Transfers : Serializable {
         this.states = states
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         val len = reader.readVarInt().toInt()
         states = Array(len) { reader.readSerializable(State::class.java)}
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializableArray(states)
     }
@@ -61,7 +59,6 @@ class Transfers : Serializable {
     }
 
     companion object {
-        @Throws(IOException::class)
         fun deserializeFrom(value: ByteArray): Transfers {
             try {
                 val offset = 0

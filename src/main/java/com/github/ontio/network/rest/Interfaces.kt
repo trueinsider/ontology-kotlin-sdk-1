@@ -28,7 +28,6 @@ import java.util.HashMap
  *
  */
 internal class Interfaces(val url: String) {
-    @Throws(RestfulException::class)
     fun getNodeCount(): String {
         val params = HashMap<String, String>()
         try {
@@ -38,7 +37,6 @@ internal class Interfaces(val url: String) {
         }
     }
 
-    @Throws(RestfulException::class)
     fun getBlockHeight(): String {
         val params = HashMap<String, String>()
         try {
@@ -48,7 +46,6 @@ internal class Interfaces(val url: String) {
         }
     }
 
-    @Throws(RestfulException::class)
     fun getMemPoolTxCount(): String {
         val params = HashMap<String, String>()
         try {
@@ -59,7 +56,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getVersion(): String {
         val params = HashMap<String, String>()
         try {
@@ -70,7 +66,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun sendTransaction(preExec: Boolean, userid: String?, action: String, version: String, data: String): String {
         val params = HashMap<String, String>()
         if (userid != null) {
@@ -92,7 +87,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getTransaction(txhash: String, raw: Boolean): String {
         val params = HashMap<String, String>()
         if (raw) {
@@ -106,7 +100,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getBlock(height: Int, raw: String): String {
         val params = HashMap<String, String>()
         params["raw"] = raw
@@ -118,7 +111,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getBlock(hash: String, raw: String): String {
         val params = HashMap<String, String>()
         params["raw"] = raw
@@ -130,7 +122,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getContract(hash: String): String {
         val params = HashMap<String, String>()
         params["raw"] = "1"
@@ -142,7 +133,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getContractJson(hash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -153,7 +143,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getSmartCodeEvent(height: Int): String {
         val params = HashMap<String, String>()
         try {
@@ -164,7 +153,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getSmartCodeEvent(hash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -175,7 +163,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getBlockHeightByTxHash(hash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -186,7 +173,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getStorage(codehash: String, key: String): String {
         val params = HashMap<String, String>()
         try {
@@ -197,7 +183,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getMerkleProof(hash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -208,7 +193,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getMemPoolTxState(hash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -219,7 +203,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getBalance(address: String): String {
         val params = HashMap<String, String>()
         try {
@@ -230,7 +213,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getTransactionJson(txhash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -241,7 +223,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getBlockJson(height: Int): String {
         val params = HashMap<String, String>()
         try {
@@ -252,7 +233,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getBlockJson(hash: String): String {
         val params = HashMap<String, String>()
         try {
@@ -263,7 +243,6 @@ internal class Interfaces(val url: String) {
 
     }
 
-    @Throws(RestfulException::class)
     fun getAllowance(asset: String, from: String, to: String): String {
         val params = HashMap<String, String>()
         try {

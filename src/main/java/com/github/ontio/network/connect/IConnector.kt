@@ -27,69 +27,47 @@ import com.github.ontio.network.exception.ConnectorException
 interface IConnector {
     fun getUrl(): String
 
-    @Throws(ConnectorException::class, IOException::class)
     fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun sendRawTransaction(sData: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getRawTransaction(txhash: String): Transaction
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getRawTransactionJson(txhash: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getNodeCount(): Int
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockHeight(): Int
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlock(height: Int): Block
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlock(hash: String): Block
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockJson(height: Int): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockJson(hash: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBalance(address: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getContract(hash: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getContractJson(hash: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getSmartCodeEvent(height: Int): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getSmartCodeEvent(hash: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getBlockHeightByTxHash(hash: String): Int
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getStorage(codehash: String, key: String): String
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getMerkleProof(hash: String): Map<String, Any>
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getAllowance(asset: String, from: String, to: String): String
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getMemPoolTxCount(): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getMemPoolTxState(hash: String): Any
 
-    @Throws(ConnectorException::class, IOException::class)
     fun getVersion(): String
 }

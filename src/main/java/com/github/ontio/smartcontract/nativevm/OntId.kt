@@ -60,8 +60,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
-    @JvmOverloads
     fun sendRegister(ident: Identity, password: String, payerAcct: Account, gaslimit: Long, gasprice: Long, isPreExec: Boolean = false): String {
         if (password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -88,7 +86,6 @@ class OntId {
         return tx.hash().toHexString()
     }
 
-    @Throws(Exception::class)
     fun sendRegisterPreExec(ident: Identity, password: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         return sendRegister(ident, password, payerAcct, gaslimit, gasprice, true)
     }
@@ -102,7 +99,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeRegister(ontid: String, password: String, salt: ByteArray, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (password.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -131,7 +127,6 @@ class OntId {
      * @throws Exception
      */
 
-    @Throws(Exception::class)
     fun sendRegisterWithAttrs(ident: Identity, password: String, attributes: Array<Attribute>, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         if (password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -160,7 +155,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeRegisterWithAttrs(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (password.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -182,7 +176,6 @@ class OntId {
         return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "regIDWithAttributes", args, payer, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     private fun serializeAttributes(attributes: Array<Attribute>): ByteArray {
         val baos = ByteArrayOutputStream()
         val bw = BinaryWriter(baos)
@@ -195,7 +188,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendGetPublicKeys(ontid: String): String {
         if (ontid.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("ontid should not be null"))
@@ -236,7 +228,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendGetKeyState(ontid: String, index: Int): String {
         if (ontid.isEmpty() || index < 0) {
             throw SDKException(ErrorCode.ParamErr("parameter is wrong"))
@@ -254,7 +245,6 @@ class OntId {
         } else String(Helper.hexToBytes(res))
     }
 
-    @Throws(Exception::class)
     fun sendGetAttributes(ontid: String): String {
         if (ontid.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("ontid should not be null"))
@@ -299,7 +289,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendAddPubKey(ontid: String, password: String, salt: ByteArray, newpubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         return sendAddPubKey(ontid, null, password, salt, newpubkey, payerAcct, gaslimit, gasprice)
     }
@@ -315,7 +304,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendAddPubKey(ontid: String, recoveryOntid: String?, password: String, salt: ByteArray, newpubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -343,7 +331,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeAddPubKey(ontid: String, password: String, salt: ByteArray, newpubkey: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         return makeAddPubKey(ontid, null, password, salt, newpubkey, payer, gaslimit, gasprice)
     }
@@ -359,7 +346,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeAddPubKey(ontid: String, recoveryOntid: String?, password: String, salt: ByteArray, newpubkey: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || payer.isEmpty() || newpubkey.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -394,7 +380,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendRemovePubKey(ontid: String, password: String, salt: ByteArray, removePubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         return sendRemovePubKey(ontid, null, password, salt, removePubkey, payerAcct, gaslimit, gasprice)
     }
@@ -410,7 +395,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendRemovePubKey(ontid: String, recoveryOntid: String?, password: String, salt: ByteArray, removePubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -438,7 +422,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeRemovePubKey(ontid: String, password: String, salt: ByteArray, removePubkey: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         return makeRemovePubKey(ontid, null, password, salt, removePubkey, payer, gaslimit, gasprice)
     }
@@ -454,7 +437,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeRemovePubKey(ontid: String, recoveryAddr: String?, password: String, salt: ByteArray, removePubkey: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || password.isEmpty() || payer.isEmpty() || removePubkey.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -488,7 +470,6 @@ class OntId {
      * @throws Exception
      */
 
-    @Throws(Exception::class)
     fun sendAddRecovery(ontid: String, password: String, salt: ByteArray, recoveryAddr: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || password.isEmpty() || recoveryAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -515,7 +496,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeAddRecovery(ontid: String, password: String, salt: ByteArray, recoveryAddr: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || password.isEmpty() || payer.isEmpty() || recoveryAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -541,7 +521,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendChangeRecovery(ontid: String, newRecovery: String, oldRecovery: String, password: String, salt: ByteArray, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -567,7 +546,6 @@ class OntId {
      * @return
      * @throws SDKException
      */
-    @Throws(SDKException::class)
     fun makeChangeRecovery(ontid: String, newRecoveryOntId: String, oldRecoveryOntId: String, password: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || password.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -596,7 +574,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     private fun sendChangeRecovery(ontid: String, newRecoveryOntId: String, oldRecoveryOntId: String, accounts: Array<Account>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || accounts.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -626,7 +603,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendAddAttributes(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || attributes.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -653,7 +629,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeAddAttributes(ontid: String, password: String, salt: ByteArray, attributes: Array<Attribute>, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || attributes.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -687,7 +662,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendRemoveAttribute(ontid: String, password: String, salt: ByteArray, path: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (ontid.isEmpty() || path.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -714,7 +688,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeRemoveAttribute(ontid: String, password: String, salt: ByteArray, path: String, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (ontid.isEmpty() || payer.isEmpty() || path.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -737,7 +710,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun getMerkleProof(txhash: String): Any {
         if (txhash.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("txhash should not be null"))
@@ -766,7 +738,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun verifyMerkleProof(merkleProof: String): Boolean {
         if (merkleProof.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("claim should not be null"))
@@ -811,7 +782,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun createOntIdClaim(signerOntid: String, password: String, salt: ByteArray, context: String, claimMap: Map<String, Any>, metaData: Map<String, String>, clmRevMap: Map<String, Any>, expire: Long): String {
         if (signerOntid.isEmpty() || password.isEmpty() || context.isEmpty() || expire < 0) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -859,7 +829,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun verifyOntIdClaim(claim: String): Boolean {
         val sign: DataSignature?
         try {
@@ -899,7 +868,6 @@ class OntId {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendGetDDO(ontid: String): String {
         val list = mutableListOf<ByteArray>()
         list.add(ontid.toByteArray())
@@ -917,7 +885,6 @@ class OntId {
         } else JSON.toJSONString(map)
     }
 
-    @Throws(Exception::class)
     private fun parseDdoData(ontid: String, obj: String): Map<String, Any> {
         val bys = Helper.hexToBytes(obj)
 

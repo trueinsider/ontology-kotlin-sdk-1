@@ -39,7 +39,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
 
     override fun getUrl() = api.url
 
-    @Throws(RestfulException::class)
     override fun getNodeCount(): Int {
         val rs = api.getNodeCount()
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -49,7 +48,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun getBlockHeight(): Int {
         val rs = api.getBlockHeight()
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -59,7 +57,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMemPoolTxCount(): Any {
         val rs = api.getMemPoolTxCount()
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -69,7 +66,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun sendRawTransaction(sData: String): String {
         val rs = api.sendTransaction(false, null, action, version, sData)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -79,7 +75,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String): String {
         val rs = api.sendTransaction(preExec, userid, action, version, sData)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -89,7 +84,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun getRawTransaction(txhash: String): Transaction {
         val rs = api.getTransaction(txhash, true)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -104,7 +98,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun getBlock(height: Int): Block {
         val rs = api.getBlock(height, "1")
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -122,7 +115,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
     }
 
 
-    @Throws(RestfulException::class)
     override fun getBlock(hash: String): Block {
         val rs = api.getBlock(hash, "1")
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -139,7 +131,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
 
     }
 
-    @Throws(RestfulException::class)
     override fun getBalance(address: String): Any {
         val rs = api.getBalance(address)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -149,7 +140,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class, IOException::class)
     override fun getRawTransactionJson(txhash: String): Any {
         val rs = api.getTransaction(txhash, true)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -159,7 +149,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun getBlockJson(height: Int): Any {
         val rs = api.getBlock(height, "0")
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -169,7 +158,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun getBlockJson(hash: String): Any {
         val rs = api.getBlock(hash, "0")
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -180,7 +168,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
 
     }
 
-    @Throws(RestfulException::class)
     override fun getContract(hash: String): Any {
         val rs = api.getContract(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -190,7 +177,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(RestfulException::class)
     override fun getContractJson(hash: String): Any {
         val rs = api.getContractJson(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -200,7 +186,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getSmartCodeEvent(height: Int): Any {
         val rs = api.getSmartCodeEvent(height)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -211,7 +196,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
 
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getSmartCodeEvent(hash: String): Any {
         val rs = api.getSmartCodeEvent(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -221,7 +205,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlockHeightByTxHash(hash: String): Int {
         val rs = api.getBlockHeightByTxHash(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -231,7 +214,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getStorage(codehash: String, key: String): String {
         val rs = api.getStorage(codehash, key)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -241,7 +223,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMerkleProof(hash: String): Map<String, Any> {
         val rs = api.getMerkleProof(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -251,7 +232,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getAllowance(asset: String, from: String, to: String): String {
         val rs = api.getAllowance(asset, from, to)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -261,7 +241,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMemPoolTxState(hash: String): Any {
         val rs = api.getMemPoolTxState(hash)
         val rr = JSON.parseObject(rs, Result::class.java)
@@ -271,7 +250,6 @@ class RestClient(restUrl: String) : AbstractConnector() {
         throw RestfulException(to(rr))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getVersion(): String {
         val rs = api.getVersion()
         val rr = JSON.parseObject(rs, Result::class.java)

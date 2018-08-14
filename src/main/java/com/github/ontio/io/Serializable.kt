@@ -31,14 +31,12 @@ interface Serializable {
      * @param reader
      * @throws IOException
      */
-    @Throws(IOException::class)
     fun deserialize(reader: BinaryReader)
 
     /**
      * @param writer
      * @throws IOException
      */
-    @Throws(IOException::class)
     fun serialize(writer: BinaryWriter)
 
     fun toArray(): ByteArray {
@@ -60,7 +58,6 @@ interface Serializable {
     }
 
     companion object {
-        @Throws(InstantiationException::class, IllegalAccessException::class)
         fun <T : Serializable> from(value: ByteArray, t: Class<T>): T {
             try {
                 ByteArrayInputStream(value).use { ms -> BinaryReader(ms).use { reader -> return reader.readSerializable(t) } }

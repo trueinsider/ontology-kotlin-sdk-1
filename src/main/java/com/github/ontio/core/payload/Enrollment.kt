@@ -38,13 +38,11 @@ class Enrollment(var pubKey: ECPoint) : Transaction(TransactionType.Enrollment) 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
         pubKey = ECC.secp256r1.curve.createPoint(
                 BigInteger(1, reader.readVarBytes()), BigInteger(1, reader.readVarBytes()))
     }
 
-    @Throws(IOException::class)
     override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeVarBytes(Helper.removePrevZero(pubKey.xCoord.toBigInteger().toByteArray()))
         writer.writeVarBytes(Helper.removePrevZero(pubKey.yCoord.toBigInteger().toByteArray()))

@@ -55,30 +55,24 @@ class DataSignature : Signable {
         }
     }
 
-    @Throws(Exception::class)
     override fun sign(account: Account, scheme: SignatureScheme): ByteArray {
         return account.generateSignature(hashData, scheme, null)
     }
 
-    @Throws(Exception::class)
     override fun verifySignature(account: Account, data: ByteArray, signature: ByteArray): Boolean {
         return account.verifySignature(data, signature)
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun deserializeUnsigned(reader: BinaryReader) {
     }
 
-    @Throws(IOException::class)
     override fun serializeUnsigned(writer: BinaryWriter) {
         writer.write(data)
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
     }
 }

@@ -48,7 +48,6 @@ class TransactionInput : Serializable {
     /**
      *
      */
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         try {
             prevHash = reader.readSerializable(UInt256::class.java)
@@ -59,7 +58,6 @@ class TransactionInput : Serializable {
 
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeSerializable(prevHash)
         writer.writeShort(prevIndex)

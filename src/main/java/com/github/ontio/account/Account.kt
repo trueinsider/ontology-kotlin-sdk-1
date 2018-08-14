@@ -65,7 +65,6 @@ class Account {
         private set
 
     // create an account with the specified key type
-    @Throws(Exception::class)
     constructor(scheme: SignatureScheme) {
         Security.addProvider(BouncyCastleProvider())
         val gen: KeyPairGenerator
@@ -98,7 +97,6 @@ class Account {
         this.addressU160 = Address.addressFromPubKey(serializePublicKey())
     }
 
-    @Throws(Exception::class)
     constructor(prikey: ByteArray, scheme: SignatureScheme) {
         Security.addProvider(BouncyCastleProvider())
         signatureScheme = scheme
@@ -135,13 +133,11 @@ class Account {
     }
 
     // construct an account from a serialized pubic key or private key
-    @Throws(Exception::class)
     constructor(pubkey: ByteArray) {
         Security.addProvider(BouncyCastleProvider())
         parsePublicKey(pubkey)
     }
 
-    @Throws(Exception::class)
     fun generateSignature(msg: ByteArray, scheme: SignatureScheme?, param: Any?): ByteArray {
         if (msg.isEmpty()) {
             throw Exception(ErrorCode.InvalidMessage)
@@ -166,7 +162,6 @@ class Account {
         ).toBytes()
     }
 
-    @Throws(Exception::class)
     fun verifySignature(msg: ByteArray, signature: ByteArray): Boolean {
         if (msg.isEmpty() || signature.isEmpty()) {
             throw Exception(ErrorCode.AccountInvalidInput)
@@ -194,7 +189,6 @@ class Account {
         return bs.toByteArray()
     }
 
-    @Throws(Exception::class)
     private fun parsePublicKey(data: ByteArray) {
         if (data.size < 2) {
             throw Exception(ErrorCode.InvalidData)
@@ -243,7 +237,6 @@ class Account {
         }
     }
 
-    @Throws(Exception::class)
     fun serializePrivateKey(): ByteArray {
         when (this.keyType) {
             KeyType.ECDSA, KeyType.SM2 -> {
@@ -275,7 +268,6 @@ class Account {
         return pub0.size - pub1.size
     }
 
-    @Throws(Exception::class)
     fun exportWif(): String {
         val data = ByteArray(38)
         data[0] = 0x80.toByte()
@@ -289,7 +281,6 @@ class Account {
         return wif
     }
 
-    @Throws(SDKException::class)
     fun exportEcbEncryptedPrikey(passphrase: String, n: Int): String {
         val r = 8
         val p = 8
@@ -320,7 +311,6 @@ class Account {
         return Base58.checkSumEncode(buffer)
     }
 
-    @Throws(Exception::class)
     fun exportCtrEncryptedPrikey(passphrase: String, n: Int): String {
         val r = 8
         val p = 8
@@ -347,7 +337,6 @@ class Account {
         }
     }
 
-    @Throws(Exception::class)
     fun exportGcmEncryptedPrikey(passphrase: String, salt: ByteArray, n: Int): String {
         val r = 8
         val p = 8
@@ -416,7 +405,6 @@ class Account {
          * @return
          * @throws Exception
          */
-        @Throws(Exception::class)
         fun getEcbDecodedPrivateKey(encryptedPriKey: String, passphrase: String, n: Int, scheme: SignatureScheme): String {
             val decoded = Base58.decodeChecked(encryptedPriKey)
             if (decoded.size != 43 || decoded[0] != 0x01.toByte() || decoded[1] != 0x42.toByte() || decoded[2] != 0xe0.toByte()) {
@@ -426,7 +414,6 @@ class Account {
             return decode(passphrase, data, n, scheme)
         }
 
-        @Throws(Exception::class)
         private fun decode(passphrase: String, input: ByteArray, n: Int, scheme: SignatureScheme): String {
             val r = 8
             val p = 8
@@ -460,7 +447,6 @@ class Account {
             return priKey
         }
 
-        @Throws(Exception::class)
         private fun XOR(x: ByteArray, y: ByteArray): ByteArray {
             if (x.size != y.size) {
                 throw SDKException(ErrorCode.ParamError)
@@ -472,14 +458,12 @@ class Account {
             return ret
         }
 
-        @Throws(Exception::class)
         fun getCtrDecodedPrivateKey(encryptedPriKey: String, passphrase: String, address: String, n: Int, scheme: SignatureScheme): String {
             val addresshashTmp = Digest.hash256(address.toByteArray())
             val addresshash = Arrays.copyOfRange(addresshashTmp, 0, 4)
             return getCtrDecodedPrivateKey(encryptedPriKey, passphrase, addresshash, n, scheme)
         }
 
-        @Throws(Exception::class)
         fun getCtrDecodedPrivateKey(encryptedPriKey: String, passphrase: String, salt: ByteArray, n: Int, scheme: SignatureScheme): String {
             if (salt.size != 4) {
                 throw SDKException(ErrorCode.ParamError)
@@ -510,7 +494,6 @@ class Account {
             return Helper.toHexString(rawkey)
         }
 
-        @Throws(Exception::class)
         fun getGcmDecodedPrivateKey(encryptedPriKey: String, passphrase: String, address: String, salt: ByteArray, n: Int, scheme: SignatureScheme): String {
             if (salt.size != 16) {
                 throw SDKException(ErrorCode.ParamError)

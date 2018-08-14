@@ -40,7 +40,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
 
     override fun getUrl() = wsUrl
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getNodeCount(): Int {
         val map = HashMap<Any, Any>()
         map["Action"] = "getconnectioncount"
@@ -50,7 +49,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return 0
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlockHeight(): Int {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockheight"
@@ -60,7 +58,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return 0
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMemPoolTxCount(): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getmempooltxcount"
@@ -70,7 +67,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getVersion(): String {
         val map = HashMap<Any, Any>()
         map["Action"] = "getversion"
@@ -119,7 +115,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         } else reqId
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "sendrawtransaction"
@@ -135,7 +130,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         } else ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun sendRawTransaction(sData: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "sendrawtransaction"
@@ -146,7 +140,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getRawTransaction(txhash: String): Transaction {
         val map = HashMap<Any, Any>()
         map["Action"] = "gettransaction"
@@ -158,7 +151,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return Bookkeeping()
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getRawTransactionJson(txhash: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "gettransaction"
@@ -170,7 +162,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlock(height: Int): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyheight"
@@ -182,7 +173,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return Block()
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlock(hash: String): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyhash"
@@ -194,7 +184,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return Block()
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlockJson(height: Int): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyheight"
@@ -205,7 +194,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return Block()
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlockJson(hash: String): Block {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockbyhash"
@@ -216,7 +204,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return Block()
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBalance(address: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getbalance"
@@ -227,7 +214,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getContract(hash: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getcontract"
@@ -238,7 +224,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return mWebSocket!!.send(JSON.toJSONString(map))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getContractJson(hash: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getcontract"
@@ -249,7 +234,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return mWebSocket!!.send(JSON.toJSONString(map))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getSmartCodeEvent(height: Int): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getsmartcodeeventtxs"
@@ -259,7 +243,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return mWebSocket!!.send(JSON.toJSONString(map))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getSmartCodeEvent(hash: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getsmartcodeevent"
@@ -268,7 +251,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return mWebSocket!!.send(JSON.toJSONString(map))
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlockHeightByTxHash(hash: String): Int {
         val map = HashMap<Any, Any>()
         map["Action"] = "getblockheightbytxhash"
@@ -279,7 +261,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return 0
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getStorage(codehash: String, key: String): String {
         val map = HashMap<Any, Any>()
         map["Action"] = "getstorage"
@@ -291,7 +272,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMerkleProof(hash: String): Map<String, Any> {
         val map = HashMap<Any, Any>()
         map["Action"] = "getmerkleproof"
@@ -302,7 +282,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return emptyMap()
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getAllowance(asset: String, from: String, to: String): String {
         val map = HashMap<Any, Any>()
         map["Action"] = "getmerkleproof"
@@ -315,7 +294,6 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
         return ""
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMemPoolTxState(hash: String): Any {
         val map = HashMap<Any, Any>()
         map["Action"] = "getmempooltxstate"

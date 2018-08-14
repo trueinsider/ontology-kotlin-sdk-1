@@ -30,65 +30,51 @@ import com.github.ontio.io.Serializable
 import com.github.ontio.network.connect.AbstractConnector
 import com.github.ontio.network.exception.ConnectorException
 import com.github.ontio.network.exception.RpcException
+import com.github.ontio.network.rest.Interfaces
 
 class RpcClient(url: String) : AbstractConnector() {
     private var rpc: Interfaces = Interfaces(url)
 
     override fun getUrl() = rpc.host
 
-    @Throws(RpcException::class, IOException::class)
     override fun getNodeCount() = rpc.call("getconnectioncount") as Int
 
-    @Throws(RpcException::class, IOException::class)
     override fun getBlockHeight() = rpc.call("getblockcount") as Int
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMemPoolTxCount() = rpc.call("getmempooltxcount")
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getVersion(): String = rpc.call("getversion") as String
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBalance(address: String) = rpc.call("getbalance", address)
 
-    @Throws(RpcException::class, IOException::class)
     override fun sendRawTransaction(sData: String) = rpc.call("sendrawtransaction", sData) as String
 
-    @Throws(RpcException::class, IOException::class)
     override fun sendRawTransaction(preExec: Boolean, userid: String?, sData: String) = if (preExec) {
         rpc.call("sendrawtransaction", sData, 1)
     } else {
         rpc.call("sendrawtransaction", sData)
     }
 
-    @Throws(RpcException::class, IOException::class)
     override fun getRawTransaction(txhash: String): Transaction {
         val result = rpc.call("getrawtransaction", txhash)
         return Transaction.deserializeFrom(Helper.hexToBytes(result as String))
     }
 
-    @Throws(RpcException::class, IOException::class)
     override fun getRawTransactionJson(txhash: String): Any {
         val result = rpc.call("getrawtransaction", txhash)
         return Transaction.deserializeFrom(Helper.hexToBytes(result as String)).json()
     }
 
-    @Throws(RpcException::class, IOException::class)
     override fun getBlockJson(height: Int) = rpc.call("getblock", height, 1)
 
-    @Throws(RpcException::class, IOException::class)
     override fun getBlockJson(hash: String) = rpc.call("getblock", hash, 1)
 
-    @Throws(RpcException::class, IOException::class)
     override fun getContract(hash: String) = rpc.call("getcontractstate", hash)
 
-    @Throws(RpcException::class, IOException::class)
     override fun getContractJson(hash: String) = rpc.call("getcontractstate", hash, 1)
 
-    @Throws(RpcException::class, IOException::class)
     fun getRawTransaction(txhash: UInt256) = rpc.call("getrawtransaction", txhash.toString()) as String
 
-    @Throws(RpcException::class, IOException::class)
     fun getBlock(hash: UInt256): Block {
         val result = rpc.call("getblock", hash.toString())
         try {
@@ -100,7 +86,6 @@ class RpcClient(url: String) : AbstractConnector() {
         }
     }
 
-    @Throws(RpcException::class, IOException::class)
     override fun getBlock(height: Int): Block {
         val result = rpc.call("getblock", height)
         try {
@@ -112,7 +97,6 @@ class RpcClient(url: String) : AbstractConnector() {
         }
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlock(hash: String): Block {
         val result = rpc.call("getblock", hash)
         try {
@@ -124,25 +108,18 @@ class RpcClient(url: String) : AbstractConnector() {
         }
     }
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getSmartCodeEvent(height: Int) = rpc.call("getsmartcodeevent", height)
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getSmartCodeEvent(hash: String) = rpc.call("getsmartcodeevent", hash)
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getBlockHeightByTxHash(hash: String) = rpc.call("getblockheightbytxhash", hash) as Int
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getStorage(codehash: String, key: String) = rpc.call("getstorage", codehash, key) as String
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMerkleProof(hash: String) = rpc.call("getmerkleproof", hash) as Map<String, Any>
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getAllowance(asset: String, from: String, to: String) = rpc.call("getallowance", asset, from, to) as String
 
-    @Throws(ConnectorException::class, IOException::class)
     override fun getMemPoolTxState(hash: String) = rpc.call("getmempooltxstate", hash)
 }
 

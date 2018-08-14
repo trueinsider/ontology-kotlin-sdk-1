@@ -79,12 +79,10 @@ abstract class UIntBase protected constructor(bytes: Int, value: ByteArray?) : S
         return Helper.reverse(Helper.toHexString(toArray()))
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.write(data_bytes)
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         reader.read(data_bytes)
     }

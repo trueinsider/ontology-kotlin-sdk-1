@@ -39,13 +39,11 @@ import java.io.IOException
 class GlobalParams {
     private val contractAddress = "0000000000000000000000000000000000000004"
 
-    @Throws(Exception::class)
     fun init(): Boolean {
         val tx = Vm.makeInvokeCodeTransaction(contractAddress, "init", byteArrayOf(), null, 0, 0)
         return connect!!.sendRawTransaction(tx.toHexString())
     }
 
-    @Throws(Exception::class)
     fun transferAdmin(adminAccount: Account, newAdminAddr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
@@ -61,7 +59,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(Exception::class)
     fun transferAdmin(M: Int, accounts: Array<Account>, newAdminAddr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (accounts.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -81,7 +78,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(SDKException::class)
     fun makeTransferAdmin(newAdminAddr: Address, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
         if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -97,7 +93,6 @@ class GlobalParams {
         return Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transferAdmin", arg, payerAddr, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     fun acceptAdmin(account: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
@@ -113,7 +108,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(Exception::class)
     fun acceptAdmin(multiAddr: Address, M: Int, accounts: Array<Account>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (accounts.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -133,7 +127,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(SDKException::class)
     fun makeAcceptAdmin(multiAddr: Address, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
         if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -150,7 +143,6 @@ class GlobalParams {
     }
 
 
-    @Throws(SDKException::class, ConnectorException::class, IOException::class)
     fun getGlobalParam(paramNameList: Array<String>): String {
         if (paramNameList.isEmpty()) {
             throw SDKException("parameter should not be less than 0")
@@ -168,7 +160,6 @@ class GlobalParams {
         return (obj as JSONObject).getString("Result")
     }
 
-    @Throws(Exception::class)
     fun setGlobalParam(operatorAccount: Account, params: Params, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
@@ -184,7 +175,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(Exception::class)
     fun setGlobalParam(M: Int, operatorAccounts: Array<Account>, params: Params, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (operatorAccounts.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -204,7 +194,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(SDKException::class)
     fun makeSetGlobalParam(params: Params, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
         if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -224,7 +213,6 @@ class GlobalParams {
     }
 
 
-    @Throws(Exception::class)
     fun setOperator(adminAccount: Account, addr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
@@ -240,7 +228,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(Exception::class)
     fun setOperator(M: Int, accounts: Array<Account>, addr: Address, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (accounts.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -260,7 +247,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(SDKException::class)
     fun makeSetOperator(addr: Address, payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
         if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -276,7 +262,6 @@ class GlobalParams {
         return Vm.buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transferAdmin", arg, payerAddr, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     fun createSnapshot(operatorAccount: Account, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (gaslimit < 0 || gasprice < 0) {
             throw SDKException("gaslimit or gasprice should not be less than 0")
@@ -292,7 +277,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(Exception::class)
     fun createSnapshot(M: Int, operatorAccounts: Array<Account>, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (operatorAccounts.isEmpty()) {
             throw SDKException("parameter should not be null")
@@ -312,7 +296,6 @@ class GlobalParams {
         } else null
     }
 
-    @Throws(SDKException::class)
     fun makeCreateSnapshot(payerAddr: String, gaslimit: Long, gasprice: Long): Transaction {
         if (payerAddr.isEmpty()) {
             throw SDKException("parameter should not be null")

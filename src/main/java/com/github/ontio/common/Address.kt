@@ -30,7 +30,7 @@ import com.github.ontio.sdk.exception.SDKException
  * Custom type which inherits base class defines 20-bit data,
  * it mostly used to defined contract address
  */
-class Address @JvmOverloads constructor(value: ByteArray? = null) : UIntBase(20, value), Comparable<Address> {
+class Address constructor(value: ByteArray? = null) : UIntBase(20, value), Comparable<Address> {
     override fun compareTo(other: Address): Int {
         val x = this.data_bytes
         val y = other.data_bytes
@@ -93,12 +93,10 @@ class Address @JvmOverloads constructor(value: ByteArray? = null) : UIntBase(20,
             return Address.toScriptHash(sb.toArray())
         }
 
-        @Throws(Exception::class)
         fun addressFromMultiPubKeys(m: Int, vararg publicKeys: ByteArray): Address {
             return Address.toScriptHash(Program.ProgramFromMultiPubKey(m, *publicKeys))
         }
 
-        @Throws(SDKException::class)
         fun decodeBase58(address: String): Address {
             val data = Base58.decode(address)
             if (data.size != 25) {

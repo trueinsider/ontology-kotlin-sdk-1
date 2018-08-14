@@ -33,48 +33,39 @@ class BinaryWriter(stream: OutputStream) : AutoCloseable {
         this.writer = DataOutputStream(stream)
     }
 
-    @Throws(IOException::class)
     override fun close() {
         writer.close()
     }
 
-    @Throws(IOException::class)
     fun flush() {
         writer.flush()
     }
 
-    @Throws(IOException::class)
     fun write(buffer: ByteArray) {
         writer.write(buffer)
     }
 
-    @Throws(IOException::class)
     fun write(buffer: ByteArray, index: Int, length: Int) {
         writer.write(buffer, index, length)
     }
 
-    @Throws(IOException::class)
     fun writeBoolean(v: Boolean) {
         writer.writeBoolean(v)
     }
 
-    @Throws(IOException::class)
     fun writeByte(v: Byte) {
         writer.writeByte(v.toInt())
     }
 
-    @Throws(IOException::class)
     fun writeDouble(v: Double) {
         buffer.putDouble(0, v)
         writer.write(array, 0, 8)
     }
 
-    @Throws(IOException::class)
     fun writeECPoint(v: ECPoint) {
         writer.write(v.getEncoded(true))
     }
 
-    @Throws(IOException::class)
     fun writeFixedString(v: String, length: Int) {
         if (v.length > length) {
             throw IllegalArgumentException()
@@ -89,30 +80,25 @@ class BinaryWriter(stream: OutputStream) : AutoCloseable {
         }
     }
 
-    @Throws(IOException::class)
     fun writeFloat(v: Float) {
         buffer.putFloat(0, v)
         writer.write(array, 0, 4)
     }
 
-    @Throws(IOException::class)
     fun writeInt(v: Int) {
         buffer.putInt(0, v)
         writer.write(array, 0, 4)
     }
 
-    @Throws(IOException::class)
     fun writeLong(v: Long) {
         buffer.putLong(0, v)
         writer.write(array, 0, 8)
     }
 
-    @Throws(IOException::class)
     fun writeSerializable(v: Serializable) {
         v.serialize(this)
     }
 
-    @Throws(IOException::class)
     fun writeSerializableArray(v: Array<out Serializable>) {
         writeVarInt(v.size.toLong())
         for (i in v.indices) {
@@ -120,7 +106,6 @@ class BinaryWriter(stream: OutputStream) : AutoCloseable {
         }
     }
 
-    @Throws(IOException::class)
     fun writeSerializableArray2(v: Array<Serializable>) {
         writeInt(v.size)
         for (i in v.indices) {
@@ -128,19 +113,16 @@ class BinaryWriter(stream: OutputStream) : AutoCloseable {
         }
     }
 
-    @Throws(IOException::class)
     fun writeShort(v: Short) {
         buffer.putShort(0, v)
         writer.write(array, 0, 2)
     }
 
-    @Throws(IOException::class)
     fun writeVarBytes(v: ByteArray) {
         writeVarInt(v.size.toLong())
         writer.write(v)
     }
 
-    @Throws(IOException::class)
     fun writeVarInt(v: Long) {
         if (v < 0) {
             throw IllegalArgumentException()
@@ -159,7 +141,6 @@ class BinaryWriter(stream: OutputStream) : AutoCloseable {
         }
     }
 
-    @Throws(IOException::class)
     fun writeVarString(v: String) {
         writeVarBytes(v.toByteArray(charset("UTF-8")))
     }

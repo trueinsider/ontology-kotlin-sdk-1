@@ -8,7 +8,6 @@ import com.github.ontio.sdk.wallet.*
 import java.util.Base64
 
 object WalletQR {
-    @Throws(Exception::class)
     fun exportIdentityQRCode(walletFile: Wallet, identity: Identity): Map<*, *> {
         val control = identity.controls[0]
         val address = identity.ontid.substring(8)
@@ -24,7 +23,6 @@ object WalletQR {
         return map
     }
 
-    @Throws(Exception::class)
     fun exportIdentityQRCode(scrypt: Scrypt, identity: Identity): Map<*, *> {
         val control = identity.controls[0]
         val address = identity.ontid.substring(8)
@@ -40,7 +38,6 @@ object WalletQR {
         return map
     }
 
-    @Throws(Exception::class)
     fun exportAccountQRCode(walletFile: Wallet, account: Account): Map<*, *> {
         val map = mutableMapOf<String, Any>()
         map["type"] = "A"
@@ -54,7 +51,6 @@ object WalletQR {
         return map
     }
 
-    @Throws(Exception::class)
     fun exportAccountQRCode(scrypt: Scrypt, account: Account): Map<*, *> {
         val map = mutableMapOf<String, Any>()
         map["type"] = "A"

@@ -53,7 +53,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendTransfer(sendAcct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
@@ -82,7 +81,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendTransferFromMultiSignAddr(M: Int, pubKeys: Array<ByteArray>, sendAccts: Array<Account>, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (sendAccts.size <= 1) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
@@ -112,7 +110,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeTransfer(sendAddr: String, recvAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (sendAddr.isEmpty() || recvAddr.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
@@ -129,7 +126,6 @@ class Ong {
         return buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "transfer", args, payer, gaslimit, gasprice)
     }
 
-    @Throws(Exception::class)
     fun makeTransfer(states: Array<State>, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
@@ -153,7 +149,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun queryBalanceOf(address: String): Long {
         if (address.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("address should not be null"))
@@ -176,7 +171,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun queryAllowance(fromAddr: String, toAddr: String): Long {
         if (fromAddr.isEmpty() || toAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameter should not be null"))
@@ -204,7 +198,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendApprove(sendAcct: Account, recvAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
@@ -231,7 +224,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeApprove(sendAddr: String, recvAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (sendAddr.isEmpty() || recvAddr.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
@@ -257,7 +249,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun sendTransferFrom(sendAcct: Account, fromAddr: String, toAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gasprice < 0 || gaslimit < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gasprice or gaslimit should not be less than 0"))
@@ -285,7 +276,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeTransferFrom(sendAddr: String, fromAddr: String, toAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (sendAddr.isEmpty() || fromAddr.isEmpty() || toAddr.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("parameters should not be null"))
@@ -303,7 +293,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun queryName(): String {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "name", byteArrayOf(0), null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
@@ -315,7 +304,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun querySymbol(): String {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "symbol", byteArrayOf(0), null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
@@ -327,7 +315,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun queryDecimals(): Long {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "decimals", byteArrayOf(0), null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
@@ -341,7 +328,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun queryTotalSupply(): Long {
         val tx = buildNativeParams(Address(Helper.hexToBytes(contractAddress)), "totalSupply", byteArrayOf(0), null, 0, 0)
         val obj = connect!!.sendRawTransactionPreExec(tx.toHexString())
@@ -356,7 +342,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun unboundOng(address: String): String {
         if (address.isEmpty()) {
             throw SDKException(ErrorCode.ParamErr("address should not be null"))
@@ -375,7 +360,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun withdrawOng(sendAcct: Account, toAddr: String, amount: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
         if (amount <= 0 || gaslimit < 0 || gasprice < 0) {
             throw SDKException(ErrorCode.ParamErr("amount or gaslimit gasprice should not be less than 0"))
@@ -401,7 +385,6 @@ class Ong {
      * @return
      * @throws Exception
      */
-    @Throws(Exception::class)
     fun makeWithdrawOng(claimer: String, toAddr: String, amount: Long, payer: String, gaslimit: Long, gasprice: Long): Transaction {
         if (claimer.isEmpty() || toAddr.isEmpty() || payer.isEmpty()) {
             throw SDKException(ErrorCode.ParamError)

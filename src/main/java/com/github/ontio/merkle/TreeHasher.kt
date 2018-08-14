@@ -55,7 +55,6 @@ class TreeHasher {
         return count
     }
 
-    @Throws(Exception::class)
     fun HashFullTreeWithLeafHash(leaves: Array<UInt256>): UInt256 {
         val length = leaves.size.toLong()
         val obj = _hash_full(leaves, 0, length)
@@ -66,7 +65,6 @@ class TreeHasher {
         return obj.root_hash
     }
 
-    @Throws(Exception::class)
     fun HashFullTree(leaves: Array<ByteArray>): UInt256 {
         val length = leaves.size
         val leafhashes = Array(length) { i -> hash_leaf(leaves[i]) }
@@ -78,7 +76,6 @@ class TreeHasher {
         return obj.root_hash
     }
 
-    @Throws(Exception::class)
     private fun _hash_full(leaves: Array<UInt256>, l_idx: Long, r_idx: Long): Obj {
         val width = r_idx - l_idx
         when (width) {

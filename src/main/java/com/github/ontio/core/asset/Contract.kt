@@ -45,7 +45,6 @@ class Contract : Serializable {
         this.args = args
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         version = reader.readByte()
         constracHash = reader.readSerializable(Address::class.java)
@@ -53,7 +52,6 @@ class Contract : Serializable {
         args = reader.readVarBytes()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeByte(version)
         writer.writeSerializable(constracHash)
@@ -62,7 +60,6 @@ class Contract : Serializable {
     }
 
     companion object {
-        @Throws(IOException::class)
         fun deserializeFrom(value: ByteArray): Contract {
             try {
                 val offset = 0

@@ -46,18 +46,14 @@ interface Signable : Serializable {
             throw UnsupportedOperationException(ex)
         }
 
-    @Throws(IOException::class)
     fun deserializeUnsigned(reader: BinaryReader)
 
-    @Throws(IOException::class)
     fun serializeUnsigned(writer: BinaryWriter)
 
-    @Throws(Exception::class)
     fun sign(account: Account, scheme: SignatureScheme): ByteArray {
         return account.generateSignature(Digest.hash256(hashData), scheme, null)
     }
 
-    @Throws(Exception::class)
     fun verifySignature(account: Account, data: ByteArray, signature: ByteArray): Boolean {
         return account.verifySignature(Digest.hash256(Digest.sha256(data)), signature)
     }

@@ -38,7 +38,6 @@ class VoteInfo(
         var withdrawFreezePos: Long,
         var withdrawUnfreezePos: Long
 ) : Serializable {
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.peerPubkey = reader.readVarString()
         this.address = reader.readSerializable(Address::class.java)
@@ -50,7 +49,6 @@ class VoteInfo(
         this.withdrawUnfreezePos = reader.readLong()
     }
 
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
     }
 

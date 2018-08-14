@@ -30,7 +30,6 @@ import java.util.HashMap
 object MerkleVerifier {
     private val hasher = TreeHasher()
 
-    @Throws(Exception::class)
     fun VerifyLeafHashInclusion(leaf_hash: UInt256,
                                 leaf_index: Int, proof: Array<UInt256>, root_hash: UInt256, tree_size: Int): Boolean {
 
@@ -102,7 +101,6 @@ object MerkleVerifier {
         return nodes
     }
 
-    @Throws(SDKException::class)
     fun Verify(leaf_hash: UInt256, targetHashes: List<*>, root_hash: UInt256): Boolean {
         var calculated_hash = leaf_hash
         for (i in targetHashes.indices) {

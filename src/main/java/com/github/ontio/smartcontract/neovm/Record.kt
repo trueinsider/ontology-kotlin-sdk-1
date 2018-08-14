@@ -38,7 +38,6 @@ import java.util.LinkedHashMap
 class Record(contractAddress: String) {
     val contractAddress = contractAddress.replace("0x", "")
 
-    @Throws(Exception::class)
     fun sendPut(addr: String, password: String, salt: ByteArray, key: String, value: String, gaslimit: Long, gas: Long): String? {
         val addr = addr.replace(Common.didont, "")
         if (key.isEmpty() || value.isEmpty()) {
@@ -59,7 +58,6 @@ class Record(contractAddress: String) {
         } else null
     }
 
-    @Throws(Exception::class)
     fun sendGet(addr: String, password: String, salt: ByteArray, key: String): String {
         if (key.isEmpty()) {
             throw SDKException(ErrorCode.NullKey)
@@ -75,7 +73,6 @@ class Record(contractAddress: String) {
         return String(Helper.hexToBytes(obj as String))
     }
 
-    @Throws(Exception::class)
     fun makeInvokeTransaction(list: List<Any>, payer: String?, gaslimit: Long, gas: Long): Transaction {
         val params = BuildParams.createCodeParamsScript(list)
         return makeInvokeCodeTransaction(contractAddress, null, params, payer, gaslimit, gas)

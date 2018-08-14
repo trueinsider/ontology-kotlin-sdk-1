@@ -35,8 +35,7 @@ import java.util.Random
 /**
  *
  */
-class Interfaces @Throws(MalformedURLException::class)
-constructor(url: String) {
+class Interfaces constructor(url: String) {
     private val url: URL = URL(url)
 
     private val nextId: Double
@@ -51,7 +50,6 @@ constructor(url: String) {
     val host: String
         get() = url.host + " " + url.port
 
-    @Throws(RpcException::class, IOException::class)
     fun call(method: String, vararg params: Any): Any {
         val req = makeRequest(method, params)
         val response = send(req)
@@ -72,7 +70,6 @@ constructor(url: String) {
         return request
     }
 
-    @Throws(IOException::class)
     fun send(request: Any): Map<String, Any>? {
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"

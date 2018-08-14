@@ -55,7 +55,6 @@ class DeployCode(
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 
-    @Throws(IOException::class)
     public override fun deserializeExclusiveData(reader: BinaryReader) {
         code = reader.readVarBytes()
         needStorage = reader.readBoolean()
@@ -66,7 +65,6 @@ class DeployCode(
         description = reader.readVarString()
     }
 
-    @Throws(IOException::class)
     public override fun serializeExclusiveData(writer: BinaryWriter) {
         writer.writeVarBytes(code)
         writer.writeBoolean(needStorage)

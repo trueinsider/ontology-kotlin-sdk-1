@@ -15,7 +15,6 @@ class TransactionAttribute(var usage: TransactionAttributeUsage, var data: ByteA
     /**
      *
      */
-    @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         // usage
         writer.writeByte(usage.value())
@@ -31,7 +30,6 @@ class TransactionAttribute(var usage: TransactionAttributeUsage, var data: ByteA
         }
     }
 
-    @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         // usage
         usage = TransactionAttributeUsage.valueOf(reader.readByte())
