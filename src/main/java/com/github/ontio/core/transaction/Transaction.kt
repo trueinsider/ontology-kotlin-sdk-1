@@ -63,13 +63,7 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
         version = reader.readByte()
         gasPrice = reader.readLong()
         gasLimit = reader.readLong()
-        try {
-            payer = reader.readSerializable(Address::class.java)
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        }
+        payer = reader.readSerializable(Address::class.java)
 
         deserializeUnsignedWithoutType(reader)
     }

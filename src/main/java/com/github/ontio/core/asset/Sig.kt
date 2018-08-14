@@ -47,14 +47,10 @@ class Sig(var M: Int, var pubKeys: Array<ByteArray>, var sigData: Array<ByteArra
     @Throws(IOException::class)
     override fun serialize(writer: BinaryWriter) {
         writer.writeVarBytes(ProgramFromParams(sigData))
-        try {
-            if (pubKeys.size == 1) {
-                writer.writeVarBytes(ProgramFromPubKey(pubKeys[0]))
-            } else if (pubKeys.size > 1) {
-                writer.writeVarBytes(ProgramFromMultiPubKey(M, *pubKeys))
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
+        if (pubKeys.size == 1) {
+            writer.writeVarBytes(ProgramFromPubKey(pubKeys[0]))
+        } else if (pubKeys.size > 1) {
+            writer.writeVarBytes(ProgramFromMultiPubKey(M, *pubKeys))
         }
     }
 

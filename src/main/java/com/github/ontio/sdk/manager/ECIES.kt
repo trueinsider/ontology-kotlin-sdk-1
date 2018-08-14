@@ -57,39 +57,33 @@ class ECIES(dig: Digest) {
         //keylen: 16/24/32
         @JvmOverloads
         fun Encrypt(pubkey: String, msg: ByteArray, keylen: Int = 32): Array<String>? {
+            val account = com.github.ontio.account.Account(Helper.hexToBytes(pubkey))
+
+            val spec = ECNamedCurveTable.getParameterSpec(curveParaSpec[0] as String)
+            val ecDomain = ECDomainParameters(spec.curve, spec.g, spec.n)
+            val keys = AsymmetricCipherKeyPair(
+                    ECPublicKeyParameters((account.publicKey as BCECPublicKey).q, ecDomain), null)
+
+            val out = ByteArray(ecDomain.curve.fieldSize / 8 * 2 + 1)
+            val kem = ECIESKeyEncapsulation(KDF2BytesGenerator(digest), SecureRandom())
+            val key1: KeyParameter
+
+            kem.init(keys.public)
+            key1 = kem.encrypt(out, keylen) as KeyParameter //AES key = key1 (is encrypted in out)
+
+            val IV = Hex.decode(getRandomString(keylen)) //choose random IV of length = keylen
+            val ciphertext: ByteArray
             try {
-                val account = com.github.ontio.account.Account(Helper.hexToBytes(pubkey))
-
-                val spec = ECNamedCurveTable.getParameterSpec(curveParaSpec[0] as String)
-                val ecDomain = ECDomainParameters(spec.curve, spec.g, spec.n)
-                val keys = AsymmetricCipherKeyPair(
-                        ECPublicKeyParameters((account.publicKey as BCECPublicKey).q, ecDomain), null)
-
-                val out = ByteArray(ecDomain.curve.fieldSize / 8 * 2 + 1)
-                val kem = ECIESKeyEncapsulation(KDF2BytesGenerator(digest), SecureRandom())
-                val key1: KeyParameter
-
-                kem.init(keys.public)
-                key1 = kem.encrypt(out, keylen) as KeyParameter //AES key = key1 (is encrypted in out)
-
-                val IV = Hex.decode(getRandomString(keylen)) //choose random IV of length = keylen
-                val ciphertext: ByteArray
-                try {
-                    val en = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC")
-                    val key = SecretKeySpec(key1.key, "AES")
-                    en.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(IV))
-                    ciphertext = en.doFinal(msg)
-                } catch (e: Exception) {
-                    throw Exception("AES failed initialisation - " + e.toString(), e)
-                }
-
-                //(IV, out, ciphertext)
-                return arrayOf(Helper.toHexString(IV), Helper.toHexString(out), Helper.toHexString(ciphertext))
+                val en = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC")
+                val key = SecretKeySpec(key1.key, "AES")
+                en.init(Cipher.ENCRYPT_MODE, key, IvParameterSpec(IV))
+                ciphertext = en.doFinal(msg)
             } catch (e: Exception) {
-                e.printStackTrace()
+                throw Exception("AES failed initialisation - " + e.toString(), e)
             }
 
-            return null
+            //(IV, out, ciphertext)
+            return arrayOf(Helper.toHexString(IV), Helper.toHexString(out), Helper.toHexString(ciphertext))
         }
 
         @Throws(Exception::class)
@@ -110,36 +104,30 @@ class ECIES(dig: Digest) {
 
         @JvmOverloads
         fun Decrypt(prikey: ByteArray, IV: ByteArray, key_cxt: ByteArray, ciphertext: ByteArray, keylen: Int = 32): ByteArray? {
+            val account = com.github.ontio.account.Account(prikey, signatureScheme)
+
+            val spec = ECNamedCurveTable.getParameterSpec(curveParaSpec[0] as String)
+            val ecDomain = ECDomainParameters(spec.curve, spec.g, spec.n)
+            val keys = AsymmetricCipherKeyPair(null,
+                    ECPrivateKeyParameters((account.privateKey as BCECPrivateKey).d, ecDomain))
+
+            val kem = ECIESKeyEncapsulation(KDF2BytesGenerator(SHA1Digest()), SecureRandom())
+            val key1: KeyParameter
+
+            kem.init(keys.private)
+            key1 = kem.decrypt(key_cxt, keylen) as KeyParameter
+
+            val plaintext: ByteArray
             try {
-                val account = com.github.ontio.account.Account(prikey, signatureScheme)
-
-                val spec = ECNamedCurveTable.getParameterSpec(curveParaSpec[0] as String)
-                val ecDomain = ECDomainParameters(spec.curve, spec.g, spec.n)
-                val keys = AsymmetricCipherKeyPair(null,
-                        ECPrivateKeyParameters((account.privateKey as BCECPrivateKey).d, ecDomain))
-
-                val kem = ECIESKeyEncapsulation(KDF2BytesGenerator(SHA1Digest()), SecureRandom())
-                val key1: KeyParameter
-
-                kem.init(keys.private)
-                key1 = kem.decrypt(key_cxt, keylen) as KeyParameter
-
-                val plaintext: ByteArray
-                try {
-                    val dec = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC")
-                    val key = SecretKeySpec(key1.key, "AES")
-                    dec.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(IV))
-                    plaintext = dec.doFinal(ciphertext)
-                } catch (e: Exception) {
-                    throw Exception("AES failed initialisation - " + e.toString(), e)
-                }
-
-                return plaintext
+                val dec = Cipher.getInstance("AES/CBC/PKCS7Padding", "BC")
+                val key = SecretKeySpec(key1.key, "AES")
+                dec.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(IV))
+                plaintext = dec.doFinal(ciphertext)
             } catch (e: Exception) {
-                e.printStackTrace()
+                throw Exception("AES failed initialisation - " + e.toString(), e)
             }
 
-            return null
+            return plaintext
         }
 
         fun getRandomString(length: Int): String {

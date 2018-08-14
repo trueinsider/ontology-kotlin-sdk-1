@@ -350,15 +350,10 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
                     println("websoket onMessage:" + s!!)
                 }
                 val result = JSON.parseObject(s, Result::class.java)
-                try {
-                    synchronized(lock) {
-                        MsgQueue.addResult(result)
-                        lock.notify()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                synchronized(lock) {
+                    MsgQueue.addResult(result)
+                    lock.notify()
                 }
-
             }
 
             override fun onClosing(webSocket: WebSocket?, code: Int, reason: String?) {

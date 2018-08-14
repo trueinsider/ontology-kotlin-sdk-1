@@ -19,6 +19,9 @@
 
 package com.github.ontio
 
+import com.github.ontio.OntSdk.defaultSignScheme
+import com.github.ontio.OntSdk.rpc
+import com.github.ontio.OntSdk.walletMgr
 import com.github.ontio.account.Account
 import com.github.ontio.common.Common
 import com.github.ontio.common.ErrorCode
@@ -114,23 +117,15 @@ object OntSdk {
     }
 
     fun setConnectTestNet() {
-        try {
-            val rpcUrl = "http://polaris1.ont.io:20336"
-            setRpc(rpcUrl)
-            connDefault = rpc
-        } catch (e: SDKException) {
-            e.printStackTrace()
-        }
+        val rpcUrl = "http://polaris1.ont.io:20336"
+        setRpc(rpcUrl)
+        connDefault = rpc
     }
 
     fun setConnectMainNet() {
-        try {
-            val rpcUrl = "http://dappnode1.ont.io:20336"
-            setRpc(rpcUrl)
-            connDefault = rpc
-        } catch (e: SDKException) {
-            e.printStackTrace()
-        }
+        val rpcUrl = "http://dappnode1.ont.io:20336"
+        setRpc(rpcUrl)
+        connDefault = rpc
     }
 
     /**
@@ -164,12 +159,8 @@ object OntSdk {
      * @param path
      */
     fun openWalletFile(path: String) {
-        try {
-            this.walletMgr = WalletMgr(path, defaultSignScheme)
-            setSignatureScheme(defaultSignScheme)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        this.walletMgr = WalletMgr(path, defaultSignScheme)
+        setSignatureScheme(defaultSignScheme)
     }
 
     /**

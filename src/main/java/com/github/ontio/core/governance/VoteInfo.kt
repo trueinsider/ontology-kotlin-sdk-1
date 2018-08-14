@@ -41,19 +41,13 @@ class VoteInfo(
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
         this.peerPubkey = reader.readVarString()
-        try {
-            this.address = reader.readSerializable(Address::class.java)
-            this.consensusPos = reader.readLong()
-            this.freezePos = reader.readLong()
-            this.newPos = reader.readLong()
-            this.withdrawPos = reader.readLong()
-            this.withdrawFreezePos = reader.readLong()
-            this.withdrawUnfreezePos = reader.readLong()
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        }
+        this.address = reader.readSerializable(Address::class.java)
+        this.consensusPos = reader.readLong()
+        this.freezePos = reader.readLong()
+        this.newPos = reader.readLong()
+        this.withdrawPos = reader.readLong()
+        this.withdrawFreezePos = reader.readLong()
+        this.withdrawUnfreezePos = reader.readLong()
     }
 
     @Throws(IOException::class)

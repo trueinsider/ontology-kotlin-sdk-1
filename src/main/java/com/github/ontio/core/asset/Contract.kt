@@ -47,17 +47,10 @@ class Contract : Serializable {
 
     @Throws(IOException::class)
     override fun deserialize(reader: BinaryReader) {
-        try {
-            version = reader.readByte()
-            constracHash = reader.readSerializable(Address::class.java)
-            method = String(reader.readVarBytes())
-            args = reader.readVarBytes()
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        }
-
+        version = reader.readByte()
+        constracHash = reader.readSerializable(Address::class.java)
+        method = String(reader.readVarBytes())
+        args = reader.readVarBytes()
     }
 
     @Throws(IOException::class)

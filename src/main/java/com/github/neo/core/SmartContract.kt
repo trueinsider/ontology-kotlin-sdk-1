@@ -52,23 +52,19 @@ class SmartContract {
         }
 
         private fun createCodeParamsScript(builder: ScriptBuilder, list: List<*>): ByteArray {
-            try {
-                for (i in list.indices.reversed()) {
-                    val `val` = list[i]
-                    when (`val`) {
-                        is ByteArray -> builder.emitPushByteArray(`val`)
-                        is Boolean -> builder.emitPushBool(`val`)
-                        is Long -> builder.emitPushInteger(BigInteger.valueOf(`val`))
-                        is List<*> -> {
-                            createCodeParamsScript(builder, `val`)
-                            builder.emitPushInteger(BigInteger(`val`.size.toString()))
-                            builder.pushPack()
-                        }
-                        else -> {}
+            for (i in list.indices.reversed()) {
+                val `val` = list[i]
+                when (`val`) {
+                    is ByteArray -> builder.emitPushByteArray(`val`)
+                    is Boolean -> builder.emitPushBool(`val`)
+                    is Long -> builder.emitPushInteger(BigInteger.valueOf(`val`))
+                    is List<*> -> {
+                        createCodeParamsScript(builder, `val`)
+                        builder.emitPushInteger(BigInteger(`val`.size.toString()))
+                        builder.pushPack()
                     }
+                    else -> {}
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
 
             return builder.toArray()
@@ -80,23 +76,19 @@ class SmartContract {
          */
         fun createCodeParamsScript(list: List<Any>): ByteArray {
             val sb = ScriptBuilder()
-            try {
-                for (i in list.indices.reversed()) {
-                    val `val` = list[i]
-                    when (`val`) {
-                        is ByteArray -> sb.emitPushByteArray(`val`)
-                        is Boolean -> sb.emitPushBool(`val`)
-                        is Long -> sb.emitPushInteger(BigInteger.valueOf(`val`))
-                        is List<*> -> {
-                            createCodeParamsScript(sb, `val`)
-                            sb.emitPushInteger(BigInteger(`val`.size.toString()))
-                            sb.pushPack()
-                        }
-                        else -> {}
+            for (i in list.indices.reversed()) {
+                val `val` = list[i]
+                when (`val`) {
+                    is ByteArray -> sb.emitPushByteArray(`val`)
+                    is Boolean -> sb.emitPushBool(`val`)
+                    is Long -> sb.emitPushInteger(BigInteger.valueOf(`val`))
+                    is List<*> -> {
+                        createCodeParamsScript(sb, `val`)
+                        sb.emitPushInteger(BigInteger(`val`.size.toString()))
+                        sb.pushPack()
                     }
+                    else -> {}
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
 
             return sb.toArray()

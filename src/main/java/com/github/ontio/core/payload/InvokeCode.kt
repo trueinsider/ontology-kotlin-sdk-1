@@ -37,11 +37,7 @@ class InvokeCode(code: ByteArray) : Transaction(TransactionType.InvokeCode) {
 
     @Throws(IOException::class)
     public override fun deserializeExclusiveData(reader: BinaryReader) {
-        try {
-            code = reader.readVarBytes()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        code = reader.readVarBytes()
     }
 
     @Throws(IOException::class)

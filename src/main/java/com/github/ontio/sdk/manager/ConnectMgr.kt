@@ -146,7 +146,6 @@ class ConnectMgr {
                     break
                 }
             }
-
         }
         return b
     }

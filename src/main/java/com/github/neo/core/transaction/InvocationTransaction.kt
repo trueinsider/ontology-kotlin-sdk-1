@@ -26,13 +26,8 @@ class InvocationTransaction(
 
     @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
-        try {
-            script = reader.readVarBytes()
-            gas = reader.readSerializable(Fixed8::class.java)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
+        script = reader.readVarBytes()
+        gas = reader.readSerializable(Fixed8::class.java)
     }
 
     @Throws(IOException::class)

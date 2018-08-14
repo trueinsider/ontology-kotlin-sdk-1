@@ -192,12 +192,6 @@ class Governance {
             }
         } catch (e: ConnectorException) {
             return null
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
         }
 
         return null
@@ -665,13 +659,7 @@ internal class GovernanceView : Serializable {
     override fun deserialize(reader: BinaryReader) {
         this.view = reader.readInt()
         this.height = reader.readInt()
-        try {
-            this.txhash = reader.readSerializable(UInt256::class.java)
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        }
+        this.txhash = reader.readSerializable(UInt256::class.java)
     }
 
     @Throws(IOException::class)

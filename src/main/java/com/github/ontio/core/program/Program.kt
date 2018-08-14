@@ -78,8 +78,8 @@ object Program {
 
     fun sortPublicKeys(vararg publicKeys: ByteArray): Array<ByteArray> {
         return publicKeys.copyOf().apply { sortWith(Comparator { o1, o2 ->
-            if (KeyType.fromPubkey(o1)!!.label != KeyType.fromPubkey(o2)!!.label) {
-                return@Comparator if (KeyType.fromPubkey(o1)!!.label >= KeyType.fromPubkey(o2)!!.label) 1 else -1
+            if (KeyType.fromPubkey(o1).label != KeyType.fromPubkey(o2).label) {
+                return@Comparator if (KeyType.fromPubkey(o1).label >= KeyType.fromPubkey(o2).label) 1 else -1
             }
             when (KeyType.fromPubkey(o1)) {
                 KeyType.SM2 -> {
@@ -149,12 +149,8 @@ object Program {
         val bais = ByteArrayInputStream(temp)
         val reader = BinaryReader(bais)
         if (end == ScriptOp.OP_CHECKSIG.byte) {
-            try {
-                val publicKey = readBytes(reader)
-                return ProgramInfo(arrayOf(publicKey), 1.toShort())
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+            val publicKey = readBytes(reader)
+            return ProgramInfo(arrayOf(publicKey), 1.toShort())
         } else if (end == ScriptOp.OP_CHECKMULTISIG.byte) {
             val m = (reader.readByte() - ScriptOp.OP_PUSH1.byte + 1).toByte().toShort()
             val len = program[program.size - 2] - ScriptOp.OP_PUSH1.byte + 1

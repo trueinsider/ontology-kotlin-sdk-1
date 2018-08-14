@@ -57,18 +57,13 @@ class DeployCode(
 
     @Throws(IOException::class)
     public override fun deserializeExclusiveData(reader: BinaryReader) {
-        try {
-            code = reader.readVarBytes()
-            needStorage = reader.readBoolean()
-            name = reader.readVarString()
-            versionString = reader.readVarString()
-            author = reader.readVarString()
-            email = reader.readVarString()
-            description = reader.readVarString()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
+        code = reader.readVarBytes()
+        needStorage = reader.readBoolean()
+        name = reader.readVarString()
+        versionString = reader.readVarString()
+        author = reader.readVarString()
+        email = reader.readVarString()
+        description = reader.readVarString()
     }
 
     @Throws(IOException::class)

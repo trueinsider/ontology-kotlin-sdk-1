@@ -52,14 +52,7 @@ class PeerPoolItem : Serializable {
     override fun deserialize(reader: BinaryReader) {
         this.index = reader.readInt()
         this.peerPubkey = reader.readVarString()
-        try {
-            this.address = reader.readSerializable(Address::class.java)
-        } catch (e: InstantiationException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        }
-
+        this.address = reader.readSerializable(Address::class.java)
         this.status = reader.readByte().toInt()
         this.initPos = reader.readLong()
         this.totalPos = reader.readLong()

@@ -19,18 +19,12 @@ enum class KeyType constructor(val label: Int) {
             throw Exception(ErrorCode.UnknownAsymmetricKeyType)
         }
 
-        fun fromPubkey(pubkey: ByteArray): KeyType? {
-            try {
-                return if (pubkey.size == 33) {
-                    KeyType.ECDSA
-                } else {
-                    KeyType.fromLabel(pubkey[0])
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        fun fromPubkey(pubkey: ByteArray): KeyType {
+            return if (pubkey.size == 33) {
+                KeyType.ECDSA
+            } else {
+                KeyType.fromLabel(pubkey[0])
             }
-
-            return null
         }
     }
 }

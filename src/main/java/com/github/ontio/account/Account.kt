@@ -290,7 +290,7 @@ class Account {
     }
 
     @Throws(SDKException::class)
-    fun exportEcbEncryptedPrikey(passphrase: String, n: Int): String? {
+    fun exportEcbEncryptedPrikey(passphrase: String, n: Int): String {
         val r = 8
         val p = 8
         val dkLen = 64
@@ -305,25 +305,19 @@ class Account {
         val derivedhalf2 = ByteArray(32)
         System.arraycopy(derivedkey, 0, derivedhalf1, 0, 32)
         System.arraycopy(derivedkey, 32, derivedhalf2, 0, 32)
-        try {
-            val skeySpec = SecretKeySpec(derivedhalf2, "AES")
-            val cipher = Cipher.getInstance("AES/ECB/NoPadding")
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec)
-            val derived = XOR(serializePrivateKey(), derivedhalf1)
-            val encryptedkey = cipher.doFinal(derived)
+        val skeySpec = SecretKeySpec(derivedhalf2, "AES")
+        val cipher = Cipher.getInstance("AES/ECB/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec)
+        val derived = XOR(serializePrivateKey(), derivedhalf1)
+        val encryptedkey = cipher.doFinal(derived)
 
-            val buffer = ByteArray(encryptedkey.size + 7)
-            buffer[0] = 0x01.toByte()
-            buffer[1] = 0x42.toByte()
-            buffer[2] = 0xe0.toByte()
-            System.arraycopy(addresshash, 0, buffer, 3, addresshash.size)
-            System.arraycopy(encryptedkey, 0, buffer, 7, encryptedkey.size)
-            return Base58.checkSumEncode(buffer)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return null
+        val buffer = ByteArray(encryptedkey.size + 7)
+        buffer[0] = 0x01.toByte()
+        buffer[1] = 0x42.toByte()
+        buffer[2] = 0xe0.toByte()
+        System.arraycopy(addresshash, 0, buffer, 3, addresshash.size)
+        System.arraycopy(encryptedkey, 0, buffer, 7, encryptedkey.size)
+        return Base58.checkSumEncode(buffer)
     }
 
     @Throws(Exception::class)
@@ -349,9 +343,8 @@ class Account {
             val encryptedkey = cipher.doFinal(serializePrivateKey())
             return String(Base64.getEncoder().encode(encryptedkey))
         } catch (e: Exception) {
-            throw SDKException(ErrorCode.EncriptPrivateKeyError)
+            throw SDKException(ErrorCode.EncriptPrivateKeyError, e)
         }
-
     }
 
     @Throws(Exception::class)
@@ -376,10 +369,8 @@ class Account {
             val encryptedkey = cipher.doFinal(serializePrivateKey())
             return String(Base64.getEncoder().encode(encryptedkey))
         } catch (e: Exception) {
-            e.printStackTrace()
-            throw SDKException(ErrorCode.EncriptPrivateKeyError)
+            throw SDKException(ErrorCode.EncriptPrivateKeyError, e)
         }
-
     }
 
     override fun equals(other: Any?): Boolean {
@@ -544,8 +535,7 @@ class Account {
                 cipher.updateAAD(address.toByteArray())
                 cipher.doFinal(encryptedkey)
             } catch (e: Exception) {
-                e.printStackTrace()
-                throw SDKException(ErrorCode.encryptedPriKeyAddressPasswordErr)
+                throw SDKException(ErrorCode.encryptedPriKeyAddressPasswordErr, e)
             }
 
             val account = Account(rawkey, scheme)

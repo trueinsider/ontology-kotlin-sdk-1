@@ -795,7 +795,6 @@ class OntId {
             val nodes = proof["Nodes"] as List<*>
             return MerkleVerifier.Verify(txsroot, nodes, merkleRoot)
         } catch (e: Exception) {
-            e.printStackTrace()
             throw SDKException(e)
         }
 

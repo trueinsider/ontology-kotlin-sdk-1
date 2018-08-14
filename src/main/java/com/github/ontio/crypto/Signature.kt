@@ -48,18 +48,14 @@ class Signature {
     // serialize to byte array
     fun toBytes(): ByteArray {
         val bs = ByteArrayOutputStream()
-        try {
-            bs.write(scheme.ordinal.toByte().toInt())
-            if (scheme == SignatureScheme.SM3WITHSM2) {
-                // adding the ID
-                bs.write((param as SM2ParameterSpec).id)
-                // padding a 0 as the terminator
-                bs.write(0.toByte().toInt())
-            }
-            bs.write(value)
-        } catch (e: IOException) {
-            e.printStackTrace()
+        bs.write(scheme.ordinal.toByte().toInt())
+        if (scheme == SignatureScheme.SM3WITHSM2) {
+            // adding the ID
+            bs.write((param as SM2ParameterSpec).id)
+            // padding a 0 as the terminator
+            bs.write(0.toByte().toInt())
         }
+        bs.write(value)
 
         return bs.toByteArray()
     }

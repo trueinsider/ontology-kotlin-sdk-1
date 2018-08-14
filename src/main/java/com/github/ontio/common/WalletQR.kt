@@ -68,18 +68,12 @@ object WalletQR {
         return map
     }
 
-    fun getPriKeyFromQrCode(qrcode: String, password: String): String? {
+    fun getPriKeyFromQrCode(qrcode: String, password: String): String {
         val map = JSON.parseObject(qrcode, Map::class.java)
         val key = map["key"] as String
         val address = map["address"] as String
         val salt = map["salt"] as String
         val n = (map["scrypt"] as Map<*, *>)["n"] as Int
-        try {
-            return getGcmDecodedPrivateKey(key, password, address, Base64.getDecoder().decode(salt), n, SignatureScheme.SHA256WITHECDSA)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return null
+        return getGcmDecodedPrivateKey(key, password, address, Base64.getDecoder().decode(salt), n, SignatureScheme.SHA256WITHECDSA)
     }
 }

@@ -64,45 +64,41 @@ object NativeBuildParams {
     }
 
     private fun createCodeParamsScript(builder: ScriptBuilder, list: List<Any>): ByteArray {
-        try {
-            for (i in list.indices.reversed()) {
-                val `val` = list[i]
-                when (`val`) {
-                    is ByteArray -> builder.emitPushByteArray(`val`)
-                    is Boolean -> builder.emitPushBool(`val`)
-                    is Int -> builder.emitPushInteger(BigInteger.valueOf(`val`.toLong()))
-                    is Long -> builder.emitPushInteger(BigInteger.valueOf(`val`))
-                    is Address -> builder.emitPushByteArray(`val`.toArray())
-                    is String -> builder.emitPushByteArray(`val`.toByteArray())
-                    is Struct -> {
-                        builder.emitPushInteger(BigInteger.valueOf(0))
-                        builder.add(ScriptOp.OP_NEWSTRUCT)
-                        builder.add(ScriptOp.OP_TOALTSTACK)
-                        for (k in `val`.list.indices) {
-                            val o = `val`.list[k]
-                            val tmpList = mutableListOf<Any>()
-                            tmpList.add(o)
-                            createCodeParamsScript(builder, tmpList)
-                            builder.add(ScriptOp.OP_DUPFROMALTSTACK)
-                            builder.add(ScriptOp.OP_SWAP)
-                            builder.add(ScriptOp.OP_APPEND)
-                        }
-                        builder.add(ScriptOp.OP_FROMALTSTACK)
+        for (i in list.indices.reversed()) {
+            val `val` = list[i]
+            when (`val`) {
+                is ByteArray -> builder.emitPushByteArray(`val`)
+                is Boolean -> builder.emitPushBool(`val`)
+                is Int -> builder.emitPushInteger(BigInteger.valueOf(`val`.toLong()))
+                is Long -> builder.emitPushInteger(BigInteger.valueOf(`val`))
+                is Address -> builder.emitPushByteArray(`val`.toArray())
+                is String -> builder.emitPushByteArray(`val`.toByteArray())
+                is Struct -> {
+                    builder.emitPushInteger(BigInteger.valueOf(0))
+                    builder.add(ScriptOp.OP_NEWSTRUCT)
+                    builder.add(ScriptOp.OP_TOALTSTACK)
+                    for (k in `val`.list.indices) {
+                        val o = `val`.list[k]
+                        val tmpList = mutableListOf<Any>()
+                        tmpList.add(o)
+                        createCodeParamsScript(builder, tmpList)
+                        builder.add(ScriptOp.OP_DUPFROMALTSTACK)
+                        builder.add(ScriptOp.OP_SWAP)
+                        builder.add(ScriptOp.OP_APPEND)
                     }
-                    is List<*> -> {
-                        for (k in `val`.indices.reversed()) {
-                            val tmpList = mutableListOf<Any>()
-                            tmpList.add(`val`[k]!!)
-                            createCodeParamsScript(builder, tmpList)
-                        }
-                        builder.emitPushInteger(BigInteger(`val`.size.toString()))
-                        builder.pushPack()
-                    }
-                    else -> throw SDKException(ErrorCode.OtherError("not this type"))
+                    builder.add(ScriptOp.OP_FROMALTSTACK)
                 }
+                is List<*> -> {
+                    for (k in `val`.indices.reversed()) {
+                        val tmpList = mutableListOf<Any>()
+                        tmpList.add(`val`[k]!!)
+                        createCodeParamsScript(builder, tmpList)
+                    }
+                    builder.emitPushInteger(BigInteger(`val`.size.toString()))
+                    builder.pushPack()
+                }
+                else -> throw SDKException(ErrorCode.OtherError("not this type"))
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
 
         return builder.toArray()

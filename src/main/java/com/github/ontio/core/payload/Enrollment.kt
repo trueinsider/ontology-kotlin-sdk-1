@@ -40,12 +40,8 @@ class Enrollment(var pubKey: ECPoint) : Transaction(TransactionType.Enrollment) 
 
     @Throws(IOException::class)
     override fun deserializeExclusiveData(reader: BinaryReader) {
-        try {
-            pubKey = ECC.secp256r1.curve.createPoint(
-                    BigInteger(1, reader.readVarBytes()), BigInteger(1, reader.readVarBytes()))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        pubKey = ECC.secp256r1.curve.createPoint(
+                BigInteger(1, reader.readVarBytes()), BigInteger(1, reader.readVarBytes()))
     }
 
     @Throws(IOException::class)
