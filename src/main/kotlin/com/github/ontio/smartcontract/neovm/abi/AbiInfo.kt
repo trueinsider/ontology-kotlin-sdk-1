@@ -24,12 +24,25 @@ import com.alibaba.fastjson.JSON
 /**
  * smartcode abi information
  */
-class AbiInfo(
-        val hash: String,
-        val entrypoint: String,
-        val functions: List<AbiFunction>,
-        val events: List<AbiEvent>
-) {
+class AbiInfo {
+    lateinit var hash: String
+        internal set
+    lateinit var entrypoint: String
+        internal set
+    lateinit var functions: List<AbiFunction>
+        internal set
+    lateinit var events: List<AbiEvent>
+        internal set
+
+    internal constructor()
+
+    constructor(hash: String, entrypoint: String, functions: List<AbiFunction>, events: List<AbiEvent>) {
+        this.hash = hash
+        this.entrypoint = entrypoint
+        this.functions = functions
+        this.events = events
+    }
+
     fun getFunction(name: String): AbiFunction? {
         for (e in functions) {
             if (e.name == name) {

@@ -51,7 +51,8 @@ object OntSdk {
 
     private lateinit var signServer: SignServer
     var defaultSignScheme = SignatureScheme.SHA256WITHECDSA
-    var DEFAULT_GAS_LIMIT: Long = 20000
+    const val DEFAULT_GAS_LIMIT = 20000L
+    const val DEFAULT_DEPLOY_GAS_LIMIT = 20200000L
 
     val rpc: ConnectMgr
         get() {
