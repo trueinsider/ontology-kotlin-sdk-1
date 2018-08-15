@@ -32,11 +32,21 @@ import java.math.BigInteger
 /**
  *
  */
-class Bookkeeper(
-        var issuer: ECPoint,
-        var action: BookkeeperAction,
-        var cert: ByteArray
-) : Transaction(TransactionType.Bookkeeper) {
+class Bookkeeper : Transaction {
+    lateinit var issuer: ECPoint
+        private set
+    lateinit var action: BookkeeperAction
+        private set
+    lateinit var cert: ByteArray
+        private set
+
+    private constructor() : super(TransactionType.Bookkeeper)
+
+    constructor(issuer: ECPoint, action: BookkeeperAction, cert: ByteArray) : super(TransactionType.Bookkeeper) {
+        this.issuer = issuer
+        this.action = action
+        this.cert = cert
+    }
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null

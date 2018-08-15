@@ -148,7 +148,9 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
                 val ver = reader.readByte()
                 val type = TransactionType.valueOf(reader.readByte())
                 val typeName = "com.github.ontio.core.payload." + type.toString()
-                val transaction = Class.forName(typeName).newInstance() as Transaction
+                val constructor = Class.forName(typeName).getDeclaredConstructor()
+                constructor.isAccessible = true
+                val transaction = constructor.newInstance() as Transaction
                 transaction.nonce = reader.readInt()
                 transaction.version = ver
                 transaction.gasPrice = reader.readLong()

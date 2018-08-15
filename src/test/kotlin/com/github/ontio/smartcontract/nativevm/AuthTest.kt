@@ -2,57 +2,56 @@ package com.github.ontio.smartcontract.nativevm
 
 import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.DEFAULT_GAS_LIMIT
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.openWalletFile
+import com.github.ontio.OntSdk.restful
+import com.github.ontio.OntSdk.setDefaultConnect
+import com.github.ontio.OntSdk.setRestful
+import com.github.ontio.OntSdk.signTx
+import com.github.ontio.OntSdk.walletMgr
 import com.github.ontio.OntSdkTest
 import com.github.ontio.account.Account
 import com.github.ontio.common.Address
-import com.github.ontio.common.Common
 import com.github.ontio.common.Helper
 import com.github.ontio.core.payload.DeployCode
-import com.github.ontio.core.transaction.Transaction
 import com.github.ontio.crypto.SignatureScheme
-import com.github.ontio.network.exception.ConnectorException
-import com.github.ontio.sdk.exception.SDKException
 import com.github.ontio.sdk.wallet.Identity
-import com.github.ontio.smartcontract.neovm.abi.AbiFunction
+import com.github.ontio.smartcontract.NeoVm
+import com.github.ontio.smartcontract.Vm.makeDeployCodeTransaction
 import com.github.ontio.smartcontract.neovm.abi.AbiInfo
 import org.junit.After
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-
 import java.io.File
-import java.io.IOException
-
-import org.junit.Assert.*
 
 class AuthTest {
+    lateinit var codeHex: String
+    lateinit var codeAddress: String
+    lateinit var abi: String
+    lateinit var account: Account
+    lateinit var password: String
+    lateinit var adminIdentity: Identity
+    lateinit var identity: Identity
+    lateinit var identity2: Identity
 
-    internal var sdk: OntSdk
-    internal var codeHex: String
-    internal var codeAddress: String
-    internal var abi: String
-    internal var account: Account
-    internal var password: String
-    internal var walletFile = "AuthTest.json"
-    internal var adminIdentity: Identity? = null
-    internal var identity: Identity? = null
-    internal var identity2: Identity? = null
+    val walletFile = "AuthTest.json"
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
-        sdk = OntSdk.getInstance()
-        sdk.setRestful(OntSdkTest.URL)
-        sdk.setDefaultConnect(sdk.restful)
-        sdk.openWalletFile(walletFile)
+        setRestful(OntSdkTest.URL)
+        setDefaultConnect(restful)
+        openWalletFile(walletFile)
         codeHex = "57c56b6c766b00527ac46c766b51527ac4616c766b00c304696e6974876c766b52527ac46c766b52c3641100616509016c766b53527ac46294006c766b00c30a717565727961646d696e876c766b54527ac46c766b54c3641100616598006c766b53527ac46266006c766b00c303666f6f876c766b55527ac46c766b55c3644200616c766b00c36c766b51c3617c655d01009c6c766b56527ac46c766b56c3640e00006c766b53527ac46221006c766b51c3616521006c766b53527ac4620e00006c766b53527ac46203006c766b53c3616c756652c56b6c766b00527ac461516c766b51527ac46203006c766b51c3616c756651c56b61612a6469643a6f6e743a41617a457666515063513247454646504c46315a4c7751374b356a446e38316876656c766b00527ac46203006c766b00c3616c756653c56b611400000000000000000000000000000000000000066c766b00527ac4006c766b00c311696e6974436f6e747261637441646d696e612a6469643a6f6e743a41617a457666515063513247454646504c46315a4c7751374b356a446e383168766561537951795572755172755279527954727552727568164f6e746f6c6f67792e4e61746976652e496e766f6b656c766b51527ac46c766b51c300517f519c6c766b52527ac46203006c766b52c3616c756657c56b6c766b00527ac46c766b51527ac461556154c66c766b527a527ac46c766b55c36c766b52527ac46c766b52c361682d53797374656d2e457865637574696f6e456e67696e652e476574457865637574696e6753637269707448617368007cc46c766b52c36c766b00c3527cc46c766b52c36c766b51c300c3517cc46c766b52c36c766b51c351c3537cc41400000000000000000000000000000000000000066c766b53527ac4006c766b53c30b766572696679546f6b656e6c766b52c361537951795572755172755279527954727552727568164f6e746f6c6f67792e4e61746976652e496e766f6b656c766b54527ac46c766b54c300517f519c6c766b56527ac46203006c766b56c3616c7566"
         codeAddress = Address.AddressFromVmCode(codeHex).toHexString()
         abi = "{\"hash\":\"0x3acea0d75537d14762b692dc7e3c62b98975fa50\",\"entrypoint\":\"Main\",\"functions\":[{\"name\":\"Main\",\"parameters\":[{\"name\":\"operation\",\"type\":\"String\"},{\"name\":\"args\",\"type\":\"Array\"}],\"returntype\":\"Any\"},{\"name\":\"foo\",\"parameters\":[{\"name\":\"args\",\"type\":\"Array\"}],\"returntype\":\"Boolean\"},{\"name\":\"queryadmin\",\"parameters\":[],\"returntype\":\"ByteArray\"},{\"name\":\"init\",\"parameters\":[],\"returntype\":\"Boolean\"}],\"events\":[]}"
         account = Account(Helper.hexToBytes(OntSdkTest.PRIVATEKEY), SignatureScheme.SHA256WITHECDSA)
         password = "111111"
-        adminIdentity = sdk.walletMgr!!.createIdentityFromPriKey(password, OntSdkTest.PRIVATEKEY)
-        identity = sdk.walletMgr!!.createIdentityFromPriKey(password, OntSdkTest.PRIVATEKEY2)
-        identity2 = sdk.walletMgr!!.createIdentityFromPriKey(password, OntSdkTest.PRIVATEKEY3)
+        adminIdentity = walletMgr.createIdentityFromPriKey(password, OntSdkTest.PRIVATEKEY)
+        identity = walletMgr.createIdentityFromPriKey(password, OntSdkTest.PRIVATEKEY2)
+        identity2 = walletMgr.createIdentityFromPriKey(password, OntSdkTest.PRIVATEKEY3)
 
         codeHex = "5ac56b6c766b00527ac46c766b51527ac4616c766b00c304696e6974876c766b52527ac46c766b52c3641100616580016c766b53527ac46222016c766b00c303666f6f876c766b54527ac46c766b54c3644400616c766b00c36c766b51c3617c650202009c6c766b55527ac46c766b55c3641500076e6f20617574686c766b53527ac462d6006165db006c766b53527ac462c8006c766b00c304666f6f32876c766b56527ac46c766b56c3644400616c766b00c36c766b51c3617c65a701009c6c766b57527ac46c766b57c3641500076e6f20617574686c766b53527ac4627b00616599006c766b53527ac4626d006c766b00c304666f6f33876c766b58527ac46c766b58c3644400616c766b00c36c766b51c3617c654c01009c6c766b59527ac46c766b59c3641500076e6f20617574686c766b53527ac4622000616557006c766b53527ac4621200046f7665726c766b53527ac46203006c766b53c3616c756651c56b6101416c766b00527ac46203006c766b00c3616c756651c56b6101426c766b00527ac46203006c766b00c3616c756651c56b6101436c766b00527ac46203006c766b00c3616c756653c56b611400000000000000000000000000000000000000066c766b00527ac4006c766b00c311696e6974436f6e747261637441646d696e612a6469643a6f6e743a41617a457666515063513247454646504c46315a4c7751374b356a446e383168766561537951795572755172755279527954727552727568164f6e746f6c6f67792e4e61746976652e496e766f6b656c766b51527ac46c766b51c300517f519c6c766b52527ac46203006c766b52c3616c756657c56b6c766b00527ac46c766b51527ac461556154c66c766b527a527ac46c766b55c36c766b52527ac46c766b52c361682d53797374656d2e457865637574696f6e456e67696e652e476574457865637574696e6753637269707448617368007cc46c766b52c36c766b00c3527cc46c766b52c36c766b51c300c3517cc46c766b52c36c766b51c351c3537cc41400000000000000000000000000000000000000066c766b53527ac4006c766b53c30b766572696679546f6b656e6c766b52c361537951795572755172755279527954727552727568164f6e746f6c6f67792e4e61746976652e496e766f6b656c766b54527ac46c766b54c300517f519c6c766b56527ac46203006c766b56c3616c7566"
         codeAddress = Address.AddressFromVmCode(codeHex).toHexString()
@@ -70,53 +69,48 @@ class AuthTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun test() {
-        sdk.nativevm().ontId().sendRegister(adminIdentity, password, account, sdk.DEFAULT_GAS_LIMIT, 0)
-        sdk.nativevm().ontId().sendRegister(identity, password, account, sdk.DEFAULT_GAS_LIMIT, 0)
-        sdk.nativevm().ontId().sendRegister(identity2, password, account, sdk.DEFAULT_GAS_LIMIT, 0)
-        val tx = sdk.vm().makeDeployCodeTransaction(codeHex, true, "name",
-                "v1.0", "author", "email", "desp", account.addressU160!!.toBase58(), 20000000, 0)
-        sdk.vm().codeAddress = codeAddress
-        sdk.signTx(tx, arrayOf(arrayOf(account)))
+        OntId.sendRegister(adminIdentity, password, account, DEFAULT_GAS_LIMIT, 0)
+        OntId.sendRegister(identity, password, account, DEFAULT_GAS_LIMIT, 0)
+        OntId.sendRegister(identity2, password, account, DEFAULT_GAS_LIMIT, 0)
+        val tx = makeDeployCodeTransaction(codeHex, true, "name", "v1.0", "author",
+                "email", "desp", account.addressU160.toBase58(), 20000000, 0)
+        signTx(tx, arrayOf(arrayOf(account)))
         val txHex = Helper.toHexString(tx.toArray())
-        val result = sdk.connect!!.sendRawTransaction(txHex)
+        connect!!.sendRawTransaction(txHex)
         Thread.sleep(6000)
-        val t = sdk.connect!!.getTransaction(tx.hash().toHexString()) as DeployCode
+        val t = connect!!.getTransaction(tx.hash().toHexString()) as DeployCode
         assertNotNull(t)
     }
 
     @Test
-    @Throws(Exception::class)
     fun sendTransfer() {
-        val txhash = sdk.nativevm().auth().sendTransfer(identity!!.ontid, password, identity!!.controls[0].getSalt(), 1, codeAddress, adminIdentity!!.ontid, account, sdk.DEFAULT_GAS_LIMIT, 0)
+        val txhash = Auth.sendTransfer(identity.ontid, password, identity.controls[0].getSalt(), 1, codeAddress, adminIdentity.ontid, account, DEFAULT_GAS_LIMIT, 0)
         Thread.sleep(6000)
-        val obj = sdk.connect!!.getSmartCodeEvent(txhash)
+        val obj = connect!!.getSmartCodeEvent(txhash)
         assertTrue((obj as JSONObject).getString("State") == "1")
     }
 
     @Test
-    @Throws(Exception::class)
     fun initTest() {
 
         val abiInfo = JSON.parseObject(abi, AbiInfo::class.java)
         val name = "init"
         val function = abiInfo.getFunction(name)
         function!!.setParamsValue()
-        val txhash = sdk.neovm().sendTransaction(Helper.reverse(codeAddress), account, account, sdk.DEFAULT_GAS_LIMIT, 0, function, false) as String
+        val txhash = NeoVm.sendTransaction(Helper.reverse(codeAddress), account, account, DEFAULT_GAS_LIMIT, 0, function, false) as String
         Thread.sleep(6000)
-        val obj = sdk.connect!!.getSmartCodeEvent(txhash)
+        val obj = connect!!.getSmartCodeEvent(txhash)
         println(obj)
     }
 
     @Test
-    @Throws(Exception::class)
     fun queryAdmin() {
         val abiInfo = JSON.parseObject(abi, AbiInfo::class.java)
         val name = "queryadmin"
         val function = abiInfo.getFunction(name)
         function!!.setParamsValue()
-        val obj = sdk.neovm().sendTransaction(Helper.reverse(codeAddress), account, account, sdk.DEFAULT_GAS_LIMIT, 0, function, true)
+        val obj = NeoVm.sendTransaction(Helper.reverse(codeAddress), account, account, DEFAULT_GAS_LIMIT, 0, function, true)
         val res = (obj as JSONObject).getString("Result")
         val aa = String(Helper.hexToBytes(res))
         assertTrue("did:ont:AazEvfQPcQ2GEFFPLF1ZLwQ7K5jDn81hve" == aa)
@@ -124,57 +118,53 @@ class AuthTest {
 
 
     @Test
-    @Throws(Exception::class)
     fun assignFuncsToRole2() {
-        var txhash = sdk.nativevm().auth().assignFuncsToRole(adminIdentity!!.ontid, password, adminIdentity!!.controls[0].getSalt(),
-                1, Helper.reverse(codeAddress), "role1", arrayOf("foo1"), account, sdk.DEFAULT_GAS_LIMIT, 0)
+        var txhash = Auth.assignFuncsToRole(adminIdentity.ontid, password, adminIdentity.controls[0].getSalt(),
+                1, Helper.reverse(codeAddress), "role1", arrayOf("foo1"), account, DEFAULT_GAS_LIMIT, 0)!!
 
-        val txhash2 = sdk.nativevm().auth().assignFuncsToRole(adminIdentity!!.ontid, password, adminIdentity!!.controls[0].getSalt(), 1,
-                Helper.reverse(codeAddress), "role2", arrayOf("foo2", "foo3"), account, sdk.DEFAULT_GAS_LIMIT, 0)
+        val txhash2 = Auth.assignFuncsToRole(adminIdentity.ontid, password, adminIdentity.controls[0].getSalt(), 1,
+                Helper.reverse(codeAddress), "role2", arrayOf("foo2", "foo3"), account, DEFAULT_GAS_LIMIT, 0)!!
         Thread.sleep(6000)
-        var obj = sdk.connect!!.getSmartCodeEvent(txhash)
+        var obj = connect!!.getSmartCodeEvent(txhash)
         assertTrue((obj as JSONObject).getString("State") == "1")
-        obj = sdk.connect!!.getSmartCodeEvent(txhash2)
+        obj = connect!!.getSmartCodeEvent(txhash2)
         assertTrue((obj as JSONObject).getString("State") == "1")
-        txhash = sdk.nativevm().auth().assignOntIdsToRole(adminIdentity!!.ontid, password, adminIdentity!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "role1", arrayOf(identity2!!.ontid), account, sdk.DEFAULT_GAS_LIMIT, 0)
+        txhash = Auth.assignOntIdsToRole(adminIdentity.ontid, password, adminIdentity.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "role1", arrayOf(identity2.ontid), account, DEFAULT_GAS_LIMIT, 0)!!
         Thread.sleep(6000)
-        obj = sdk.connect!!.getSmartCodeEvent(txhash)
+        obj = connect!!.getSmartCodeEvent(txhash)
         assertTrue((obj as JSONObject).getString("State") == "1")
-        val result = sdk.nativevm().auth().verifyToken(identity2!!.ontid, password, identity2!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo1")
+        val result = Auth.verifyToken(identity2.ontid, password, identity2.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo1")
         assertTrue(result == "01")
     }
 
 
     @Test
-    @Throws(Exception::class)
     fun assignFuncsToRole() {
-        var txhash = sdk.nativevm().auth().assignFuncsToRole(adminIdentity!!.ontid, password, adminIdentity!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "role", arrayOf("foo"), account, sdk.DEFAULT_GAS_LIMIT, 0)
+        var txhash = Auth.assignFuncsToRole(adminIdentity.ontid, password, adminIdentity.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "role", arrayOf("foo"), account, DEFAULT_GAS_LIMIT, 0)!!
         Thread.sleep(6000)
-        var obj = sdk.connect!!.getSmartCodeEvent(txhash)
+        var obj = connect!!.getSmartCodeEvent(txhash)
         assertTrue((obj as JSONObject).getString("State") == "1")
-        txhash = sdk.nativevm().auth().assignOntIdsToRole(adminIdentity!!.ontid, password, adminIdentity!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "role", arrayOf(identity2!!.ontid), account, sdk.DEFAULT_GAS_LIMIT, 0)
+        txhash = Auth.assignOntIdsToRole(adminIdentity.ontid, password, adminIdentity.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "role", arrayOf(identity2.ontid), account, DEFAULT_GAS_LIMIT, 0)!!
         Thread.sleep(6000)
-        obj = sdk.connect!!.getSmartCodeEvent(txhash)
+        obj = connect!!.getSmartCodeEvent(txhash)
         assertTrue((obj as JSONObject).getString("State") == "1")
-        val result = sdk.nativevm().auth().verifyToken(identity2!!.ontid, password, identity2!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
+        val result = Auth.verifyToken(identity2.ontid, password, identity2.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
         assertTrue(result == "01")
     }
 
     @Test
-    @Throws(Exception::class)
     fun delegate() {
-        sdk.nativevm().auth().delegate(identity2!!.ontid, password, identity2!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), identity!!.ontid, "role", (60 * 5).toLong(), 1, account, sdk.DEFAULT_GAS_LIMIT, 0)
+        Auth.delegate(identity2.ontid, password, identity2.controls[0].getSalt(), 1, Helper.reverse(codeAddress), identity.ontid, "role", (60 * 5).toLong(), 1, account, DEFAULT_GAS_LIMIT, 0)
         Thread.sleep(6000)
-        sdk.nativevm().auth().withdraw(identity2!!.ontid, password, identity2!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), identity!!.ontid, "role1", account, sdk.DEFAULT_GAS_LIMIT, 0)
-        val result = sdk.nativevm().auth().verifyToken(identity2!!.ontid, password, identity2!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
-        val result2 = sdk.nativevm().auth().verifyToken(identity!!.ontid, password, identity!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
+        Auth.withdraw(identity2.ontid, password, identity2.controls[0].getSalt(), 1, Helper.reverse(codeAddress), identity.ontid, "role1", account, DEFAULT_GAS_LIMIT, 0)
+        Auth.verifyToken(identity2.ontid, password, identity2.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
+        val result2 = Auth.verifyToken(identity.ontid, password, identity.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
         assertTrue(result2 == "01")
     }
 
     @Test
-    @Throws(Exception::class)
     fun verifyToken() {
-        val result2 = sdk.nativevm().auth().verifyToken(identity!!.ontid, password, identity!!.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
+        val result2 = Auth.verifyToken(identity.ontid, password, identity.controls[0].getSalt(), 1, Helper.reverse(codeAddress), "foo")
         assertTrue(result2 == "01")
     }
 }

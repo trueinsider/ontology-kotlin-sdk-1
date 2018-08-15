@@ -32,7 +32,16 @@ import java.math.BigInteger
 /**
  *
  */
-class Enrollment(var pubKey: ECPoint) : Transaction(TransactionType.Enrollment) {
+class Enrollment : Transaction {
+    lateinit var pubKey: ECPoint
+        private set
+
+    private constructor() : super(TransactionType.Enrollment)
+
+    constructor(pubKey: ECPoint) : super(TransactionType.Enrollment) {
+        this.pubKey = pubKey
+    }
+
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 

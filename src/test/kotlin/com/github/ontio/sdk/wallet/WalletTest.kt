@@ -1,6 +1,7 @@
 package com.github.ontio.sdk.wallet
 
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.openWalletFile
+import com.github.ontio.OntSdk.walletMgr
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -8,30 +9,23 @@ import org.junit.Test
 
 import java.io.File
 
-import org.junit.Assert.*
-
 class WalletTest {
+    lateinit var id1: Identity
+    lateinit var id2: Identity
+    lateinit var acct1: Account
+    lateinit var acct2: Account
 
-    internal var ontSdk: OntSdk
-    internal var id1: Identity? = null
-    internal var id2: Identity? = null
-    internal var acct1: Account? = null
-    internal var acct2: Account? = null
-
-    internal var walletFile = "WalletTest.json"
+    val walletFile = "WalletTest.json"
 
     @Before
-    @Throws(Exception::class)
     fun setUp() {
-        ontSdk = OntSdk.getInstance()
-        ontSdk.openWalletFile(walletFile)
+        openWalletFile(walletFile)
 
+        id1 = walletMgr.createIdentity("passwordtest")
+        id2 = walletMgr.createIdentity("passwordtest")
 
-        id1 = ontSdk.walletMgr!!.createIdentity("passwordtest")
-        id2 = ontSdk.walletMgr!!.createIdentity("passwordtest")
-
-        acct1 = ontSdk.walletMgr!!.createAccount("passwordtest")
-        acct2 = ontSdk.walletMgr!!.createAccount("passwordtest")
+        acct1 = walletMgr.createAccount("passwordtest")
+        acct2 = walletMgr.createAccount("passwordtest")
     }
 
     @After
@@ -44,27 +38,21 @@ class WalletTest {
         }
     }
 
-
     @Test
-    @Throws(Exception::class)
     fun getAccount() {
-        val acct = ontSdk.walletMgr!!.wallet!!.getAccount(acct1!!.address)
+        val acct = walletMgr.wallet!!.getAccount(acct1.address)
         Assert.assertNotNull(acct)
 
-        ontSdk.walletMgr!!.wallet!!.setDefaultIdentity(id1!!.ontid)
-        ontSdk.walletMgr!!.wallet!!.setDefaultIdentity(1)
-        ontSdk.walletMgr!!.wallet!!.setDefaultAccount(acct1!!.address)
-        ontSdk.walletMgr!!.wallet!!.setDefaultAccount(1)
-        val did = ontSdk.walletMgr!!.wallet!!.getIdentity(id1!!.ontid)
+        walletMgr.wallet!!.setDefaultIdentity(id1.ontid)
+        walletMgr.wallet!!.setDefaultIdentity(1)
+        walletMgr.wallet!!.setDefaultAccount(acct1.address)
+        walletMgr.wallet!!.setDefaultAccount(1)
+        val did = walletMgr.wallet!!.getIdentity(id1.ontid)
         Assert.assertNotNull(did)
-        val b = ontSdk.walletMgr!!.wallet!!.removeIdentity(id1!!.ontid)
+        val b = walletMgr.wallet!!.removeIdentity(id1.ontid)
         Assert.assertTrue(b)
 
-        val b2 = ontSdk.walletMgr!!.wallet!!.removeAccount(acct1!!.address)
+        val b2 = walletMgr.wallet!!.removeAccount(acct1.address)
         Assert.assertTrue(b2)
-
-
     }
-
-
 }

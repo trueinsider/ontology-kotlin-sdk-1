@@ -26,29 +26,33 @@ import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 
 
-class DeployCode(
-        code: ByteArray,
-        needStorage: Boolean,
-        name: String,
-        versionString: String,
-        author: String,
-        email: String,
-        description: String
-) : Transaction(TransactionType.DeployCode) {
-    var code: ByteArray = code
+class DeployCode : Transaction {
+    lateinit var code: ByteArray
         private set
-    var needStorage: Boolean = needStorage
+    var needStorage: Boolean = false
         private set
-    var name: String = name
+    lateinit var name: String
         private set
-    var versionString: String = versionString
+    lateinit var versionString: String
         private set
-    var author: String = author
+    lateinit var author: String
         private set
-    var email: String = email
+    lateinit var email: String
         private set
-    var description: String = description
+    lateinit var description: String
         private set
+
+    private constructor() : super(TransactionType.DeployCode)
+
+    constructor(code: ByteArray, needStorage: Boolean, name: String, versionString: String, author: String, email: String, description: String) : super(TransactionType.DeployCode) {
+        this.code = code
+        this.needStorage = needStorage
+        this.name = name
+        this.versionString = versionString
+        this.author = author
+        this.email = email
+        this.description = description
+    }
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
@@ -71,5 +75,13 @@ class DeployCode(
         writer.writeVarString(author)
         writer.writeVarString(email)
         writer.writeVarString(description)
+    }
+
+    companion object {
+        fun deserializeFrom(reader: BinaryReader): DeployCode {
+            val deployCode = DeployCode()
+            deployCode.deserializeExclusiveData(reader)
+            return deployCode
+        }
     }
 }

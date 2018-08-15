@@ -170,13 +170,13 @@ class WalletMgr {
     }
 
 
-    fun createIdentity(password: String): Identity? {
+    fun createIdentity(password: String): Identity {
         return createIdentity("", password)
     }
 
-    fun createIdentity(label: String, password: String): Identity? {
+    fun createIdentity(label: String, password: String): Identity {
         val info = createIdentity(label, password, ECC.generateKey())
-        return wallet!!.getIdentity(info.ontid)
+        return wallet!!.getIdentity(info.ontid)!!
     }
 
     fun createIdentityFromPriKey(label: String, password: String, prikey: String): Identity? {
@@ -184,9 +184,9 @@ class WalletMgr {
         return wallet!!.getIdentity(info.ontid)
     }
 
-    fun createIdentityFromPriKey(password: String, prikey: String?): Identity? {
+    fun createIdentityFromPriKey(password: String, prikey: String?): Identity {
         val info = createIdentity("", password, Helper.hexToBytes(prikey))
-        return wallet!!.getIdentity(info.ontid)
+        return wallet!!.getIdentity(info.ontid)!!
     }
 
     fun createIdentityInfo(password: String): IdentityInfo {
@@ -239,13 +239,13 @@ class WalletMgr {
         }
     }
 
-    fun createAccount(password: String): Account? {
+    fun createAccount(password: String): Account {
         return createAccount("", password)
     }
 
-    fun createAccount(label: String, password: String): Account? {
+    fun createAccount(label: String, password: String): Account {
         val info = createAccountInfo(label, password, ECC.generateKey())
-        return wallet!!.getAccount(info.addressBase58)
+        return wallet!!.getAccount(info.addressBase58)!!
     }
 
     private fun createAccountInfo(label: String, password: String, prikey: ByteArray): AccountInfo {
@@ -264,9 +264,9 @@ class WalletMgr {
         )
     }
 
-    fun createAccountFromPriKey(password: String, prikey: String): Account? {
+    fun createAccountFromPriKey(password: String, prikey: String): Account {
         val info = createAccountInfo("", password, Helper.hexToBytes(prikey))
-        return wallet!!.getAccount(info.addressBase58)
+        return wallet!!.getAccount(info.addressBase58)!!
     }
 
     fun createAccountFromPriKey(label: String, password: String, prikey: String): Account? {

@@ -1,19 +1,15 @@
 package com.github.ontio.io
 
-import com.github.ontio.common.Helper
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
-import java.util.Arrays
-
-import org.junit.Assert.*
+import java.util.*
 
 class BinaryReaderTest {
 
     @Test
-    @Throws(IOException::class)
     fun readVarBytes() {
         val byteArrayOutputStream = ByteArrayOutputStream()
         val binaryWriter = BinaryWriter(byteArrayOutputStream)
@@ -26,7 +22,6 @@ class BinaryReaderTest {
     }
 
     @Test
-    @Throws(IOException::class)
     fun readVarInt() {
         val byteArrayOutputStream = ByteArrayOutputStream()
         val binaryWriter = BinaryWriter(byteArrayOutputStream)
@@ -39,7 +34,6 @@ class BinaryReaderTest {
     }
 
     @Test
-    @Throws(IOException::class)
     fun readBoolean() {
         val byteArrayOutputStream = ByteArrayOutputStream()
         val binaryWriter = BinaryWriter(byteArrayOutputStream)
@@ -52,7 +46,6 @@ class BinaryReaderTest {
     }
 
     @Test
-    @Throws(IOException::class)
     fun readByte() {
         val byteArrayOutputStream = ByteArrayOutputStream()
         val binaryWriter = BinaryWriter(byteArrayOutputStream)
@@ -62,6 +55,6 @@ class BinaryReaderTest {
         val bin = ByteArrayInputStream(byteArrayOutputStream.toByteArray())
         val binaryReader = BinaryReader(bin)
         val res = binaryReader.readByte()
-        assertEquals(res.toLong(), 'a')
+        assertEquals(res.toLong(), 'a'.toLong())
     }
 }

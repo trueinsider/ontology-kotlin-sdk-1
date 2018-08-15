@@ -26,9 +26,15 @@ import com.github.ontio.core.transaction.TransactionType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
 
-class InvokeCode(code: ByteArray) : Transaction(TransactionType.InvokeCode) {
-    var code: ByteArray = code
+class InvokeCode : Transaction {
+    lateinit var code: ByteArray
         private set
+
+    private constructor() : super(TransactionType.InvokeCode)
+
+    constructor(code: ByteArray) : super(TransactionType.InvokeCode) {
+        this.code = code
+    }
 
     override val addressU160ForVerifying: Array<Address>?
         get() = null
@@ -47,5 +53,13 @@ class InvokeCode(code: ByteArray) : Transaction(TransactionType.InvokeCode) {
         payload["Code"] = Helper.toHexString(code)
         obj["Payload"] = payload
         return obj
+    }
+
+    companion object {
+        fun deserializeFrom(reader: BinaryReader): InvokeCode {
+            val invokeCode = InvokeCode()
+            invokeCode.deserializeExclusiveData(reader)
+            return invokeCode
+        }
     }
 }

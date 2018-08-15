@@ -1,23 +1,17 @@
 package com.github.ontio.core.payload
 
-import com.github.ontio.core.VmType
 import com.github.ontio.io.BinaryReader
 import com.github.ontio.io.BinaryWriter
+import org.junit.Assert.assertNotNull
 import org.junit.Test
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.IOException
-
-import org.junit.Assert.*
 
 class InvokeCodeTest {
 
     @Test
-    @Throws(IOException::class)
     fun serializeExclusiveData() {
-        val invokeCode = InvokeCode()
-        invokeCode.code = "test".toByteArray()
+        val invokeCode = InvokeCode("test".toByteArray())
 
         val byteArrayOutputStream = ByteArrayOutputStream()
         val binaryWriter = BinaryWriter(byteArrayOutputStream)
@@ -25,7 +19,6 @@ class InvokeCodeTest {
 
         assertNotNull(byteArrayOutputStream)
 
-        val invokeCode1 = InvokeCode()
-        invokeCode1.deserializeExclusiveData(BinaryReader(ByteArrayInputStream(byteArrayOutputStream.toByteArray())))
+        InvokeCode.deserializeFrom(BinaryReader(ByteArrayInputStream(byteArrayOutputStream.toByteArray())))
     }
 }

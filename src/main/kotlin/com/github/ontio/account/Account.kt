@@ -153,7 +153,7 @@ class Account {
         }
         return Signature(
                 signatureScheme,
-                paramSpec!!,
+                paramSpec,
                 ctx.generateSignature(privateKey!!, msg, paramSpec)
         ).toBytes()
     }

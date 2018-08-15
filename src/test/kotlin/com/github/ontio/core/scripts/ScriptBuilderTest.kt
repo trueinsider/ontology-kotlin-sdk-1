@@ -1,15 +1,12 @@
 package com.github.ontio.core.scripts
 
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
-
 import java.math.BigInteger
 
-import org.junit.Assert.*
-
 class ScriptBuilderTest {
-
-    internal var scriptBuilder: ScriptBuilder
+    lateinit var scriptBuilder: ScriptBuilder
 
     @Before
     fun setUp() {
@@ -30,7 +27,6 @@ class ScriptBuilderTest {
         assertNotNull(scriptBuilder.emitPushByteArray("test".toByteArray()))
         assertNotNull(scriptBuilder.emitPushInteger(BigInteger("11")))
     }
-
 
     @Test
     fun pushPack() {

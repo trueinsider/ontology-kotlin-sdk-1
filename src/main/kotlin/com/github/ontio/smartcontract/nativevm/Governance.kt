@@ -44,9 +44,9 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.*
 
-class Governance {
-    val contractAddress = "0000000000000000000000000000000000000007"
-    private val VOTE_INFO_POOL = "voteInfoPool"
+object Governance {
+    const val contractAddress = "0000000000000000000000000000000000000007"
+    private const val VOTE_INFO_POOL = "voteInfoPool"
 
     /**
      *
@@ -72,9 +72,6 @@ class Governance {
      * @throws Exception
      */
     fun registerCandidate(account: Account, peerPubkey: String, initPos: Long, ontid: String, ontidpwd: String, salt: ByteArray, keyNo: Long, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new RegisterCandidateParam(peerPubkey,account.getAddressU160(),initPos,ontid.getBytes(),keyNo).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"registerCandidate",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey, account.addressU160, initPos, ontid.toByteArray(), keyNo))
         val args = NativeBuildParams.createCodeParamsScript(list)
@@ -488,9 +485,6 @@ class Governance {
      * @throws Exception
      */
     fun blackNode(peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new BlackNodeParam(peerPubkey).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"blackNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
@@ -512,9 +506,6 @@ class Governance {
      * @throws Exception
      */
     fun whiteNode(peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new WhiteNodeParam(peerPubkey).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"whiteNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey))
         val args = NativeBuildParams.createCodeParamsScript(list)
@@ -537,9 +528,6 @@ class Governance {
      * @throws Exception
      */
     fun quitNode(account: Account, peerPubkey: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String? {
-        //        byte[] params = new QuitNodeParam(peerPubkey,account.getAddressU160()).toArray();
-        //        Transaction tx = sdk.vm().makeInvokeCodeTransaction(contractAddress,"quitNode",params,payerAcct.getAddressU160().toBase58(),gaslimit,gasprice);
-
         val list = mutableListOf<Any>()
         list.add(Struct().add(peerPubkey, account.addressU160))
         val args = NativeBuildParams.createCodeParamsScript(list)

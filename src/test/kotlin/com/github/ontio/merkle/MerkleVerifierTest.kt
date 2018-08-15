@@ -1,41 +1,36 @@
 package com.github.ontio.merkle
 
-import com.alibaba.fastjson.JSON
 import com.alibaba.fastjson.JSONObject
-import com.github.ontio.OntSdk
+import com.github.ontio.OntSdk.DEFAULT_GAS_LIMIT
+import com.github.ontio.OntSdk.addSign
+import com.github.ontio.OntSdk.connect
+import com.github.ontio.OntSdk.openWalletFile
+import com.github.ontio.OntSdk.restful
+import com.github.ontio.OntSdk.setDefaultConnect
+import com.github.ontio.OntSdk.setRestful
+import com.github.ontio.OntSdk.signTx
+import com.github.ontio.OntSdk.walletMgr
 import com.github.ontio.OntSdkTest
 import com.github.ontio.common.UInt256
-import com.github.ontio.core.block.Block
-import com.github.ontio.core.transaction.Transaction
-import com.github.ontio.network.exception.ConnectorException
-import com.github.ontio.sdk.exception.SDKException
-import com.github.ontio.sdk.wallet.Account
-import com.github.ontio.sdk.wallet.Identity
+import com.github.ontio.smartcontract.nativevm.OntId.makeRegister
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-
 import java.io.File
-import java.io.IOException
-import java.util.HashMap
-
-import org.junit.Assert.*
 
 class MerkleVerifierTest {
-    internal var ontSdk: OntSdk
-    internal var password = "111111"
-    internal var walletFile = "MerkleVerifierTest.json"
+    val password = "111111"
+    val walletFile = "MerkleVerifierTest.json"
 
     @Before
-    @Throws(SDKException::class)
     fun setUp() {
         val restUrl = OntSdkTest.URL
 
-        ontSdk = OntSdk.getInstance()
-        ontSdk.setRestful(restUrl)
-        ontSdk.setDefaultConnect(ontSdk.restful)
+        setRestful(restUrl)
+        setDefaultConnect(restful)
 
-        ontSdk.openWalletFile(walletFile)
+        openWalletFile(walletFile)
     }
 
 
@@ -50,7 +45,6 @@ class MerkleVerifierTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun verifyLeafHashInclusion() {
         val txroot = UInt256.parse("f332c8ede11799137f28b10e40200063353dfc3233da6cea689e0637231ad1a7")
         val curBlkRoot = UInt256.parse("ba64746f650b7be0ac89fbf8defeceeb63821272d8096d83d3764b7ae9eb4a21")
@@ -66,41 +60,37 @@ class MerkleVerifierTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun getProof() {
-        val identity = ontSdk.walletMgr!!.createIdentity(password)
-        val payer = ontSdk.walletMgr!!.createAccount(password)
-        val salt = identity!!.controls[0].getSalt()
-        val tx = ontSdk.nativevm().ontId().makeRegister(identity.ontid, password, salt, payer!!.address, ontSdk.DEFAULT_GAS_LIMIT, 0)
-        ontSdk.signTx(tx, identity.ontid, password, salt)
-        ontSdk.addSign(tx, payer.address, password, payer.getSalt())
-        ontSdk.connect!!.sendRawTransaction(tx)
+        val identity = walletMgr.createIdentity(password)
+        val payer = walletMgr.createAccount(password)
+        val salt = identity.controls[0].getSalt()
+        val tx = makeRegister(identity.ontid, password, salt, payer.address, DEFAULT_GAS_LIMIT, 0)
+        signTx(tx, identity.ontid, password, salt)
+        addSign(tx, payer.address, password, payer.getSalt())
+        connect!!.sendRawTransaction(tx)
         Thread.sleep(6000)
 
         val hash = tx.hash().toHexString()
         println(hash)
-        val proof = HashMap()
-        val map = HashMap()
-        val height = ontSdk.connect!!.getBlockHeightByTxHash(hash)
-        map.put("Type", "MerkleProof")
-        map.put("TxnHash", hash)
-        map.put("BlockHeight", height)
+        val proof = mutableMapOf<String, Map<String, Any>>()
+        val map = mutableMapOf<String, Any>()
+        val height = connect!!.getBlockHeightByTxHash(hash)
+        map["Type"] = "MerkleProof"
+        map["TxnHash"] = hash
+        map["BlockHeight"] = height
         println(hash)
-        val tmpProof = ontSdk.connect!!.getMerkleProof(hash) as Map<*, *>
+        val tmpProof = connect!!.getMerkleProof(hash) as Map<*, *>
         println(JSONObject.toJSONString(tmpProof))
         val txroot = UInt256.parse(tmpProof["TransactionsRoot"] as String)
         val blockHeight = tmpProof["BlockHeight"] as Int
         val curBlockRoot = UInt256.parse(tmpProof["CurBlockRoot"] as String)
         val curBlockHeight = tmpProof["CurBlockHeight"] as Int
         val hashes = tmpProof["TargetHashes"] as List<*>
-        val targetHashes = arrayOfNulls<UInt256>(hashes.size)
-        for (i in hashes.indices) {
-            targetHashes[i] = UInt256.parse(hashes[i] as String)
-        }
-        map.put("MerkleRoot", curBlockRoot.toHexString())
-        map.put("Nodes", MerkleVerifier.getProof(txroot, blockHeight, targetHashes, curBlockHeight + 1))
-        proof.put("Proof", map)
-        val b = MerkleVerifier.Verify(txroot, MerkleVerifier.getProof(txroot, blockHeight, targetHashes, curBlockHeight + 1), curBlockRoot)
+        val targetHashes = Array(hashes.size) { i -> UInt256.parse(hashes[i] as String) }
+        map["MerkleRoot"] = curBlockRoot.toHexString()
+        map["Nodes"] = MerkleVerifier.getProof(blockHeight, targetHashes, curBlockHeight + 1)
+        proof["Proof"] = map
+        val b = MerkleVerifier.Verify(txroot, MerkleVerifier.getProof(blockHeight, targetHashes, curBlockHeight + 1), curBlockRoot)
         assertTrue(b)
     }
 }

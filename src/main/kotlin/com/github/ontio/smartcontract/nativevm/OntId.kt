@@ -47,7 +47,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-class OntId {
+object OntId {
     val contractAddress = "0000000000000000000000000000000000000003"
 
     /**
@@ -821,7 +821,6 @@ class OntId {
         } catch (e: SDKException) {
             throw SDKException(ErrorCode.CreateOntIdClaimErr)
         }
-
     }
 
     /**

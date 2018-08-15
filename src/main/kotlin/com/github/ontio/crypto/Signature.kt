@@ -13,7 +13,7 @@ class Signature {
     var value: ByteArray
         private set
 
-    constructor(scheme: SignatureScheme, param: AlgorithmParameterSpec, signature: ByteArray) {
+    constructor(scheme: SignatureScheme, param: AlgorithmParameterSpec?, signature: ByteArray) {
         this.scheme = scheme
         this.param = param
         this.value = signature

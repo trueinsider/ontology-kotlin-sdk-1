@@ -18,8 +18,8 @@ import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
 import java.io.ByteArrayOutputStream
 
-class Auth {
-    val contractAddress = "0000000000000000000000000000000000000006"
+object Auth {
+    const val contractAddress = "0000000000000000000000000000000000000006"
 
     fun sendInit(adminOntId: String, password: String, salt: ByteArray, contractAddr: String, payerAcct: Account, gaslimit: Long, gasprice: Long): String {
         if (adminOntId.isEmpty()) {

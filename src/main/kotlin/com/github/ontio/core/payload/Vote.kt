@@ -32,7 +32,19 @@ import java.math.BigInteger
 /**
  *
  */
-class Vote(var pubKeys: Array<ECPoint>, var account: Address) : Transaction(TransactionType.Vote) {
+class Vote : Transaction {
+    lateinit var pubKeys: Array<ECPoint>
+        private set
+    lateinit var account: Address
+        private set
+
+    private constructor() : super(TransactionType.Vote)
+
+    constructor(pubKeys: Array<ECPoint>, account: Address) : super(TransactionType.Vote) {
+        this.pubKeys = pubKeys
+        this.account = account
+    }
+
     override val addressU160ForVerifying: Array<Address>?
         get() = null
 

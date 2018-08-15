@@ -38,9 +38,9 @@ import com.github.ontio.smartcontract.nativevm.abi.Struct
 /**
  *
  */
-class Ong {
-    private val ontContract = "0000000000000000000000000000000000000001"
-    val contractAddress = "0000000000000000000000000000000000000002"
+object Ong {
+    private const val ontContract = "0000000000000000000000000000000000000001"
+    const val contractAddress = "0000000000000000000000000000000000000002"
 
     /**
      *

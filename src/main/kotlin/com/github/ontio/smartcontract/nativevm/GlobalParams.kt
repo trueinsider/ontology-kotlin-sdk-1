@@ -33,8 +33,8 @@ import com.github.ontio.smartcontract.Vm
 import com.github.ontio.smartcontract.nativevm.abi.NativeBuildParams
 import com.github.ontio.smartcontract.nativevm.abi.Struct
 
-class GlobalParams {
-    private val contractAddress = "0000000000000000000000000000000000000004"
+object GlobalParams {
+    private const val contractAddress = "0000000000000000000000000000000000000004"
 
     fun init(): Boolean {
         val tx = Vm.makeInvokeCodeTransaction(contractAddress, "init", byteArrayOf(), null, 0, 0)

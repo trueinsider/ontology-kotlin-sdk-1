@@ -32,7 +32,19 @@ import java.util.*
 /**
  *
  */
-class Sig(var M: Int, var pubKeys: Array<ByteArray>, var sigData: Array<ByteArray>) : Serializable {
+class Sig : Serializable {
+    var M: Int = 0
+    lateinit var pubKeys: Array<ByteArray>
+    lateinit var sigData: Array<ByteArray>
+
+    internal constructor()
+
+    constructor(M: Int, pubKeys: Array<ByteArray>, sigData: Array<ByteArray>) {
+        this.M = M
+        this.pubKeys = pubKeys
+        this.sigData = sigData
+    }
+
     override fun deserialize(reader: BinaryReader) {
         val invocationScript = reader.readVarBytes()
         val verificationScript = reader.readVarBytes()
@@ -64,8 +76,6 @@ class Sig(var M: Int, var pubKeys: Array<ByteArray>, var sigData: Array<ByteArra
         }
         json["PubKeys"] = list
         json["SigData"] = list2
-        //json.put("PubKeys", Arrays.stream(pubKeys).map(p->Helper.toHexString(p)).toArray(String[]::new));
-        //json.put("SigData", Arrays.stream(sigData).map(p->Helper.toHexString(p)).toArray(String[]::new));
         return json
     }
 }
