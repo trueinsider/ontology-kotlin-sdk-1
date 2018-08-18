@@ -26,7 +26,19 @@ import com.github.ontio.io.Serializable
 import java.io.IOException
 import java.util.*
 
-class Attribute(var usage: AttributeUsage, var data: ByteArray) : Serializable {
+class Attribute : Serializable {
+    lateinit var usage: AttributeUsage
+        private set
+    lateinit var data: ByteArray
+        private set
+
+    internal constructor()
+
+    constructor(usage: AttributeUsage, data: ByteArray) {
+        this.usage = usage
+        this.data = data
+    }
+
     var size: Int = 0
 
     override fun serialize(writer: BinaryWriter) {

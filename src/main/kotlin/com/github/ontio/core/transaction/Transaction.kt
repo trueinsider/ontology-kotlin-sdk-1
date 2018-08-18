@@ -56,9 +56,9 @@ abstract class Transaction protected constructor(var txType: TransactionType) : 
     }
 
     override fun deserializeUnsigned(reader: BinaryReader) {
+        version = reader.readByte()
         txType = TransactionType.valueOf(reader.readByte())
         nonce = reader.readInt()
-        version = reader.readByte()
         gasPrice = reader.readLong()
         gasLimit = reader.readLong()
         payer = reader.readSerializable(Address::class.java)

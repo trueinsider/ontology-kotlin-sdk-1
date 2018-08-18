@@ -58,7 +58,7 @@ class InvokeCode : Transaction {
     companion object {
         fun deserializeFrom(reader: BinaryReader): InvokeCode {
             val invokeCode = InvokeCode()
-            invokeCode.deserializeExclusiveData(reader)
+            invokeCode.deserialize(reader)
             return invokeCode
         }
     }
