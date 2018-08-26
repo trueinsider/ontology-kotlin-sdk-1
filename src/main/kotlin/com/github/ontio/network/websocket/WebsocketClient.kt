@@ -233,7 +233,7 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
 
     override fun getSmartCodeEvent(height: Int): Any {
         val map = HashMap<Any, Any>()
-        map["Action"] = "getsmartcodeeventtxs"
+        map["Action"] = "getsmartcodeeventbyheight"
         map["Version"] = "1.0.0"
         map["Height"] = height
         map["Id"] = generateReqId()
@@ -242,7 +242,7 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
 
     override fun getSmartCodeEvent(hash: String): Any {
         val map = HashMap<Any, Any>()
-        map["Action"] = "getsmartcodeevent"
+        map["Action"] = "getsmartcodeeventbyhash"
         map["Version"] = "1.0.0"
         map["Hash"] = hash
         return mWebSocket!!.send(JSON.toJSONString(map))
@@ -281,7 +281,7 @@ class WebsocketClient(private val wsUrl: String, private val lock: Object) : Abs
 
     override fun getAllowance(asset: String, from: String, to: String): String {
         val map = HashMap<Any, Any>()
-        map["Action"] = "getmerkleproof"
+        map["Action"] = "getallowance"
         map["Version"] = "1.0.0"
         map["Asset"] = asset
         map["From"] = from

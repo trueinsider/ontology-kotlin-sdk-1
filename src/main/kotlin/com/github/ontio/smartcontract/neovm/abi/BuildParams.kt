@@ -50,6 +50,7 @@ object BuildParams {
             val `val` = list[i]
             when (`val`) {
                 is ByteArray -> builder.emitPushByteArray(`val`)
+                is String -> builder.emitPushByteArray(`val`.toByteArray())
                 is Boolean -> builder.emitPushBool(`val`)
                 is Int -> builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`.toLong())))
                 is Long -> builder.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`)))
@@ -148,6 +149,7 @@ object BuildParams {
             val `val` = list[i]
             when (`val`) {
                 is ByteArray -> sb.emitPushByteArray(`val`)
+                is String -> sb.emitPushByteArray(`val`.toByteArray())
                 is Boolean -> sb.emitPushBool(`val`)
                 is Int -> sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`.toLong())))
                 is Long -> sb.emitPushByteArray(Helper.BigIntToNeoBytes(BigInteger.valueOf(`val`)))
