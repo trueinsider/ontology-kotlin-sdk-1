@@ -58,7 +58,7 @@ internal class Interfaces(val url: String) {
     fun getVersion(): String {
         val params = HashMap<String, String>()
         try {
-            return http.get(url + UrlConsts.Url_get_allowance, params)
+            return http.get(url + UrlConsts.Url_get_version, params)
         } catch (e: Exception) {
             throw RestfulException(ErrorCode.ConnectUrlErr + url, e)
         }
