@@ -240,6 +240,9 @@ class Account {
                 val d = ByteArray(32)
                 if (pri.d.toByteArray().size == 33) {
                     System.arraycopy(pri.d.toByteArray(), 1, d, 0, 32)
+                } else if (pri.d.toByteArray().size == 31) {
+                    d[0] = 0
+                    System.arraycopy(pri.d.toByteArray(), 0, d, 1, 31)
                 } else {
                     return pri.d.toByteArray()
                 }
